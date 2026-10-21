@@ -1,0 +1,82 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Lier une GPO existante à un domaine ou une OU (J5.3) : la GPO se choisit dans la liste
+// (filtrée par la saisie), le lien se place au dernier rang, comme la GPMC.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoLier: Adw.Dialog {
+  focus-widget: filter_entry;
+  title: _("Link a GPO");
+  content-width: 560;
+  content-height: 620;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Link a GPO");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("GPO to link");
+        description: _("The new link takes the last position (the lowest precedence); move it up afterwards if needed.");
+
+        SearchEntry filter_entry {
+          placeholder-text: _("Filter by name");
+          margin-bottom: 6;
+          search-changed => $filter();
+          activate => $activate_first();
+
+          accessibility {
+            label: _("Filter GPOs by name");
+          }
+        }
+
+        ListBox gpo_list {
+          selection-mode: single;
+          row-selected => $gpo_selected();
+          row-activated => $gpo_activated();
+
+          accessibility {
+            label: _("GPOs of the domain");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Adw.SwitchRow enforced_switch {
+          title: _("Enforced link");
+          subtitle: _("“Enforced”: overrides blocked inheritance and takes precedence over the GPOs of lower containers");
+        }
+      }
+    };
+  };
+}

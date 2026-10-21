@@ -1,0 +1,103 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Ajout d'une entrée de contrôle d'accès saisie en SDDL (J4.1), depuis la vue « ACE et
+// SDDL » de l'onglet « Sécurité » : autorisation ou refus, simple, objet ou conditionnel.
+// La saisie est lue à chaque frappe (vue/securite.ace_saisie) : la forme écrite et le texte
+// en clair, ou l'erreur. « Continuer » mène à l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueAce: Adw.Dialog {
+  title: _("Add an Entry");
+  content-width: 680;
+  content-height: 560;
+  focus-widget: entry;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Add an Entry");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Entry in SDDL");
+        description: _("Samba or Windows form, for example (A;;RPWP;;;AU) or (XA;;WP;;;AU;(Member_of {SID(S-1-5-21-…-1105)})).");
+
+        Adw.EntryRow entry {
+          title: _("Entry");
+          changed => $entry_changed();
+          entry-activated => $next();
+
+          styles [
+            "monospace",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup preview_group {
+        title: _("What will be written");
+
+        Label plain_preview {
+          wrap: true;
+          xalign: 0;
+          selectable: true;
+          margin-bottom: 12;
+
+          accessibility {
+            label: _("Entry in plain words");
+          }
+        }
+
+        Label sddl_preview {
+          wrap: true;
+          wrap-mode: char;
+          xalign: 0;
+          selectable: true;
+          margin-bottom: 12;
+
+          accessibility {
+            label: _("Entry written, in SDDL");
+          }
+
+          styles [
+            "monospace",
+          ]
+        }
+
+        Label preview_remarks {
+          wrap: true;
+          xalign: 0;
+          visible: false;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+#
+# Paquet RPM de Calinda (J2.10), format de distribution principal.
+# Modèle : meson le complète (@VERSION@) dans le répertoire de build et
+# « meson dist » le dépose à la racine de l'archive, d'où
+# « rpmbuild -ta calinda-<version>.tar.xz » le lit (README, « Construire le RPM »).
+# Toutes les dépendances viennent de Fedora. Depuis la bascule (ADR 0019), le paquet installe
+# l'application Rust, construite hors ligne avec les crates que « meson dist » a copiées dans
+# l'archive (rust/vendor-cargo, build-aux/vendre-crates.sh). La version Python, retirée
+# (ADR 0018), reste accessible par l'étiquette v1.0.0.
+
+Name:           calinda
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        Active Directory and Samba domain administration for GNOME
+Summary(fr):    Administration d'un domaine Active Directory ou Samba pour GNOME
+# Code sous GPL ; icônes de l'application sous CC-BY-SA-4.0 ; crates liées à l'application
+# sous leurs licences (relevé du 2026-10-16 : cargo tree -p annuaire-app -e normal
+# --format '{l}', cible Linux).
+License:        GPL-3.0-or-later AND CC-BY-SA-4.0 AND (MIT OR Apache-2.0) AND MIT AND Apache-2.0 AND Unicode-3.0 AND ISC AND Zlib AND (Unlicense OR MIT) AND (0BSD OR MIT OR Apache-2.0) AND (Zlib OR Apache-2.0 OR MIT)
+URL:            https://github.com/f3nr1l/calinda
+Source0:        %{name}-%{version}.tar.xz
+
+# Le binaire dépend de l'architecture ; ses symboles de mise au point vont au paquet debuginfo.
+# Application Rust (ADR 0019) : cœur (GSSAPI par bindgen, Kerberos, OpenSSL, SQLite du
+# système pour la copie locale), gtk-rs et libadwaita-rs (pkg-config), Blueprint et
+# ressources par meson. Python ne sert qu'à meson.
+BuildRequires:  meson
+BuildRequires:  cargo
+BuildRequires:  rust
+BuildRequires:  clang-devel
+BuildRequires:  krb5-devel
+BuildRequires:  openssl-devel
+BuildRequires:  sqlite-devel
+BuildRequires:  gtk4-devel
+BuildRequires:  libadwaita-devel
+BuildRequires:  gettext
+# glib-compile-resources et glib-compile-schemas.
+BuildRequires:  glib2-devel
+# blueprint-compiler de Fedora, et non le sous-projet : %%meson interdit le téléchargement.
+BuildRequires:  blueprint-compiler
+BuildRequires:  desktop-file-utils
+BuildRequires:  appstream
+# Bibliothèques liées (GTK, libadwaita, Kerberos, OpenSSL, SQLite) : trouvées par rpm.
+Requires:       gtk4
+Requires:       libadwaita
+
+%description
+Calinda manages an Active Directory or Samba domain from GNOME: accounts,
+groups, organizational units, DNS and Group Policy, without a Windows computer.
+
+%description -l fr
+Calinda administre un domaine Active Directory ou Samba depuis GNOME :
+comptes, groupes, unités d'organisation, DNS et GPO, sans poste Windows.
+
+%prep
+%autosetup
+
+%build
+# Mémoire (ADR 0019, Bascule) : LTO complète et informations de mise au point complètes
+# demandaient 6,6 Go à un seul rustc, et cargo sans limite a été tué sur l'exécuteur de la
+# CI. LTO « thin » et tables de lignes seules pour le paquet debuginfo ; au plus un rustc par
+# 4 Go de mémoire.
+%constrain_build -m 4096
+export CARGO_BUILD_JOBS=%{_smp_build_ncpus}
+export CARGO_PROFILE_RELEASE_LTO=thin
+%meson
+export RUSTFLAGS="${RUSTFLAGS/-Cdebuginfo=2/-Cdebuginfo=line-tables-only}"
+%meson_build
+
+%install
+%meson_install
+# Catalogue de traduction : l'anglais est la langue source, le français une traduction.
+%find_lang %{name}
+
+%check
+export CARGO_BUILD_JOBS=%{_smp_build_ncpus}
+export CARGO_PROFILE_RELEASE_LTO=thin
+export RUSTFLAGS="${RUSTFLAGS/-Cdebuginfo=2/-Cdebuginfo=line-tables-only}"
+desktop-file-validate %{buildroot}%{_datadir}/applications/io.github.f3nr1l.Calinda.desktop
+# Le lanceur existe et le .desktop l'appelle (J6.2).
+test -x %{buildroot}%{_bindir}/calinda
+grep -qx 'Exec=calinda' %{buildroot}%{_datadir}/applications/io.github.f3nr1l.Calinda.desktop
+appstreamcli validate --no-net --explain \
+    %{buildroot}%{_metainfodir}/io.github.f3nr1l.Calinda.metainfo.xml
+# Binaire, pas un script ; aucun module Python installé ; catalogue français ; tests du code
+# Rust (cargo, sans réseau, crates de l'archive).
+head -c 4 %{buildroot}%{_bindir}/calinda | grep -q ELF
+! find %{buildroot} -name '*.py' | grep -q .
+test -f %{buildroot}%{_datadir}/locale/fr/LC_MESSAGES/calinda.mo
+test -f %{buildroot}%{_datadir}/io.github.f3nr1l.Calinda/calinda.gresource
+cargo test --manifest-path rust/Cargo.toml --offline --locked --release \
+    --config "source.crates-io.replace-with='vendored'" \
+    --config "source.vendored.directory='rust/vendor-cargo'" \
+    --target-dir %{_vpath_builddir}/rust/target -p annuaire-app -p annuaire-codecs
+
+%files -f %{name}.lang
+%license COPYING
+%doc README.md CHANGELOG.md docs/utilisation.md docs/utilisation.en.md
+%{_bindir}/calinda
+%{_datadir}/io.github.f3nr1l.Calinda/
+%{_datadir}/applications/io.github.f3nr1l.Calinda.desktop
+%{_metainfodir}/io.github.f3nr1l.Calinda.metainfo.xml
+%{_datadir}/glib-2.0/schemas/io.github.f3nr1l.Calinda.gschema.xml
+%{_datadir}/icons/hicolor/scalable/apps/io.github.f3nr1l.Calinda.svg
+%{_datadir}/icons/hicolor/symbolic/apps/io.github.f3nr1l.Calinda-symbolic.svg
+
+%changelog
+* Sat Oct 17 2026 René Onier <f3nr1l@me.com> - 1.2.0-1
+- Annuaire devient Calinda : paquet, commande et identifiant io.github.f3nr1l.Calinda.
+- SMB 2 avec signature seule sur option.
+
+* Fri Oct 16 2026 René Onier <f3nr1l@me.com> - 1.1.0-1
+- Version 1.1 : l'application Rust remplace la version Python ; plus de dépendance Python.
+
+* Thu Oct 15 2026 René Onier <f3nr1l@me.com> - 1.0.0-1
+- Version 1.0 : éditeur du contenu des GPO, stratégies de mot de passe affinées.
+
+* Wed Oct 14 2026 René Onier <f3nr1l@me.com> - 0.5.0-1
+- Version 0.5 : stratégies de groupe, DNS, sécurité, copie locale, anglais.
+- Lanceur /usr/bin/annuaire, catalogues de traduction (J6.2).
+
+* Tue Oct 13 2026 René Onier <f3nr1l@me.com> - 0.1.0-1
+- Premier paquet (J2.10).

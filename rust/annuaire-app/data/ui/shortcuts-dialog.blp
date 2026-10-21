@@ -1,0 +1,232 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+
+// Aide des raccourcis clavier (J2.9). Adw.Application (libadwaita >= 1.8) charge
+// d'elle-même « shortcuts-dialog.ui » à la racine des ressources de l'application, crée
+// l'action app.shortcuts et lui donne Ctrl+?.
+//
+// Types écrits en « $ » (sans vérification par le compilateur) : la construction de la CI
+// compile avec les typelibs d'Ubuntu 24.04 (libadwaita 1.5), qui ne connaissent pas
+// AdwShortcutsDialog ; Fedora 44 a libadwaita 1.9.
+$AdwShortcutsDialog shortcuts_dialog {
+  $AdwShortcutsSection {
+    title: _("General");
+
+    $AdwShortcutsItem {
+      title: _("Add a domain (start page)");
+      accelerator: "<Control>n";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Search the domain");
+      accelerator: "<Control>f";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Undo the last change (with preview)");
+      accelerator: "<Control>z";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Refresh");
+      accelerator: "F5";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Main menu");
+      accelerator: "F10";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Keyboard Shortcuts");
+      accelerator: "<Control>question";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Close the dialog");
+      accelerator: "Escape";
+    }
+  }
+
+  $AdwShortcutsSection {
+    title: _("Domain windows");
+
+    $AdwShortcutsItem {
+      title: _("DNS");
+      accelerator: "<Control>d";
+    }
+
+    $AdwShortcutsItem {
+      title: _("DNS Health");
+      accelerator: "<Shift><Control>d";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Group Policy");
+      accelerator: "<Control>g";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Password Policies");
+      accelerator: "<Control>m";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Change History");
+      accelerator: "<Control>h";
+    }
+  }
+
+  $AdwShortcutsSection {
+    title: _("Tree");
+
+    $AdwShortcutsItem {
+      title: _("Expand");
+      accelerator: "plus <Shift>Right";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Collapse");
+      accelerator: "minus <Shift>Left";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Expand everything under the node");
+      accelerator: "asterisk";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Go to the parent");
+      accelerator: "BackSpace";
+    }
+  }
+
+  $AdwShortcutsSection {
+    title: _("Table");
+
+    $AdwShortcutsItem {
+      title: _("Open the properties");
+      accelerator: "Return";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Select all");
+      accelerator: "<Control>a";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Add to the selection");
+      accelerator: "<Control>space";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Menu of actions on the selection");
+      accelerator: "Menu <Shift>F10";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Rename");
+      accelerator: "F2";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Delete");
+      accelerator: "Delete";
+    }
+  }
+
+  $AdwShortcutsSection {
+    title: _("DNS window");
+
+    $AdwShortcutsItem {
+      title: _("Add a record");
+      accelerator: "<Control>n Insert";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Edit the record");
+      accelerator: "F2 Return";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Delete the record");
+      accelerator: "Delete";
+    }
+
+    $AdwShortcutsItem {
+      title: _("DNS Health");
+      accelerator: "<Control>d";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Undo the last change (with preview)");
+      accelerator: "<Control>z";
+    }
+  }
+
+  $AdwShortcutsSection {
+    title: _("Group Policy window");
+
+    $AdwShortcutsItem {
+      title: _("Create a GPO");
+      accelerator: "<Control>n";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Link a GPO");
+      accelerator: "<Control>l";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Unlink, delete");
+      accelerator: "Delete";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Move Link Up");
+      accelerator: "<Alt>Up";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Move Link Down");
+      accelerator: "<Alt>Down";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Link Enabled");
+      accelerator: "<Control>d";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Enforced link");
+      accelerator: "<Control>e";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Block Inheritance");
+      accelerator: "<Control>b";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Security Filtering");
+      accelerator: "<Control>i";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Security settings of the GPO");
+      accelerator: "<Control>t";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Back Up the GPO");
+      accelerator: "<Control>s";
+    }
+
+    $AdwShortcutsItem {
+      title: _("Restore a GPO");
+      accelerator: "<Control>o";
+    }
+  }
+}

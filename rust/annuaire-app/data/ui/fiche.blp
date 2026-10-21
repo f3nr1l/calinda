@@ -1,0 +1,763 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+// Fiche d'un utilisateur, d'un groupe ou d'un ordinateur (J2.4, J2.5).
+// Les lignes nommées (« name: "attribut" ») sont reliées à l'attribut LDAP du même nom :
+// une Adw.EntryRow se modifie en place, une Adw.ActionRow montre la valeur en lecture.
+// Les interrupteurs « uac:DRAPEAU » portent un drapeau de userAccountControl.
+// Seuls les groupes de lignes du type de l'objet sont visibles (fiche.py).
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+template $AnnuaireFiche: Adw.Dialog {
+  title: _("Properties");
+  content-width: 700;
+  content-height: 780;
+  width-request: 360;
+  height-request: 294;
+
+  child: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        [start]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Read the object again from the controller");
+          clicked => $reload();
+        }
+
+        title-widget: Adw.WindowTitle sheet_title {};
+      }
+
+      [top]
+      Adw.Banner banner {}
+
+      content: Stack state {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "chargement";
+
+          child: Spinner {
+            spinning: true;
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        }
+
+        StackPage {
+          name: "erreur";
+
+          child: Adw.StatusPage error {
+            icon-name: "dialog-warning-symbolic";
+          };
+        }
+
+        StackPage {
+          name: "fiche";
+
+          child: Adw.ViewStack pages {
+            notify::visible-child-name => $page_changed();
+
+            Adw.ViewStackPage {
+              name: "general";
+              title: _("General");
+              icon-name: "document-properties-symbolic";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup header {
+                  Adw.EntryRow {
+                    name: "description";
+                    title: _("Description");
+                  }
+                }
+
+                Adw.PreferencesGroup identity_group {
+                  title: _("Identity");
+
+                  Adw.EntryRow {
+                    name: "givenName";
+                    title: _("First name");
+                  }
+
+                  Adw.EntryRow {
+                    name: "initials";
+                    title: _("Initials");
+                  }
+
+                  Adw.EntryRow {
+                    name: "sn";
+                    title: _("Name");
+                  }
+
+                  Adw.EntryRow {
+                    name: "displayName";
+                    title: _("Display name");
+                  }
+
+                  Adw.EntryRow {
+                    name: "physicalDeliveryOfficeName";
+                    title: _("Office");
+                  }
+                }
+
+                Adw.PreferencesGroup contact_group {
+                  title: _("Contact");
+
+                  Adw.EntryRow {
+                    name: "mail";
+                    title: _("Email");
+                  }
+
+                  Adw.EntryRow {
+                    name: "telephoneNumber";
+                    title: _("Telephone");
+                  }
+
+                  Adw.EntryRow {
+                    name: "mobile";
+                    title: _("Mobile");
+                  }
+
+                  Adw.EntryRow {
+                    name: "wWWHomePage";
+                    title: _("Web page");
+                  }
+
+                  Adw.EntryRow {
+                    name: "streetAddress";
+                    title: _("Address");
+                  }
+
+                  Adw.EntryRow {
+                    name: "postalCode";
+                    title: _("ZIP/Postal code");
+                  }
+
+                  Adw.EntryRow {
+                    name: "l";
+                    title: _("City");
+                  }
+
+                  Adw.EntryRow {
+                    name: "st";
+                    title: _("State/province");
+                  }
+
+                  // Trois attributs écrits ensemble : c, co, countryCode (vue/pays.py).
+                  Adw.ComboRow country_row {
+                    title: _("Country/region");
+                    enable-search: true;
+                    notify::selected => $country_changed();
+
+                    expression: expr item as <StringObject>.string;
+
+                    // Fabriques de la ligne et de la liste déroulante : le pays en texte, et
+                    // comme nom accessible de chaque élément (sans quoi il n'en a pas).
+                    factory: BuilderListItemFactory {
+                      template ListItem {
+                        accessible-label: bind template.item as <StringObject>.string;
+
+                        child: Label {
+                          xalign: 1;
+                          ellipsize: end;
+                          label: bind template.item as <StringObject>.string;
+                        };
+                      }
+                    };
+
+                    list-factory: BuilderListItemFactory {
+                      template ListItem {
+                        accessible-label: bind template.item as <StringObject>.string;
+
+                        child: Label {
+                          xalign: 0;
+                          label: bind template.item as <StringObject>.string;
+                        };
+                      }
+                    };
+                  }
+                }
+
+                Adw.PreferencesGroup organization_group {
+                  title: _("Organization");
+
+                  Adw.EntryRow {
+                    name: "title";
+                    title: _("Job title");
+                  }
+
+                  Adw.EntryRow {
+                    name: "department";
+                    title: _("Department");
+                  }
+
+                  Adw.EntryRow {
+                    name: "company";
+                    title: _("Company");
+                  }
+
+                  Adw.ActionRow manager_row {
+                    title: _("Manager");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup group_group {
+                  title: _("Group");
+
+                  Adw.ActionRow category_row {
+                    title: _("Type");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow scope_row {
+                    title: _("Scope");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.EntryRow {
+                    name: "sAMAccountName";
+                    title: _("Name (pre-Windows 2000)");
+                  }
+
+                  Adw.EntryRow {
+                    name: "mail";
+                    title: _("Email");
+                  }
+
+                  Adw.EntryRow {
+                    name: "info";
+                    title: _("Notes");
+                  }
+                }
+
+                Adw.PreferencesGroup computer_group {
+                  title: _("Computer");
+
+                  Adw.ActionRow {
+                    name: "dNSHostName";
+                    title: _("DNS name");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow {
+                    name: "operatingSystem";
+                    title: _("Operating system");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow {
+                    name: "operatingSystemVersion";
+                    title: _("Version");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow {
+                    name: "operatingSystemServicePack";
+                    title: _("Service pack");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.EntryRow {
+                    name: "location";
+                    title: _("Physical location");
+                  }
+                }
+
+                Adw.PreferencesGroup directory_group {
+                  title: _("In the directory");
+
+                  Adw.ActionRow location_row {
+                    title: _("Container");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow dn_row {
+                    title: _("Distinguished name");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow created_row {
+                    title: _("Created");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow modified_row {
+                    title: _("Modified");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+                }
+              };
+            }
+
+            Adw.ViewStackPage account_page {
+              name: "compte";
+              title: _("Account");
+              icon-name: "dialog-password-symbolic";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup logon_group {
+                  title: _("Logon");
+
+                  Adw.EntryRow {
+                    name: "userPrincipalName";
+                    title: _("User logon name (UPN)");
+                  }
+
+                  Adw.EntryRow {
+                    name: "sAMAccountName";
+                    title: _("Logon name (pre-Windows 2000)");
+                  }
+
+                  Adw.ActionRow sid_row {
+                    title: _("SID");
+                    subtitle-selectable: true;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup state_group {
+                  title: _("Status");
+
+                  Adw.ActionRow state_row {
+                    title: _("Account status");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ActionRow password_row {
+                    title: _("Password last changed");
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  // msDS-ResultantPSO : la stratégie affinée qui s'applique, calculée par le DC.
+                  Adw.ActionRow pso_row {
+                    title: _("Password Policy");
+                    subtitle-lines: 0;
+
+                    styles [
+                      "property",
+                    ]
+                  }
+
+                  Adw.ExpanderRow activity_row {
+                    title: _("Last activity");
+                    subtitle: _("Checking each controller…");
+
+                    // La ligne dépliable n'a pas de nom accessible d'elle-même (libadwaita 1.9).
+                    accessibility {
+                      label: _("Last activity");
+                    }
+
+                    [suffix]
+                    Spinner activity_spinner {
+                      spinning: true;
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup options_group {
+                  title: _("Account options");
+
+                  // pwdLastSet : 0 exige le changement, -1 le lève (vue/fiche.py).
+                  Adw.SwitchRow change_password_switch {
+                    title: _("User must change password at next logon");
+                    notify::active => $change_required();
+                  }
+
+                  Adw.SwitchRow {
+                    name: "uac:ACCOUNTDISABLE";
+                    title: _("Account is disabled");
+                  }
+
+                  Adw.SwitchRow {
+                    name: "uac:DONT_EXPIRE_PASSWD";
+                    title: _("Password never expires");
+                  }
+
+                  Adw.SwitchRow {
+                    name: "uac:SMARTCARD_REQUIRED";
+                    title: _("Smart card is required for interactive logon");
+                  }
+
+                  Adw.SwitchRow {
+                    name: "uac:NOT_DELEGATED";
+                    title: _("Account is sensitive and cannot be delegated");
+                  }
+
+                  Adw.SwitchRow {
+                    name: "uac:DONT_REQUIRE_PREAUTH";
+                    title: _("Do not require Kerberos preauthentication");
+                  }
+                }
+
+                Adw.PreferencesGroup expiration_group {
+                  title: _("Account expiration");
+
+                  Adw.SwitchRow expiration_switch {
+                    title: _("Account expires");
+                    notify::active => $expiration_changed();
+                  }
+
+                  Adw.EntryRow expiration_entry {
+                    title: _("Last valid day (DD/MM/YYYY)");
+                    sensitive: bind expiration_switch.active;
+                    changed => $expiration_changed();
+                  }
+                }
+
+                Adw.PreferencesGroup profile_group {
+                  title: _("Profile");
+
+                  Adw.EntryRow {
+                    name: "profilePath";
+                    title: _("Profile path");
+                  }
+
+                  Adw.EntryRow {
+                    name: "scriptPath";
+                    title: _("Logon script");
+                  }
+
+                  Adw.EntryRow {
+                    name: "homeDrive";
+                    title: _("Home folder drive");
+                  }
+
+                  Adw.EntryRow {
+                    name: "homeDirectory";
+                    title: _("Home folder");
+                  }
+                }
+              };
+            }
+
+            Adw.ViewStackPage members_page {
+              name: "membres";
+              title: _("Members");
+              icon-name: "io.github.f3nr1l.Calinda-groupe-symbolic";
+
+              // Jusqu'à plusieurs milliers de membres : une ListView, qui recycle ses lignes.
+              child: Box {
+                orientation: vertical;
+
+                Adw.Clamp {
+                  maximum-size: 640;
+
+                  child: Box {
+                    spacing: 6;
+                    margin-start: 12;
+                    margin-end: 12;
+                    margin-top: 12;
+                    margin-bottom: 6;
+
+                    Label members_count {
+                      xalign: 0;
+                      hexpand: true;
+
+                      styles [
+                        "heading",
+                      ]
+                    }
+
+                    Button remove_members_button {
+                      icon-name: "list-remove-symbolic";
+                      tooltip-text: _("Remove the selected members");
+                      sensitive: false;
+                      clicked => $remove_members();
+                    }
+
+                    Button add_member_button {
+                      icon-name: "list-add-symbolic";
+                      tooltip-text: _("Add Members");
+                      clicked => $add_members();
+                    }
+                  };
+                }
+
+                Stack members_stack {
+                  vexpand: true;
+
+                  StackPage {
+                    name: "chargement";
+
+                    child: Spinner {
+                      spinning: true;
+                      halign: center;
+                      valign: center;
+                      width-request: 32;
+                      height-request: 32;
+                    };
+                  }
+
+                  StackPage {
+                    name: "vide";
+
+                    child: Adw.StatusPage {
+                      icon-name: "io.github.f3nr1l.Calinda-groupe-symbolic";
+                      title: _("No direct members");
+                    };
+                  }
+
+                  StackPage {
+                    name: "liste";
+
+                    child: ScrolledWindow {
+                      hscrollbar-policy: never;
+
+                      child: Adw.ClampScrollable {
+                        maximum-size: 640;
+
+                        child: ListView members_list {
+                          activate => $member_activated();
+
+                          styles [
+                            "rich-list",
+                          ]
+
+                          accessibility {
+                            label: _("Direct members");
+                          }
+
+                          model: MultiSelection members_selection {
+                            selection-changed => $members_selection_changed();
+
+                            model: Gio.ListStore members_store {
+                              item-type: typeof<$AnnuaireElementFiche>;
+                            };
+                          };
+
+                          factory: BuilderListItemFactory {
+                            template ListItem {
+                              accessible-label: bind template.item as <$AnnuaireElementFiche>.titre;
+                              accessible-description: bind template.item as <$AnnuaireElementFiche>.sous-titre;
+
+                              child: Box {
+                                spacing: 12;
+
+                                Image {
+                                  icon-name: bind template.item as <$AnnuaireElementFiche>.icone;
+                                }
+
+                                Box {
+                                  orientation: vertical;
+                                  hexpand: true;
+
+                                  Label {
+                                    xalign: 0;
+                                    ellipsize: end;
+                                    label: bind template.item as <$AnnuaireElementFiche>.titre;
+                                  }
+
+                                  Label {
+                                    xalign: 0;
+                                    ellipsize: middle;
+                                    label: bind template.item as <$AnnuaireElementFiche>.sous-titre;
+
+                                    styles [
+                                      "dim-label",
+                                      "caption",
+                                    ]
+                                  }
+                                }
+
+                                Label {
+                                  label: bind template.item as <$AnnuaireElementFiche>.etat;
+
+                                  styles [
+                                    "accent",
+                                    "caption",
+                                  ]
+                                }
+                              };
+                            }
+                          };
+                        };
+                      };
+                    };
+                  }
+                }
+
+                Label {
+                  label: _("Accounts for which this group is the primary group are not listed (primaryGroupID).");
+                  wrap: true;
+                  xalign: 0;
+                  margin-start: 12;
+                  margin-end: 12;
+                  margin-top: 6;
+                  margin-bottom: 12;
+
+                  styles [
+                    "dim-label",
+                    "caption",
+                  ]
+                }
+              };
+            }
+
+            Adw.ViewStackPage groups_page {
+              name: "groupes";
+              title: _("Member Of");
+              icon-name: "view-list-symbolic";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup principal_group {
+                  title: _("Primary group");
+
+                  Adw.ActionRow primary_group_row {
+                    subtitle-selectable: true;
+                  }
+                }
+
+                Adw.PreferencesGroup direct_group {
+                  title: _("Direct groups");
+
+                  ListBox direct_list {
+                    selection-mode: none;
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup recursive_group {
+                  title: _("All groups");
+                  description: _("Through nesting, primary group included.");
+
+                  ListBox recursive_list {
+                    selection-mode: none;
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+              };
+            }
+
+            Adw.ViewStackPage {
+              name: "attributs";
+              title: _("Attributes");
+              icon-name: "text-x-generic-symbolic";
+
+              // Éditeur d'attributs (J4.4) : attributs.blp, ui/attributs.py.
+              child: $AnnuaireEditeurAttributs attribute_editor {};
+            }
+
+            Adw.ViewStackPage {
+              name: "securite";
+              title: _("Security");
+              icon-name: "security-high-symbolic";
+
+              // Lu à la première présentation de l'onglet (J4.2, ui/securite.py).
+              child: $AnnuairePageSecurite security_page {};
+            }
+
+            Adw.ViewStackPage policy_page {
+              name: "strategie";
+              title: _("Policy");
+              icon-name: "emblem-system-symbolic";
+
+              // GPO appliquées au compte (J5.7, ui/strategie.py), calculées à la première
+              // présentation de l'onglet.
+              child: $AnnuairePageStrategie policy_view {};
+            }
+          };
+        }
+      };
+
+      [bottom]
+      // Onglets en bas, à toutes les largeurs : le titre garde le nom de l'objet.
+      Adw.ViewSwitcherBar {
+        stack: pages;
+        reveal: true;
+      }
+
+      [bottom]
+      ActionBar changes_bar {
+        revealed: false;
+
+        [start]
+        Button {
+          label: _("Discard");
+          clicked => $abandon();
+        }
+
+        [end]
+        Button apply_button {
+          label: _("Apply…");
+          clicked => $apply();
+
+          styles [
+            "suggested-action",
+          ]
+        }
+
+        // Pas de widget central : il imposerait une largeur symétrique à la barre.
+        [end]
+        Label changes_summary {
+          ellipsize: end;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+  };
+}

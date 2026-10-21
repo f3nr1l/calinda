@@ -1,0 +1,93 @@
+--- a/src/protocol.rs
++++ b/src/protocol.rs
+@@ -24,7 +24,7 @@
+ 
+ pub(crate) struct LdapCodec {
+     #[cfg(feature = "gssapi")]
+-    pub(crate) has_decoded_data: bool,
++    pub(crate) plain: BytesMut,
+     #[cfg(feature = "gssapi")]
+     pub(crate) sasl_param: Arc<RwLock<(bool, u32)>>, // sasl_wrap, sasl_max_send
+     #[cfg(feature = "gssapi")]
+@@ -129,35 +129,34 @@
+         const U32_SIZE: usize = std::mem::size_of::<u32>();
+ 
+         let sasl_wrap = { self.sasl_param.read().expect("sasl param").0 };
+-        if !sasl_wrap || buf.is_empty() {
++        if !sasl_wrap {
+             return decode_inner(buf);
+         }
+-        if self.has_decoded_data {
+-            let res = decode_inner(buf);
+-            if res.is_ok() && buf.is_empty() {
+-                self.has_decoded_data = false;
++        // Annuaire patch: plaintext from unwrapped SASL buffers accumulates in `plain`,
++        // apart from the still-wrapped bytes in `buf`. One SASL buffer may hold several
++        // LDAP messages, and one LDAP message may span several SASL buffers.
++        loop {
++            if !self.plain.is_empty() {
++                if let Some(item) = decode_inner(&mut self.plain)? {
++                    return Ok(Some(item));
++                }
+             }
+-            return res;
+-        }
+-        if buf.len() < U32_SIZE {
+-            return Err(io::Error::new(io::ErrorKind::Other, "invalid SASL buffer"));
+-        }
+-        let sasl_len = u32::from_be_bytes(buf[0..U32_SIZE].try_into().unwrap());
+-        if buf.len() - U32_SIZE < sasl_len as usize {
+-            return Ok(None);
+-        }
+-        buf.advance(U32_SIZE);
+-        let client_opt = &mut *self.client_ctx.lock().expect("client ctx lock");
+-        let client_ctx = client_opt.as_mut().expect("client Option mut ref");
+-        let mut decoded = client_ctx.unwrap_iov(sasl_len as usize, buf).map_err(|e| {
+-            io::Error::new(io::ErrorKind::Other, format!("gss_unwrap error: {:#}", e))
+-        })?;
+-        let res = decode_inner(&mut decoded);
+-        if res.is_ok() && !decoded.is_empty() && buf.is_empty() {
+-            buf.extend(decoded);
+-            self.has_decoded_data = true;
++            if buf.len() < U32_SIZE {
++                return Ok(None);
++            }
++            let sasl_len = u32::from_be_bytes(buf[0..U32_SIZE].try_into().unwrap()) as usize;
++            if buf.len() - U32_SIZE < sasl_len {
++                buf.reserve(U32_SIZE + sasl_len - buf.len());
++                return Ok(None);
++            }
++            buf.advance(U32_SIZE);
++            let client_opt = &mut *self.client_ctx.lock().expect("client ctx lock");
++            let client_ctx = client_opt.as_mut().expect("client Option mut ref");
++            let decoded = client_ctx.unwrap_iov(sasl_len, buf).map_err(|e| {
++                io::Error::new(io::ErrorKind::Other, format!("gss_unwrap error: {:#}", e))
++            })?;
++            self.plain.extend_from_slice(&decoded);
+         }
+-        res
+     }
+ }
+ 
+--- a/src/conn.rs
++++ b/src/conn.rs
+@@ -667,7 +667,7 @@
+         let client_ctx = Arc::new(Mutex::new(None));
+         let codec = LdapCodec {
+             #[cfg(feature = "gssapi")]
+-            has_decoded_data: false,
++            plain: bytes::BytesMut::new(),
+             #[cfg(feature = "gssapi")]
+             sasl_param: Arc::new(RwLock::new((false, 0))),
+             #[cfg(feature = "gssapi")]
+--- a/src/ldap.rs
++++ b/src/ldap.rs
+@@ -397,7 +397,7 @@
+         } else {
+             GSSAUTH_P_PRIVACY
+         };
+-        if buf[0] | needed_layer == 0 {
++        if buf[0] & needed_layer == 0 {
+             return Err(LdapError::GssapiOperationError(format!(
+                 "no appropriate security layer offered: needed {}, mask {}",
+                 needed_layer, buf[0]

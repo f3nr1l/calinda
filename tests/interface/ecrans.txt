@@ -1,0 +1,37 @@
+# Écrans de l'application (R4.10), parcourus par audit_ecrans.sh : NOM|GESTE…
+# (gestes : voir l'en-tête du script). Rien n'est écrit : dialogues ouverts puis fermés.
+accueil|wait:1
+profil-ajout|win:ajouter-domaine
+ticket|win:obtenir-ticket
+aide|app:shortcuts
+domaine|dom
+menu-principal|dom|Menu principal
+menu-nouveau|dom|Nouveau
+nouvel-utilisateur|dom|win:nouvel-utilisateur
+nouveau-groupe|dom|win:nouveau-groupe
+nouvelle-ou|dom|win:nouvelle-ou
+noeud-paris|dom|Labo|pause:2|choisir:Arborescence du domaine>Paris|pause:4
+requetes|dom|Requêtes enregistrées
+historique|dom|win:historique|wait:2
+dns|dom|win:dns|wait:5
+dns-nouvel|dom|win:dns|wait:5|Nouvel enregistrement
+dns-menu|dom|win:dns|wait:5|Menu DNS
+sante-dns|dom|win:sante-dns|wait:8
+gpo|dom|win:gpo|wait:6
+gpo-nom|dom|win:gpo|wait:6|Nouvelle GPO
+gpo-lier|dom|win:gpo|wait:6|Menu des stratégies de groupe|Lier une GPO existante…
+gpo-restaurer|dom|win:gpo|wait:6|Menu des stratégies de groupe|Restaurer une GPO…
+gpo-filtrage|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Menu des stratégies de groupe|Filtrage de sécurité…
+gpo-sauvegarde|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Menu des stratégies de groupe|Sauvegarder la GPO…
+gpo-securite|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Menu des stratégies de groupe|Paramètres de sécurité…|pause:3
+pso|dom|win:pso|wait:5
+pso-nouvelle|dom|win:pso|wait:5|Nouvelle stratégie affinée
+editeur|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5
+editeur-menu|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Menu de l'éditeur
+editeur-securite|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Paramètres Windows#1|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Paramètres de sécurité|pause:3
+editeur-lecteurs|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres Windows#2|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Mappages de lecteurs, 0 élément(s)|pause:3
+editeur-lecteur-ajout|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres Windows#2|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Mappages de lecteurs, 0 élément(s)|pause:3|Ajouter un élément|pause:2
+editeur-lecteur-cible|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres Windows#2|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Mappages de lecteurs, 0 élément(s)|pause:3|Ajouter un élément|pause:2|Ajouter un filtre de ciblage|pause:1
+editeur-raccourcis|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres Windows#2|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Raccourcis, 0 élément(s)|pause:3|Ajouter un élément|pause:2
+editeur-registre|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres Windows#2|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Registre, 0 élément(s)|pause:3|Ajouter un élément|pause:2
+editeur-imprimantes|dom|win:gpo|wait:6|choisir:Domaine, unités d'organisation et GPO liées>Default Domain Policy, ordre 1|Modifier le contenu de la GPO|pause:5|Préférences#2|pause:1|Paramètres du Panneau de configuration|pause:1|choisir:Contenu de la GPO : configuration ordinateur et utilisateur>Imprimantes, 0 élément(s)|pause:3|Ajouter un élément|pause:2

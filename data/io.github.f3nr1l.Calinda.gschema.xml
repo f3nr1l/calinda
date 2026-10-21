@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: 2026 René Onier -->
+<schemalist>
+  <schema id="io.github.f3nr1l.Calinda" path="/io/github/f3nr1l/Calinda/">
+    <key name="window-width" type="i">
+      <default>1000</default>
+      <summary>Largeur de la fenêtre</summary>
+    </key>
+    <key name="window-height" type="i">
+      <default>700</default>
+      <summary>Hauteur de la fenêtre</summary>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Fenêtre maximisée</summary>
+    </key>
+    <key name="profils" type="aa{sv}">
+      <default>[]</default>
+      <summary>Profils de domaine</summary>
+      <description>Un dictionnaire par domaine : domaine, dc-prefere, mode (gssapi-scelle, ldaps, starttls), ca (chemin du certificat PEM de la CA), lecture-seule, dc-ecriture, cache, smb2-signature-seule (SYSVOL des contrôleurs limités à SMB 2 lu et écrit avec signature seule, non chiffré ; absent : faux). Lu et écrit par annuaire.ui.profils.</description>
+    </key>
+    <key name="colonnes" type="as">
+      <default>['type', 'identifiant', 'description', 'etat']</default>
+      <summary>Colonnes affichées</summary>
+      <description>Identifiants des colonnes visibles du tableau, en plus du nom : type, identifiant, description, courriel, etat, activite, modifie, dn.</description>
+    </key>
+    <key name="recherches" type="aa{ss}">
+      <default>[]</default>
+      <summary>Recherches enregistrées</summary>
+      <description>Recherches gardées sous un nom : un dictionnaire par recherche (nom, texte, type, etat ; pour une requête prête à l'emploi, requete et, pour les inactifs, jours). Lu et écrit par annuaire.ui.recherche.</description>
+    </key>
+    <key name="jours-inactivite" type="i">
+      <range min="0" max="3650"/>
+      <default>180</default>
+      <summary>Jours sans activité</summary>
+      <description>Dernier nombre de jours choisi pour la requête « Inactifs depuis… », proposé à la suivante.</description>
+    </key>
+    <key name="mode-avance" type="b">
+      <default>false</default>
+      <summary>Fonctionnalités avancées</summary>
+      <description>Montrer les objets marqués showInAdvancedViewOnly (System, Program Data, LostAndFound…), comme le mode avancé de la console Windows.</description>
+    </key>
+  </schema>
+</schemalist>

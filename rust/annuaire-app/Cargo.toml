@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+
+[package]
+name = "annuaire-app"
+description = "Calinda: Active Directory and Samba domain administration for GNOME (GTK 4, libadwaita)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "calinda"
+path = "src/main.rs"
+
+[dependencies]
+annuaire-codecs = { path = "../annuaire-codecs" }
+annuaire-core = { path = "../annuaire-core", features = ["local-copy", "gpo-backup", "gpo-content"] }
+# Wake-ups of the GLib loop by the thread of a connection (already in the tree of gtk-rs).
+futures-channel = "0.3"
+futures-util = { version = "0.3", default-features = false }
+# GTK 4.18 and libadwaita 1.8 at least (Adw.ShortcutsDialog); Fedora 44 has 4.22 and 1.9.
+gtk = { package = "gtk4", version = "0.11", features = ["v4_18"] }
+adw = { package = "libadwaita", version = "0.9", features = ["v1_8"] }
+# Catalogues through the gettext of the C library, as GtkBuilder reads them.
+gettext-rs = { version = "0.8", features = ["gettext-system"] }
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+serde_json = "1"

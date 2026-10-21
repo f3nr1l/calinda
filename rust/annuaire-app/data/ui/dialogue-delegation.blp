@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Assistant de délégation (J4.3) : à qui, quelles tâches (modèles de l'assistant Windows),
+// aperçu en clair et en SDDL ; « Continuer » mène à l'aperçu commun. Les interrupteurs des
+// tâches portent l'identifiant du modèle (`core.delegation.MODELES`) ; leur titre vient
+// du cœur.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueDelegation: Adw.Dialog {
+  title: _("Delegation of Control");
+  content-width: 640;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Delegation of Control");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Delegate to");
+        description: _("Preferably a group: the delegation follows its members.");
+
+        Adw.ActionRow delegate_row {
+          title: _("Delegate");
+          subtitle: _("None: search for a group or an account below.");
+
+          styles [
+            "property",
+          ]
+        }
+
+        SearchEntry delegate_entry {
+          placeholder-text: _("Name or logon name of the group or account");
+          margin-top: 12;
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the delegated group or account");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Tasks to delegate");
+        description: _("Like the Windows Delegation of Control Wizard (delegwiz.inf): explicit permissions, inherited by the objects of this OU.");
+
+        Adw.SwitchRow {
+          name: "reinitialiser-mots-de-passe";
+          notify::active => $tasks_changed();
+        }
+
+        Adw.SwitchRow {
+          name: "membres-des-groupes";
+          notify::active => $tasks_changed();
+        }
+
+        Adw.SwitchRow {
+          name: "joindre-des-ordinateurs";
+          notify::active => $tasks_changed();
+        }
+
+        Adw.SwitchRow {
+          name: "lire-les-utilisateurs";
+          notify::active => $tasks_changed();
+        }
+
+        Adw.SwitchRow {
+          name: "gerer-les-utilisateurs";
+          notify::active => $tasks_changed();
+        }
+      }
+
+      Adw.PreferencesGroup preview_group {
+        title: _("What will be written");
+        visible: false;
+
+        Label plain_preview {
+          wrap: true;
+          xalign: 0;
+          selectable: true;
+          margin-bottom: 12;
+
+          accessibility {
+            label: _("Rights granted, in plain words");
+          }
+        }
+
+        Label sddl_preview {
+          wrap: true;
+          wrap-mode: char;
+          xalign: 0;
+          selectable: true;
+
+          accessibility {
+            label: _("Entries added, in SDDL");
+          }
+
+          styles [
+            "monospace",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

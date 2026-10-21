@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueDeplacer: Adw.Dialog {
+  title: _("Move");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        description: _("Choose the destination organizational unit or container; search by name.");
+
+        Adw.EntryRow search_entry {
+          title: _("Search for a destination");
+          input-hints: no_spellcheck;
+          changed => $search_changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        ListBox list {
+          selection-mode: single;
+          row-selected => $selected();
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+    };
+  };
+}

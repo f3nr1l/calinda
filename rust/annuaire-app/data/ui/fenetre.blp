@@ -1,0 +1,803 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+template $AnnuaireFenetre: Adw.ApplicationWindow {
+  title: _("Calinda");
+  default-width: 1100;
+  default-height: 720;
+  width-request: 360;
+  height-request: 294;
+
+  Adw.Breakpoint {
+    condition ("max-width: 640sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.ToastOverlay toasts {
+    child: Stack stack {
+      transition-type: crossfade;
+
+      StackPage {
+        name: "accueil";
+        child: $AnnuaireAccueil home {};
+      }
+
+      StackPage {
+        name: "domaine";
+
+        child: Adw.NavigationSplitView split_view {
+          min-sidebar-width: 220;
+          max-sidebar-width: 360;
+
+          sidebar: Adw.NavigationPage {
+            title: _("Domain");
+
+            child: Adw.ToolbarView {
+              [top]
+              Adw.HeaderBar {
+                [start]
+                Button {
+                  icon-name: "go-previous-symbolic";
+                  tooltip-text: _("Change domain");
+                  action-name: "win.changer-domaine";
+                }
+
+                title-widget: Adw.WindowTitle domain_title {};
+
+                [end]
+                MenuButton {
+                  icon-name: "open-menu-symbolic";
+                  menu-model: main_menu;
+                  primary: true;
+                  tooltip-text: _("Main menu");
+                }
+              }
+
+              // Recherche globale et requêtes enregistrées (J2.3, ui/recherche.py).
+              [top]
+              $AnnuaireRecherche search {}
+
+              content: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                child: ListView tree {
+                  // Un seul arrêt de Tab : on se déplace dans l'arbre aux flèches (J2.9).
+                  tab-behavior: item;
+
+                  accessibility {
+                    label: _("Domain tree");
+                  }
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  model: SingleSelection tree_selection {
+                    autoselect: true;
+                    notify::selected-item => $node_selected();
+                  };
+
+                  factory: BuilderListItemFactory {
+                    template ListItem {
+                      accessible-label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeud>.nom;
+
+                      child: TreeExpander {
+                        list-row: bind template.item;
+
+                        child: Box {
+                          spacing: 8;
+
+                          Image {
+                            icon-name: bind template.item as <TreeListRow>.item as <$AnnuaireNoeud>.icone;
+                          }
+
+                          Label {
+                            xalign: 0;
+                            ellipsize: end;
+                            label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeud>.nom;
+                          }
+                        };
+                      };
+                    }
+                  };
+                };
+              };
+
+              // Les autres fenêtres du domaine, visibles d'un coup d'œil, avec leur raccourci
+              // (ui/clavier.py) ; aussi dans le menu principal.
+              [bottom]
+              ListBox tools {
+                selection-mode: none;
+
+                accessibility {
+                  label: _("Domain tools");
+                }
+
+                styles [
+                  "navigation-sidebar",
+                ]
+
+                ListBoxRow {
+                  action-name: "win.dns";
+                  tooltip-text: _("DNS (Ctrl+D)");
+
+                  accessibility {
+                    label: _("DNS");
+                    description: _("Ctrl+D");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "network-server-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("DNS");
+                    }
+                  };
+                }
+
+                ListBoxRow {
+                  action-name: "win.sante-dns";
+                  tooltip-text: _("DNS Health (Shift+Ctrl+D)");
+
+                  accessibility {
+                    label: _("DNS Health");
+                    description: _("Shift+Ctrl+D");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "object-select-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("DNS Health");
+                    }
+                  };
+                }
+
+                ListBoxRow {
+                  action-name: "win.gpo";
+                  tooltip-text: _("Group Policy (Ctrl+G)");
+
+                  accessibility {
+                    label: _("Group Policy");
+                    description: _("Ctrl+G");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "preferences-system-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("Group Policy");
+                    }
+                  };
+                }
+
+                ListBoxRow {
+                  action-name: "win.pso";
+                  tooltip-text: _("Password Policies (Ctrl+M)");
+
+                  accessibility {
+                    label: _("Password Policies");
+                    description: _("Ctrl+M");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "dialog-password-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("Password Policies");
+                    }
+                  };
+                }
+
+                ListBoxRow {
+                  action-name: "win.historique";
+                  tooltip-text: _("Change History (Ctrl+H)");
+
+                  accessibility {
+                    label: _("Change History");
+                    description: _("Ctrl+H");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "document-open-recent-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("Change History");
+                    }
+                  };
+                }
+              }
+            };
+          };
+
+          content: Adw.NavigationPage content_page {
+            title: _("Contents");
+
+            child: Adw.ToolbarView {
+              [top]
+              Adw.HeaderBar {
+                title-widget: Adw.WindowTitle content_title {};
+
+                // Créations et actions sur la sélection (J2.6, ui/actions.py).
+                [start]
+                MenuButton {
+                  icon-name: "list-add-symbolic";
+                  tooltip-text: _("New");
+                  menu-model: new_menu;
+                }
+
+                [start]
+                MenuButton {
+                  icon-name: "view-more-symbolic";
+                  tooltip-text: _("Actions on the selection");
+                  menu-model: actions_menu;
+                }
+
+                [end]
+                ToggleButton {
+                  icon-name: "edit-find-symbolic";
+                  tooltip-text: _("Filter");
+                  active: bind filter_bar.search-mode-enabled bidirectional;
+                }
+
+                [end]
+                Button {
+                  icon-name: "view-refresh-symbolic";
+                  tooltip-text: _("Refresh");
+                  action-name: "win.actualiser";
+                }
+              }
+
+              [top]
+              SearchBar filter_bar {
+                key-capture-widget: content_page;
+
+                child: Adw.Clamp {
+                  maximum-size: 480;
+
+                  child: SearchEntry filter_entry {
+                    hexpand: true;
+                    placeholder-text: _("Filter this container");
+                    search-changed => $filter_changed();
+                  };
+                };
+              }
+
+              content: Stack content_stack {
+                StackPage {
+                  name: "table";
+
+                  child: ScrolledWindow {
+                    child: ColumnView table {
+                      // Double clic ou Entrée : fiche de l'objet (J2.4, J2.5).
+                      activate => $row_activated();
+                      tab-behavior: item;
+
+                      accessibility {
+                        label: _("Objects in the container");
+                      }
+
+                      styles [
+                        "data-table",
+                      ]
+
+                      model: MultiSelection selection {
+                        items-changed => $count();
+
+                        // Pas de SortListModel : le tri se fait en Python (annuaire/vue/tri.py),
+                        // les trieurs des colonnes ne servent qu'à rendre les en-têtes cliquables.
+                        model: FilterListModel filter {
+                          incremental: true;
+
+                          filter: CustomFilter quick_filter {};
+
+                          model: Gio.ListStore content_store {
+                            item-type: typeof<$AnnuaireLigne>;
+                          };
+                        };
+                      };
+
+                      ColumnViewColumn name_column {
+                        id: "nom";
+                        title: _("Name");
+                        fixed-width: 280;
+                        expand: true;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.nom;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Box {
+                              spacing: 8;
+
+                              Image {
+                                icon-name: bind template.item as <$AnnuaireLigne>.icone;
+                              }
+
+                              Label {
+                                xalign: 0;
+                                ellipsize: end;
+                                label: bind template.item as <$AnnuaireLigne>.nom;
+                              }
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "type";
+                        title: _("Type");
+                        fixed-width: 210;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.type-libelle;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <$AnnuaireLigne>.type-libelle;
+                            };
+                          }
+                        };
+                      }
+
+                      // Visible pour les résultats de recherche seulement (Contenu.recherche).
+                      ColumnViewColumn location_column {
+                        id: "emplacement";
+                        title: _("Location");
+                        fixed-width: 260;
+                        resizable: true;
+                        visible: false;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.emplacement;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: start;
+                              label: bind template.item as <$AnnuaireLigne>.emplacement;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "identifiant";
+                        title: _("Logon name");
+                        fixed-width: 170;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.identifiant;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <$AnnuaireLigne>.identifiant;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "description";
+                        title: _("Description");
+                        fixed-width: 240;
+                        expand: true;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.description;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <$AnnuaireLigne>.description;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "courriel";
+                        title: _("Email");
+                        fixed-width: 220;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.courriel;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <$AnnuaireLigne>.courriel;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "etat";
+                        title: _("Status");
+                        fixed-width: 120;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.etat;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              label: bind template.item as <$AnnuaireLigne>.etat;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "activite";
+                        title: _("Last logon");
+                        fixed-width: 160;
+                        resizable: true;
+
+                        sorter: NumericSorter {
+                          expression: expr item as <$AnnuaireLigne>.activite-tri;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              tooltip-text: _("lastLogonTimestamp: replicated between DCs, up to 14 days late");
+                              label: bind template.item as <$AnnuaireLigne>.activite;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "modifie";
+                        title: _("Modified");
+                        fixed-width: 160;
+                        resizable: true;
+
+                        sorter: NumericSorter {
+                          expression: expr item as <$AnnuaireLigne>.modifie-tri;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              label: bind template.item as <$AnnuaireLigne>.modifie;
+                            };
+                          }
+                        };
+                      }
+
+                      ColumnViewColumn {
+                        id: "dn";
+                        title: _("Distinguished name");
+                        fixed-width: 380;
+                        resizable: true;
+
+                        sorter: StringSorter {
+                          expression: expr item as <$AnnuaireLigne>.dn;
+                        };
+
+                        factory: BuilderListItemFactory {
+                          template ColumnViewCell {
+                            child: Label {
+                              xalign: 0;
+                              ellipsize: start;
+                              label: bind template.item as <$AnnuaireLigne>.dn;
+                            };
+                          }
+                        };
+                      }
+                    };
+                  };
+                }
+
+                StackPage {
+                  name: "vide";
+
+                  child: Adw.StatusPage empty_page {
+                    icon-name: "folder-symbolic";
+                    title: _("Empty container");
+                  };
+                }
+
+                StackPage {
+                  name: "erreur";
+
+                  child: Adw.StatusPage content_error {
+                    icon-name: "dialog-warning-symbolic";
+
+                    child: Button {
+                      halign: center;
+                      label: _("Try Again");
+                      action-name: "win.actualiser";
+
+                      styles [
+                        "pill",
+                      ]
+                    };
+                  };
+                }
+              };
+
+              [bottom]
+              Box {
+                spacing: 8;
+                margin-start: 12;
+                margin-end: 12;
+                margin-top: 6;
+                margin-bottom: 6;
+
+                Spinner loading {}
+
+                Label counter {
+                  xalign: 0;
+                  hexpand: true;
+
+                  styles [
+                    "dim-label",
+                    "caption",
+                  ]
+                }
+
+                // Date des données affichées : lues sur le DC, ou copie locale (cache, JC).
+                Label freshness {
+                  xalign: 1;
+
+                  styles [
+                    "dim-label",
+                    "caption",
+                  ]
+                }
+              }
+            };
+          };
+        };
+      }
+    };
+  };
+}
+
+menu main_menu {
+  section {
+    item {
+      label: _("Advanced Features");
+      action: "win.mode-avance";
+    }
+  }
+
+  section {
+    submenu {
+      label: _("Columns");
+
+      item {
+        label: _("Type");
+        action: "win.colonne-type";
+      }
+
+      item {
+        label: _("Logon name");
+        action: "win.colonne-identifiant";
+      }
+
+      item {
+        label: _("Description");
+        action: "win.colonne-description";
+      }
+
+      item {
+        label: _("Email");
+        action: "win.colonne-courriel";
+      }
+
+      item {
+        label: _("Status");
+        action: "win.colonne-etat";
+      }
+
+      item {
+        label: _("Last logon");
+        action: "win.colonne-activite";
+      }
+
+      item {
+        label: _("Modified");
+        action: "win.colonne-modifie";
+      }
+
+      item {
+        label: _("Distinguished name");
+        action: "win.colonne-dn";
+      }
+    }
+  }
+
+  section {
+    item {
+      label: _("DNS");
+      action: "win.dns";
+      accel: "<Control>d";
+    }
+
+    item {
+      label: _("DNS Health");
+      action: "win.sante-dns";
+      accel: "<Shift><Control>d";
+    }
+
+    item {
+      label: _("Group Policy");
+      action: "win.gpo";
+      accel: "<Control>g";
+    }
+
+    item {
+      label: _("Password Policies");
+      action: "win.pso";
+      accel: "<Control>m";
+    }
+  }
+
+  section {
+    item {
+      label: _("Change History");
+      action: "win.historique";
+      accel: "<Control>h";
+    }
+
+    item {
+      label: _("Undo the Last Change…");
+      action: "win.annuler-derniere";
+      accel: "<Control>z";
+    }
+  }
+
+  section {
+    item {
+      label: _("Keyboard Shortcuts");
+      action: "app.shortcuts";
+    }
+
+    item {
+      label: _("Change domain");
+      action: "win.changer-domaine";
+    }
+  }
+}
+
+menu new_menu {
+  section {
+    item {
+      label: _("User…");
+      action: "win.nouvel-utilisateur";
+    }
+
+    item {
+      label: _("Group…");
+      action: "win.nouveau-groupe";
+    }
+
+    item {
+      label: _("Organizational Unit…");
+      action: "win.nouvelle-ou";
+    }
+  }
+}
+
+menu actions_menu {
+  section {
+    item {
+      label: _("Enable");
+      action: "win.activer";
+    }
+
+    item {
+      label: _("Disable");
+      action: "win.desactiver";
+    }
+
+    item {
+      label: _("Unlock");
+      action: "win.deverrouiller";
+    }
+
+    item {
+      label: _("Reset Password…");
+      action: "win.mot-de-passe";
+    }
+  }
+
+  section {
+    item {
+      label: _("Move…");
+      action: "win.deplacer";
+    }
+
+    item {
+      label: _("Rename…");
+      action: "win.renommer";
+    }
+
+    item {
+      label: _("Delete…");
+      action: "win.supprimer";
+    }
+  }
+
+  section {
+    item {
+      label: _("Protect from accidental deletion");
+      action: "win.proteger";
+    }
+
+    item {
+      label: _("Remove Protection from Deletion");
+      action: "win.deproteger";
+    }
+  }
+}

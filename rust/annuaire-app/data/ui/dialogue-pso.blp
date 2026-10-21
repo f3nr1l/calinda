@@ -1,0 +1,223 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Une stratégie de mot de passe affinée (ADR 0014 § 6), neuve ou modifiée : nom et priorité,
+// les dix réglages (libellés de la GPMC), puis ses cibles, cherchées comme dans l'assistant
+// de délégation. Chaque saisie est contrôlée à la frappe (vue/pso.py, core/pso.problemes) ;
+// « Continuer » mène à l'aperçu commun. Les durées se saisissent en clair : « 42 j »,
+// « 1 j 12 h », « 30 min », « jamais ».
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePso: Adw.Dialog {
+  title: _("Fine-grained password policy");
+  content-width: 660;
+  content-height: 780;
+  focus-widget: name_entry;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Fine-grained password policy");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Policy");
+
+        Adw.EntryRow name_entry {
+          title: _("Name");
+          changed => $changed();
+        }
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+          changed => $changed();
+        }
+
+        Adw.SpinRow precedence {
+          title: _("Priority");
+          subtitle: _("The lowest wins between two policies that apply to the same account.");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 2147483647;
+            step-increment: 1;
+            page-increment: 10;
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Password Policy");
+        description: _("Durations in plain words: 42 d, 1 d 12 h, 30 min; a bare number counts in days. Minimum age 0: the password can be changed at any time; maximum age “never”: the password does not expire.");
+
+        Adw.SpinRow minimum_length {
+          title: _("Minimum password length");
+          subtitle: _("characters; 0 allows an empty password");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 255;
+            step-increment: 1;
+            page-increment: 4;
+          };
+        }
+
+        Adw.SpinRow history {
+          title: _("Enforce password history");
+          subtitle: _("passwords remembered");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 65535;
+            step-increment: 1;
+            page-increment: 4;
+          };
+        }
+
+        Adw.SwitchRow complexity {
+          title: _("Password must meet complexity requirements");
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow reversible_encryption {
+          title: _("Store passwords using reversible encryption");
+          subtitle: _("For old protocols only; leave it disabled.");
+          notify::active => $changed();
+        }
+
+        Adw.EntryRow minimum_age {
+          title: _("Minimum password age");
+          changed => $changed();
+        }
+
+        Adw.EntryRow maximum_age {
+          title: _("Maximum password age");
+          changed => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Account Lockout Policy");
+        description: _("A bare number counts in minutes. Duration “never”: locked until an administrator unlocks the account. No effect if the threshold is 0.");
+
+        Adw.SpinRow lockout_threshold {
+          title: _("Account lockout threshold");
+          subtitle: _("failed logon attempts; 0: never locked out");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 65535;
+            step-increment: 1;
+            page-increment: 5;
+          };
+        }
+
+        Adw.EntryRow lockout_duration {
+          title: _("Account lockout duration");
+          changed => $changed();
+        }
+
+        Adw.EntryRow lockout_window {
+          title: _("Reset account lockout counter after");
+          changed => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup targets_group {
+        title: _("Directly Applies To");
+        description: _("User accounts and global security groups; anywhere else, the policy has no effect.");
+
+        ListBox targets_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Accounts and groups the policy applies to");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        SearchEntry target_entry {
+          placeholder-text: _("Name or logon name of the group or account to add");
+          margin-top: 12;
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the group or account to add");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup problems_group {
+        visible: false;
+
+        Label problems {
+          xalign: 0;
+          wrap: true;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

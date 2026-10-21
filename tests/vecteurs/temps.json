@@ -1,0 +1,223 @@
+{
+  "format": 1,
+  "famille": "temps",
+  "description": "FILETIME / NTTIME (dates, valeurs « jamais », durées négatives), GeneralizedTime",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "lastlogontimestamp-ancien",
+      "description": "le plus ancien",
+      "provenance": {
+        "objet": "CN=Chloé Boyer,OU=Utilisateurs,OU=Direction,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "lastLogonTimestamp",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Chloé Boyer,OU=Utilisateurs,OU=Direction,OU=Paris,OU=Labo,DC=lab,DC=test' lastLogonTimestamp"
+      },
+      "hex": "313333303536333932343830303231333736",
+      "texte": "133056392480021376",
+      "attendu": {
+        "nttime": 133056392480021376,
+        "jamais": false,
+        "iso": "2022-08-22T10:54:08.0021376Z",
+        "unix": 1661165648
+      }
+    },
+    {
+      "id": "lastlogontimestamp-recent",
+      "description": "le plus récent",
+      "provenance": {
+        "objet": "CN=Fatima Marty,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "lastLogonTimestamp",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Fatima Marty,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' lastLogonTimestamp"
+      },
+      "hex": "313334333633363030373334363039363830",
+      "texte": "134363600734609680",
+      "attendu": {
+        "nttime": 134363600734609680,
+        "jamais": false,
+        "iso": "2026-10-13T10:14:33.4609680Z",
+        "unix": 1791886473
+      }
+    },
+    {
+      "id": "pwdlastset",
+      "description": "mot de passe défini",
+      "provenance": {
+        "objet": "CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "pwdLastSet",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test' pwdLastSet"
+      },
+      "hex": "313334303234363138303936333738393736",
+      "texte": "134024618096378976",
+      "attendu": {
+        "nttime": 134024618096378976,
+        "jamais": false,
+        "iso": "2025-09-16T02:03:29.6378976Z",
+        "unix": 1757988210
+      }
+    },
+    {
+      "id": "pwdlastset-0",
+      "description": "0 : changement exigé à la connexion",
+      "provenance": {
+        "objet": "CN=Adam Antoine,OU=Utilisateurs,OU=Ventes,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "pwdLastSet",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Antoine,OU=Utilisateurs,OU=Ventes,OU=Paris,OU=Labo,DC=lab,DC=test' pwdLastSet"
+      },
+      "hex": "30",
+      "texte": "0",
+      "attendu": {
+        "nttime": 0,
+        "jamais": true
+      }
+    },
+    {
+      "id": "accountexpires-max",
+      "description": "0x7FFFFFFFFFFFFFFF : jamais",
+      "provenance": {
+        "objet": "CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "accountExpires",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test' accountExpires"
+      },
+      "hex": "39323233333732303336383534373735383037",
+      "texte": "9223372036854775807",
+      "attendu": {
+        "nttime": 9223372036854775807,
+        "jamais": true
+      }
+    },
+    {
+      "id": "accountexpires-0",
+      "description": "0 : jamais (écrit par samba-tool user setexpiry --noexpiry)",
+      "provenance": {
+        "objet": "CN=vecteur-expire0,OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "accountExpires",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=vecteur-expire0,OU=Vecteurs,DC=lab,DC=test' accountExpires"
+      },
+      "hex": "30",
+      "texte": "0",
+      "attendu": {
+        "nttime": 0,
+        "jamais": true
+      }
+    },
+    {
+      "id": "accountexpires-date",
+      "description": "date d'expiration réelle",
+      "provenance": {
+        "objet": "CN=Adam Bernard,OU=Utilisateurs,OU=Direction,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "accountExpires",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Bernard,OU=Utilisateurs,OU=Direction,OU=Lyon,OU=Labo,DC=lab,DC=test' accountExpires"
+      },
+      "hex": "313334343635333033313733363935353834",
+      "texte": "134465303173695584",
+      "attendu": {
+        "nttime": 134465303173695584,
+        "jamais": false,
+        "iso": "2027-02-08T03:18:37.3695584Z",
+        "unix": 1802056717
+      }
+    },
+    {
+      "id": "duree-maxpwdage",
+      "description": "durée négative en centaines de ns",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "maxPwdAge",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' maxPwdAge"
+      },
+      "hex": "2d3336323838303030303030303030",
+      "texte": "-36288000000000",
+      "attendu": {
+        "centaines_ns": -36288000000000,
+        "jamais": false,
+        "secondes": 3628800,
+        "samba_tool": "Maximum password age (days): 42"
+      }
+    },
+    {
+      "id": "duree-minpwdage",
+      "description": "durée négative en centaines de ns",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "minPwdAge",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' minPwdAge"
+      },
+      "hex": "2d383634303030303030303030",
+      "texte": "-864000000000",
+      "attendu": {
+        "centaines_ns": -864000000000,
+        "jamais": false,
+        "secondes": 86400,
+        "samba_tool": "Minimum password age (days): 1"
+      }
+    },
+    {
+      "id": "duree-lockoutduration",
+      "description": "durée négative en centaines de ns",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "lockoutDuration",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' lockoutDuration"
+      },
+      "hex": "2d3138303030303030303030",
+      "texte": "-18000000000",
+      "attendu": {
+        "centaines_ns": -18000000000,
+        "jamais": false,
+        "secondes": 1800,
+        "samba_tool": "Account lockout duration (mins): 30"
+      }
+    },
+    {
+      "id": "duree-lockoutobservationwindow",
+      "description": "durée négative en centaines de ns",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "lockOutObservationWindow",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' lockOutObservationWindow"
+      },
+      "hex": "2d3138303030303030303030",
+      "texte": "-18000000000",
+      "attendu": {
+        "centaines_ns": -18000000000,
+        "jamais": false,
+        "secondes": 1800,
+        "samba_tool": "Reset account lockout after (mins): 30"
+      }
+    },
+    {
+      "id": "duree-forcelogoff",
+      "description": "-2^63 : jamais",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "forceLogoff",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' forceLogoff"
+      },
+      "hex": "2d39323233333732303336383534373735383038",
+      "texte": "-9223372036854775808",
+      "attendu": {
+        "centaines_ns": -9223372036854775808,
+        "jamais": true
+      }
+    },
+    {
+      "id": "generalizedtime-whencreated",
+      "description": "syntaxe GeneralizedTime (texte), pas FILETIME",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "whenCreated",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' whenCreated"
+      },
+      "hex": "32303236313031333137313431372e305a",
+      "texte": "20261013171417.0Z",
+      "attendu": {
+        "unix": 1791911657,
+        "iso": "2026-10-13T17:14:17Z"
+      }
+    }
+  ]
+}

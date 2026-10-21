@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<policyDefinitionResources xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions"
+                           revision="1.0" schemaVersion="1.0">
+  <displayName>Essai</displayName>
+  <description>Modèle d'essai</description>
+  <resources>
+    <stringTable>
+      <string id="Options">Options d'essai</string>
+      <string id="Orpheline">Catégorie sans parent</string>
+      <string id="Valeurs">Valeurs et listes</string>
+      <string id="Valeurs_Aide">Pose Mode = 2 et deux valeurs quand elle est activée.
+Deuxième ligne de l'explication.</string>
+      <string id="OptionsStrategie">Toutes les options</string>
+      <string id="Options_Aide">Un élément de chaque genre.</string>
+      <string id="Rangee">Stratégie rangée à la racine</string>
+      <string id="Rangee_Aide">Sa catégorie n'a pas de parent connu.</string>
+      <string id="Choix_Un">Un</string>
+      <string id="Choix_Deux">Deux</string>
+      <string id="Choix_Aucun">Aucun</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="Options">
+        <text>Réglages de l'essai :</text>
+        <checkBox refId="Case" defaultChecked="true">Case simple</checkBox>
+        <checkBox refId="CaseValeurs">Case à valeurs</checkBox>
+        <decimalTextBox refId="Nombre" defaultValue="5" spinStep="5">Nombre</decimalTextBox>
+        <decimalTextBox refId="NombreTexte">Nombre écrit en texte</decimalTextBox>
+        <longDecimalTextBox refId="Grand" defaultValue="4000000000">Grand nombre</longDecimalTextBox>
+        <textBox refId="Texte"><label>Texte court</label><defaultValue>abc</defaultValue></textBox>
+        <comboBox refId="Chemin" noSort="true"><label>Chemin</label><default>%windir%</default><suggestion>%temp%</suggestion><suggestion>C:\</suggestion></comboBox>
+        <dropdownList refId="Choix" defaultItem="1" noSort="true">Choix</dropdownList>
+        <listBox refId="Liste">Éléments</listBox>
+        <listBox refId="Noms">Noms et valeurs</listBox>
+        <listBox refId="Brute">Valeurs brutes</listBox>
+        <multiTextBox refId="Lignes">Lignes</multiTextBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

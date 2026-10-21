@@ -1,0 +1,418 @@
+{
+  "format": 1,
+  "famille": "uac",
+  "description": "userAccountControl, groupType, sAMAccountType : entiers décimaux et drapeaux",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "useraccountcontrol-200",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "353132",
+      "texte": "512",
+      "attendu": {
+        "valeur": 512,
+        "drapeaux": [
+          "NORMAL_ACCOUNT"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-202",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Adam André,OU=Utilisateurs,OU=Ressources humaines,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam André,OU=Utilisateurs,OU=Ressources humaines,OU=Paris,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "353134",
+      "texte": "514",
+      "attendu": {
+        "valeur": 514,
+        "drapeaux": [
+          "ACCOUNTDISABLE",
+          "NORMAL_ACCOUNT"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-222",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Aïcha Gillet\\0ACNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Aïcha Gillet\\0ACNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "353436",
+      "texte": "546",
+      "attendu": {
+        "valeur": 546,
+        "drapeaux": [
+          "ACCOUNTDISABLE",
+          "PASSWD_NOTREQD",
+          "NORMAL_ACCOUNT"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-1000",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=BDX-PC0002,OU=Ordinateurs,OU=Direction,OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=BDX-PC0002,OU=Ordinateurs,OU=Direction,OU=Bordeaux,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "34303936",
+      "texte": "4096",
+      "attendu": {
+        "valeur": 4096,
+        "drapeaux": [
+          "WORKSTATION_TRUST_ACCOUNT"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-1002",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=BDX-PC0001,OU=Ordinateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=BDX-PC0001,OU=Ordinateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "34303938",
+      "texte": "4098",
+      "attendu": {
+        "valeur": 4098,
+        "drapeaux": [
+          "ACCOUNTDISABLE",
+          "WORKSTATION_TRUST_ACCOUNT"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-10200",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Adam Antoine,OU=Utilisateurs,OU=Production,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Antoine,OU=Utilisateurs,OU=Production,OU=Paris,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "3636303438",
+      "texte": "66048",
+      "attendu": {
+        "valeur": 66048,
+        "drapeaux": [
+          "NORMAL_ACCOUNT",
+          "DONT_EXPIRE_PASSWD"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-10202",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Adam Arnaud,OU=Utilisateurs,OU=Direction,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Arnaud,OU=Utilisateurs,OU=Direction,OU=Lyon,OU=Labo,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "3636303530",
+      "texte": "66050",
+      "attendu": {
+        "valeur": 66050,
+        "drapeaux": [
+          "ACCOUNTDISABLE",
+          "NORMAL_ACCOUNT",
+          "DONT_EXPIRE_PASSWD"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-10222",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Guest,CN=Users,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Guest,CN=Users,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "3636303832",
+      "texte": "66082",
+      "attendu": {
+        "valeur": 66082,
+        "drapeaux": [
+          "ACCOUNTDISABLE",
+          "PASSWD_NOTREQD",
+          "NORMAL_ACCOUNT",
+          "DONT_EXPIRE_PASSWD"
+        ]
+      }
+    },
+    {
+      "id": "useraccountcontrol-82000",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=DC1,OU=Domain Controllers,DC=lab,DC=test",
+        "attribut": "userAccountControl",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=DC1,OU=Domain Controllers,DC=lab,DC=test' userAccountControl"
+      },
+      "hex": "353332343830",
+      "texte": "532480",
+      "attendu": {
+        "valeur": 532480,
+        "drapeaux": [
+          "SERVER_TRUST_ACCOUNT",
+          "TRUSTED_FOR_DELEGATION"
+        ]
+      }
+    },
+    {
+      "id": "grouptype-2",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=vecteur-gg-distribution,OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=vecteur-gg-distribution,OU=Vecteurs,DC=lab,DC=test' groupType"
+      },
+      "hex": "32",
+      "texte": "2",
+      "attendu": {
+        "valeur": 2,
+        "non_signe": 2,
+        "drapeaux": [
+          "ACCOUNT_GROUP"
+        ],
+        "gtype": "DISTRIBUTION_GLOBAL_GROUP",
+        "portee": "global",
+        "securite": false
+      }
+    },
+    {
+      "id": "grouptype-4",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=vecteur-dl-distribution,OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=vecteur-dl-distribution,OU=Vecteurs,DC=lab,DC=test' groupType"
+      },
+      "hex": "34",
+      "texte": "4",
+      "attendu": {
+        "valeur": 4,
+        "non_signe": 4,
+        "drapeaux": [
+          "RESOURCE_GROUP"
+        ],
+        "gtype": "DISTRIBUTION_DOMAIN_LOCAL_GROUP",
+        "portee": "domaine_local",
+        "securite": false
+      }
+    },
+    {
+      "id": "grouptype-8",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Liste-000,OU=Distribution,OU=Groupes,OU=Labo,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Liste-000,OU=Distribution,OU=Groupes,OU=Labo,DC=lab,DC=test' groupType"
+      },
+      "hex": "38",
+      "texte": "8",
+      "attendu": {
+        "valeur": 8,
+        "non_signe": 8,
+        "drapeaux": [
+          "UNIVERSAL_GROUP"
+        ],
+        "gtype": "DISTRIBUTION_UNIVERSAL_GROUP",
+        "portee": "universel",
+        "securite": false
+      }
+    },
+    {
+      "id": "grouptype-80000002",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=DnsUpdateProxy,CN=Users,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=DnsUpdateProxy,CN=Users,DC=lab,DC=test' groupType"
+      },
+      "hex": "2d32313437343833363436",
+      "texte": "-2147483646",
+      "attendu": {
+        "valeur": -2147483646,
+        "non_signe": 2147483650,
+        "drapeaux": [
+          "ACCOUNT_GROUP",
+          "SECURITY_ENABLED"
+        ],
+        "gtype": "SECURITY_GLOBAL_GROUP",
+        "portee": "global",
+        "securite": true
+      }
+    },
+    {
+      "id": "grouptype-80000004",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Allowed RODC Password Replication Group,CN=Users,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Allowed RODC Password Replication Group,CN=Users,DC=lab,DC=test' groupType"
+      },
+      "hex": "2d32313437343833363434",
+      "texte": "-2147483644",
+      "attendu": {
+        "valeur": -2147483644,
+        "non_signe": 2147483652,
+        "drapeaux": [
+          "RESOURCE_GROUP",
+          "SECURITY_ENABLED"
+        ],
+        "gtype": "SECURITY_DOMAIN_LOCAL_GROUP",
+        "portee": "domaine_local",
+        "securite": true
+      }
+    },
+    {
+      "id": "grouptype-80000005",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Account Operators,CN=Builtin,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Account Operators,CN=Builtin,DC=lab,DC=test' groupType"
+      },
+      "hex": "2d32313437343833363433",
+      "texte": "-2147483643",
+      "attendu": {
+        "valeur": -2147483643,
+        "non_signe": 2147483653,
+        "drapeaux": [
+          "BUILTIN_LOCAL_GROUP",
+          "RESOURCE_GROUP",
+          "SECURITY_ENABLED"
+        ],
+        "gtype": "SECURITY_BUILTIN_LOCAL_GROUP",
+        "portee": "builtin",
+        "securite": true
+      }
+    },
+    {
+      "id": "grouptype-80000008",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Enterprise Admins,CN=Users,DC=lab,DC=test",
+        "attribut": "groupType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Enterprise Admins,CN=Users,DC=lab,DC=test' groupType"
+      },
+      "hex": "2d32313437343833363430",
+      "texte": "-2147483640",
+      "attendu": {
+        "valeur": -2147483640,
+        "non_signe": 2147483656,
+        "drapeaux": [
+          "UNIVERSAL_GROUP",
+          "SECURITY_ENABLED"
+        ],
+        "gtype": "SECURITY_UNIVERSAL_GROUP",
+        "portee": "universel",
+        "securite": true
+      }
+    },
+    {
+      "id": "samaccounttype-10000000",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=DnsUpdateProxy,CN=Users,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=DnsUpdateProxy,CN=Users,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "323638343335343536",
+      "texte": "268435456",
+      "attendu": {
+        "valeur": 268435456,
+        "atype": "SECURITY_GLOBAL_GROUP"
+      }
+    },
+    {
+      "id": "samaccounttype-10000001",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Liste-000,OU=Distribution,OU=Groupes,OU=Labo,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Liste-000,OU=Distribution,OU=Groupes,OU=Labo,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "323638343335343537",
+      "texte": "268435457",
+      "attendu": {
+        "valeur": 268435457,
+        "atype": "DISTRIBUTION_GLOBAL_GROUP"
+      }
+    },
+    {
+      "id": "samaccounttype-20000000",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Account Operators,CN=Builtin,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Account Operators,CN=Builtin,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "353336383730393132",
+      "texte": "536870912",
+      "attendu": {
+        "valeur": 536870912,
+        "atype": "SECURITY_LOCAL_GROUP"
+      }
+    },
+    {
+      "id": "samaccounttype-20000001",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=vecteur-dl-distribution,OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=vecteur-dl-distribution,OU=Vecteurs,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "353336383730393133",
+      "texte": "536870913",
+      "attendu": {
+        "valeur": 536870913,
+        "atype": "DISTRIBUTION_LOCAL_GROUP"
+      }
+    },
+    {
+      "id": "samaccounttype-30000000",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "383035333036333638",
+      "texte": "805306368",
+      "attendu": {
+        "valeur": 805306368,
+        "atype": "NORMAL_ACCOUNT"
+      }
+    },
+    {
+      "id": "samaccounttype-30000001",
+      "description": "premier objet (par DN) portant cette valeur",
+      "provenance": {
+        "objet": "CN=BDX-PC0001,OU=Ordinateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+        "attribut": "sAMAccountType",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=BDX-PC0001,OU=Ordinateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test' sAMAccountType"
+      },
+      "hex": "383035333036333639",
+      "texte": "805306369",
+      "attendu": {
+        "valeur": 805306369,
+        "atype": "WORKSTATION_TRUST"
+      }
+    }
+  ]
+}

@@ -1,0 +1,470 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+// Fenêtre DNS (J3.3, J3.4, ui/dns.py) : zones et noms à gauche, enregistrements du nom choisi
+// à droite, ajoutés, modifiés ou supprimés par l'aperçu commun.
+template $AnnuaireDns: Adw.Window {
+  title: _("DNS");
+  default-width: 1000;
+  default-height: 680;
+  width-request: 360;
+  height-request: 294;
+
+  Adw.Breakpoint {
+    condition ("max-width: 640sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.NavigationSplitView split_view {
+      min-sidebar-width: 240;
+      max-sidebar-width: 380;
+
+      sidebar: Adw.NavigationPage {
+        title: _("Zones");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle domain_title {
+              title: _("DNS");
+            };
+
+            [start]
+            Button {
+              icon-name: "dialog-warning-symbolic";
+              tooltip-text: _("DNS health: issues and fixes (Ctrl+D)");
+              action-name: "dns.sante";
+
+              accessibility {
+                label: _("DNS Health");
+              }
+            }
+
+            [end]
+            MenuButton {
+              icon-name: "open-menu-symbolic";
+              menu-model: dns_menu;
+              primary: true;
+              tooltip-text: _("DNS menu");
+            }
+          }
+
+          content: Stack zones_stack {
+            StackPage {
+              name: "arbre";
+
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                child: ListView tree {
+                  tab-behavior: item;
+
+                  accessibility {
+                    label: _("DNS zones and names");
+                  }
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  model: SingleSelection tree_selection {
+                    autoselect: true;
+                    notify::selected-item => $selected();
+                  };
+
+                  factory: BuilderListItemFactory {
+                    template ListItem {
+                      accessible-label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudDns>.accessible;
+
+                      child: TreeExpander {
+                        list-row: bind template.item;
+
+                        child: Box {
+                          spacing: 8;
+
+                          Image {
+                            icon-name: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudDns>.icone;
+                          }
+
+                          Box {
+                            orientation: vertical;
+                            valign: center;
+
+                            Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudDns>.nom;
+                            }
+
+                            Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              visible: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudDns>.a-sous-titre;
+                              label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudDns>.sous-titre;
+
+                              styles [
+                                "dim-label",
+                                "caption",
+                              ]
+                            }
+                          }
+                        };
+                      };
+                    }
+                  };
+                };
+              };
+            }
+
+            StackPage {
+              name: "chargement";
+
+              child: Spinner {
+                spinning: true;
+                halign: center;
+                valign: center;
+                width-request: 32;
+                height-request: 32;
+              };
+            }
+
+            StackPage {
+              name: "erreur";
+
+              child: Adw.StatusPage zones_error {
+                icon-name: "dialog-warning-symbolic";
+
+                child: Button {
+                  halign: center;
+                  label: _("Try Again");
+                  action-name: "dns.actualiser";
+
+                  styles [
+                    "pill",
+                  ]
+                };
+              };
+            }
+          };
+        };
+      };
+
+      content: Adw.NavigationPage names_page {
+        title: _("Records");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle name_title {};
+
+            [start]
+            Button add_button {
+              icon-name: "list-add-symbolic";
+              tooltip-text: _("New record (Ctrl+N)");
+              action-name: "dns.ajouter";
+
+              accessibility {
+                label: _("New record");
+              }
+            }
+
+            [end]
+            Button {
+              icon-name: "view-refresh-symbolic";
+              tooltip-text: _("Refresh (F5)");
+              action-name: "dns.actualiser";
+
+              accessibility {
+                label: _("Refresh");
+              }
+            }
+
+            [end]
+            Button delete_button {
+              icon-name: "user-trash-symbolic";
+              tooltip-text: _("Delete the record (Delete)");
+              action-name: "dns.supprimer";
+
+              accessibility {
+                label: _("Delete the record");
+              }
+            }
+
+            [end]
+            Button edit_button {
+              icon-name: "document-edit-symbolic";
+              tooltip-text: _("Edit the record (F2 or Enter)");
+              action-name: "dns.modifier";
+
+              accessibility {
+                label: _("Edit the record");
+              }
+            }
+          }
+
+          content: Box {
+            orientation: vertical;
+            // Ce que montre le tableau, et ce qu'il ne montre pas (les noms en dessous).
+            Label summary {
+              xalign: 0;
+              wrap: true;
+              margin-start: 12;
+              margin-end: 12;
+              margin-top: 8;
+              margin-bottom: 4;
+            }
+
+            Label settings {
+              xalign: 0;
+              wrap: true;
+              visible: false;
+              margin-start: 12;
+              margin-end: 12;
+              margin-bottom: 8;
+
+              styles [
+                "dim-label",
+                "caption",
+              ]
+            }
+
+            Stack names_stack {
+              vexpand: true;
+
+              StackPage {
+                name: "table";
+
+                child: ScrolledWindow {
+                  child: ColumnView table {
+                    tab-behavior: item;
+                    activate => $activated();
+
+                    accessibility {
+                      label: _("Records of the selected name");
+                    }
+
+                    styles [
+                      "data-table",
+                    ]
+
+                    model: SingleSelection records_selection {
+                      autoselect: false;
+                      notify::selected-item => $row_selected();
+
+                      model: Gio.ListStore store {
+                        item-type: typeof<$AnnuaireLigneDns>;
+                      };
+                    };
+
+                    ColumnViewColumn {
+                      title: _("Type");
+                      fixed-width: 90;
+                      resizable: true;
+
+                      factory: BuilderListItemFactory {
+                        template ColumnViewCell {
+                          child: Label {
+                            xalign: 0;
+                            label: bind template.item as <$AnnuaireLigneDns>.type;
+                          };
+                        }
+                      };
+                    }
+
+                    ColumnViewColumn {
+                      title: _("Data");
+                      fixed-width: 320;
+                      expand: true;
+                      resizable: true;
+
+                      factory: BuilderListItemFactory {
+                        template ColumnViewCell {
+                          child: Label {
+                            xalign: 0;
+                            ellipsize: end;
+                            selectable: true;
+                            label: bind template.item as <$AnnuaireLigneDns>.donnees;
+                            tooltip-text: bind template.item as <$AnnuaireLigneDns>.donnees;
+                          };
+                        }
+                      };
+                    }
+
+                    ColumnViewColumn {
+                      title: _("TTL");
+                      fixed-width: 140;
+                      resizable: true;
+
+                      factory: BuilderListItemFactory {
+                        template ColumnViewCell {
+                          child: Label {
+                            xalign: 0;
+                            label: bind template.item as <$AnnuaireLigneDns>.ttl;
+                          };
+                        }
+                      };
+                    }
+
+                    ColumnViewColumn {
+                      title: _("Timestamp");
+                      fixed-width: 150;
+                      resizable: true;
+
+                      factory: BuilderListItemFactory {
+                        template ColumnViewCell {
+                          child: Label {
+                            xalign: 0;
+                            tooltip-text: _("Last refresh of a dynamic record; “static”: never ages");
+                            label: bind template.item as <$AnnuaireLigneDns>.horodatage;
+                          };
+                        }
+                      };
+                    }
+
+                    ColumnViewColumn {
+                      title: _("Note");
+                      fixed-width: 200;
+                      resizable: true;
+
+                      factory: BuilderListItemFactory {
+                        template ColumnViewCell {
+                          child: Label {
+                            xalign: 0;
+                            ellipsize: end;
+                            label: bind template.item as <$AnnuaireLigneDns>.remarque;
+                            tooltip-text: bind template.item as <$AnnuaireLigneDns>.remarque;
+                          };
+                        }
+                      };
+                    }
+                  };
+                };
+              }
+
+              StackPage {
+                name: "vide";
+
+                child: Adw.StatusPage empty_page {
+                  icon-name: "network-workgroup-symbolic";
+                };
+              }
+
+              StackPage {
+                name: "chargement";
+
+                child: Spinner {
+                  spinning: true;
+                  halign: center;
+                  valign: center;
+                  width-request: 32;
+                  height-request: 32;
+                };
+              }
+
+              StackPage {
+                name: "erreur";
+
+                child: Adw.StatusPage names_error {
+                  icon-name: "dialog-warning-symbolic";
+
+                  child: Button {
+                    halign: center;
+                    label: _("Try Again");
+                    action-name: "dns.actualiser";
+
+                    styles [
+                      "pill",
+                    ]
+                  };
+                };
+              }
+            }
+
+            Label write_state {
+              xalign: 0;
+              wrap: true;
+              visible: false;
+              margin-start: 12;
+              margin-end: 12;
+              margin-top: 6;
+
+              styles [
+                "dim-label",
+                "caption",
+              ]
+            }
+
+            Label freshness {
+              xalign: 1;
+              margin-start: 12;
+              margin-end: 12;
+              margin-top: 6;
+              margin-bottom: 6;
+
+              styles [
+                "dim-label",
+                "caption",
+              ]
+            }
+          };
+        };
+      };
+    };
+  };
+}
+
+menu dns_menu {
+  section {
+    item {
+      label: _("New record");
+      action: "dns.ajouter";
+    }
+
+    item {
+      label: _("Edit the record");
+      action: "dns.modifier";
+    }
+
+    item {
+      label: _("Delete the record");
+      action: "dns.supprimer";
+    }
+
+    item {
+      label: _("Undo the last change");
+      action: "dns.annuler";
+    }
+  }
+
+  section {
+    item {
+      label: _("Show deleted names (tombstone)");
+      action: "dns.tombstones";
+    }
+
+    item {
+      label: _("DNS Health");
+      action: "dns.sante";
+    }
+  }
+
+  section {
+    item {
+      label: _("Refresh");
+      action: "dns.actualiser";
+    }
+
+    item {
+      label: _("Close");
+      action: "window.close";
+    }
+  }
+}

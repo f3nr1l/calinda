@@ -1,0 +1,230 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Lecteur mappé d'une GPO (préférence Drives.xml, J7.6) : partage, lettre, reconnexion, affichage, ciblage et options communes.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePrefLecteur: Adw.Dialog {
+  title: _("Mapped Drive");
+  content-width: 600;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Mapped Drive");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ComboRow action_combo {
+          title: _("Action");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Create"),
+              _("Replace"),
+              _("Update"),
+              _("Delete"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Drive");
+
+        Adw.EntryRow path_entry {
+          title: _("Location (\\\\server\\share)");
+          changed => $changed();
+        }
+
+        Adw.EntryRow label_entry {
+          title: _("Label as");
+          changed => $changed();
+        }
+
+        Adw.ComboRow letter_combo {
+          title: _("Drive letter");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+              "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+            ]
+          };
+        }
+
+        Adw.SwitchRow first_available_switch {
+          title: _("Use the first available letter, starting at this one");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow reconnect_switch {
+          title: _("Reconnect");
+          notify::active => $changed();
+        }
+
+        Adw.ComboRow this_drive_combo {
+          title: _("This drive");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("No change"),
+              _("Show"),
+              _("Hide"),
+            ]
+          };
+        }
+
+        Adw.ComboRow all_drives_combo {
+          title: _("All drives");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("No change"),
+              _("Show"),
+              _("Hide"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup targets_group {
+        title: _("Targeting");
+        description: _("Without a filter, the item applies to everyone who receives the GPO.");
+
+        [header-suffix]
+        MenuButton target_button {
+          icon-name: "list-add-symbolic";
+          tooltip-text: _("Add a filter");
+          menu-model: targets_menu;
+
+          accessibility {
+            label: _("Add a targeting filter");
+          }
+
+          styles [
+            "flat",
+          ]
+        }
+
+        ListBox targets_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Targeting filters, in order");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Common options");
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow stop_switch {
+          title: _("Stop processing items in this extension if an error occurs");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow context_switch {
+          title: _("Run in logged-on user's security context");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow remove_switch {
+          title: _("Remove this item when it is no longer applied");
+          subtitle: _("Requires the “Replace” action");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow disabled_switch {
+          title: _("Disable this item");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          wrap: true;
+          xalign: 0;
+          visible: false;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+  };
+}
+
+menu targets_menu {
+  section {
+    item {
+      label: _("Security Group…");
+      action: "dialogue.cible";
+      target: "FilterGroup";
+    }
+
+    item {
+      label: _("Organizational Unit…");
+      action: "dialogue.cible";
+      target: "FilterOrgUnit";
+    }
+
+    item {
+      label: _("Computer Name…");
+      action: "dialogue.cible";
+      target: "FilterComputer";
+    }
+
+    item {
+      label: _("User…");
+      action: "dialogue.cible";
+      target: "FilterUser";
+    }
+  }
+}

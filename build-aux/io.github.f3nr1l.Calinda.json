@@ -1,0 +1,60 @@
+{
+    "id": "io.github.f3nr1l.Calinda",
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "51",
+    "sdk": "org.gnome.Sdk",
+    "sdk-extensions": [
+        "org.freedesktop.Sdk.Extension.rust-stable",
+        "org.freedesktop.Sdk.Extension.llvm22"
+    ],
+    "command": "annuaire",
+    "finish-args": [
+        "--share=network",
+        "--share=ipc",
+        "--socket=wayland",
+        "--socket=fallback-x11",
+        "--device=dri",
+        "--filesystem=/run/.heim_org.h5l.kcm-socket",
+        "--env=KRB5_CONFIG=/app/etc/krb5.conf"
+    ],
+    "build-options": {
+        "append-path": "/usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/llvm22/bin",
+        "env": {
+            "LIBCLANG_PATH": "/usr/lib/sdk/llvm22/lib",
+            "CARGO_HOME": "/run/build/annuaire/cargo"
+        }
+    },
+    "cleanup": [
+        "/include",
+        "/lib/pkgconfig",
+        "/share/man",
+        "*.la",
+        "*.a"
+    ],
+    "modules": [
+        {
+            "name": "krb5-conf",
+            "buildsystem": "simple",
+            "build-commands": [
+                "install -Dm644 krb5.conf /app/etc/krb5.conf"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "krb5.conf"
+                }
+            ]
+        },
+        {
+            "name": "annuaire",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "..",
+                    "skip": [".git", "build", "_build", "builddir", ".flatpak-builder", "subprojects/blueprint-compiler", "rust/target"]
+                }
+            ]
+        }
+    ]
+}

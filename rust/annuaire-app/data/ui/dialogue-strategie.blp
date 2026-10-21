@@ -1,0 +1,133 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Fiche d'une stratégie ADMX (J7.3, ui/editeur_modeles.py) : état (non configuré, activé,
+// désactivé), options générées depuis l'ADMX et sa présentation ADML (ajoutées par le code
+// dans `options_group`, validées à la saisie), « pris en charge sur », clé de registre et
+// explication. « Appliquer » range le réglage dans le brouillon de l'éditeur.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueStrategie: Adw.Dialog {
+  content-width: 760;
+  content-height: 680;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {};
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button apply_button {
+        label: _("Apply");
+        tooltip-text: _("Add this setting to the changes to save (Ctrl+Enter)");
+        clicked => $apply();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage page {
+      Adw.PreferencesGroup state_group {
+        title: _("Status");
+
+        Adw.ActionRow {
+          title: _("Not Configured");
+          activatable-widget: not_configured;
+
+          [prefix]
+          CheckButton not_configured {
+            valign: center;
+            toggled => $state_changed();
+          }
+        }
+
+        Adw.ActionRow {
+          title: _("Enabled");
+          activatable-widget: enabled;
+
+          [prefix]
+          CheckButton enabled {
+            valign: center;
+            group: not_configured;
+            toggled => $state_changed();
+          }
+        }
+
+        Adw.ActionRow {
+          title: _("Disabled");
+          activatable-widget: disabled;
+
+          [prefix]
+          CheckButton disabled {
+            valign: center;
+            group: not_configured;
+            toggled => $state_changed();
+          }
+        }
+      }
+
+      Adw.PreferencesGroup options_group {
+        title: _("Options");
+      }
+
+      Adw.PreferencesGroup info_group {
+        title: _("Information");
+
+        Adw.ActionRow supported_on {
+          title: _("Supported on");
+          subtitle-selectable: true;
+          subtitle-lines: 0;
+
+          styles [
+            "property",
+          ]
+        }
+
+        Adw.ActionRow registry {
+          title: _("Registry");
+          subtitle-selectable: true;
+          subtitle-lines: 0;
+
+          styles [
+            "property",
+          ]
+        }
+
+        Adw.ActionRow file {
+          title: _("Template");
+          subtitle-selectable: true;
+
+          styles [
+            "property",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup help_group {
+        title: _("Help");
+
+        Label help {
+          xalign: 0;
+          wrap: true;
+          selectable: true;
+
+          accessibility {
+            label: _("Policy explanation");
+          }
+        }
+      }
+    };
+  };
+}

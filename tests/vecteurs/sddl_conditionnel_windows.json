@@ -1,0 +1,1482 @@
+{
+  "format": 1,
+  "famille": "sddl_conditionnel_windows",
+  "description": "ACE conditionnelles et d'attribut de ressource : descripteur construit par l'API Win32 du DC Windows depuis le SDDL de « description » (SID du domaine WIN.TEST), et son écriture par la même API (sddl_windows)",
+  "source": {
+    "dc": "wdc1.win.test",
+    "domaine": "win.test",
+    "windows": "10.0.26100.0"
+  },
+  "vecteurs": [
+    {
+      "id": "win-01",
+      "description": "D:(XA;;FX;;;S-1-1-0;(Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-02",
+      "description": "D:(XA;;FX;;;WD;(Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-03",
+      "description": "D:(XA;;FX;;;WD;(Member_of_any {SID(BA), SID(S-1-5-21-1-2-3-1105)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c000100000009005400a0001200010100000000000100000000617274785036000000511000000001020000000000052000000020020000511c000000010500000000000515000000010000000200000003000000510400008b",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Member_of_any {SID(BA), SID(S-1-5-21-1-2-3-1105)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-04",
+      "description": "D:(XA;;FX;;;WD;(Not_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-05",
+      "description": "D:(XA;;FX;;;WD;(Not_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009200",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-06",
+      "description": "D:(XA;;FX;;;WD;(Not_Member_of_Any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009200",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-07",
+      "description": "D:(XA;;FX;;;WD;(Device_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008a00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Device_Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-08",
+      "description": "D:(XA;;FX;;;WD;(Device_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008c00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Device_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-09",
+      "description": "D:(XA;;FX;;;WD;(Device_Member_of_Any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008c00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Device_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-10",
+      "description": "D:(XA;;FX;;;WD;(Not_Device_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009100",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Device_Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-11",
+      "description": "D:(XA;;FX;;;WD;(Not_Device_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009300",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Device_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-12",
+      "description": "D:(XA;;FX;;;WD;(Not_Device_Member_of_Any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009300",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Not_Device_Member_of_any {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-13",
+      "description": "D:(XA;;0x1200a9;;;WD;(@User.Department == \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;0x1200a9;;;WD;(@USER.Department == \"Sales\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-14",
+      "description": "D:(XA;;0x1200a9;;;WD;(@USER.Department == \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;0x1200a9;;;WD;(@USER.Department == \"Sales\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-15",
+      "description": "D:(XA;;0x1200a9;;;WD;(@User.Department != \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730081000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;0x1200a9;;;WD;(@USER.Department != \"Sales\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-16",
+      "description": "D:(XA;;0x1200a9;;;WD;(@USER.Department != \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730081000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;0x1200a9;;;WD;(@USER.Department != \"Sales\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-17",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance < 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028200",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance < 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-18",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance < 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028200",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance < 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-19",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance <= 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028300",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance <= 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-20",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance <= 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028300",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance <= 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-21",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance > 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028400",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance > 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-22",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance > 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028400",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance > 5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-23",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance >= -5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004fbffffffffffffff02028500",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance >= -5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-24",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance >= -5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004fbffffffffffffff02028500",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance >= -5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-25",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance >= +5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000001028500",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance >= +5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-26",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance >= +5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000001028500",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance >= +5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-27",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance == 0x1F))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500041f0000000000000003038000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance == 0x1f))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-28",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance == 0x1f))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500041f0000000000000003038000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance == 0x1f))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-29",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance == 017))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500040f0000000000000003018000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance == 017))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-30",
+      "description": "D:(XA;;FR;;;WD;(@USER.clearance == 017))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500040f0000000000000003018000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.clearance == 017))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-31",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Contains {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008600",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Contains {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-32",
+      "description": "D:(XA;;FR;;;WD;(@USER.Project Contains {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008600",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Contains {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-33",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008800",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Any_of {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-34",
+      "description": "D:(XA;;FR;;;WD;(@USER.Project Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008800",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Any_of {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-35",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Not_Contains \"A\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c0001000000090034008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400100200000041008e00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Not_Contains \"A\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-36",
+      "description": "D:(XA;;FR;;;WD;(@USER.Project Not_Contains \"A\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c0001000000090034008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400100200000041008e00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Not_Contains \"A\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-37",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Not_Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008f00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Not_Any_of {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-38",
+      "description": "D:(XA;;FR;;;WD;(@USER.Project Not_Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008f00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Not_Any_of {\"A\", \"B\"}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-39",
+      "description": "D:(XA;;FR;;;WD;(@Resource.Project == @User.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478fa0e000000500072006f006a00650063007400f90e000000500072006f006a006500630074008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@RESOURCE.Project == @USER.Project))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-40",
+      "description": "D:(XA;;FR;;;WD;(@RESOURCE.Project == @USER.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478fa0e000000500072006f006a00650063007400f90e000000500072006f006a006500630074008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@RESOURCE.Project == @USER.Project))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-41",
+      "description": "D:(XA;;FR;;;WD;(@Device.os == \"W\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478fb040000006f0073001002000000570080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@DEVICE.os == \"W\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-42",
+      "description": "D:(XA;;FR;;;WD;(@DEVICE.os == \"W\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478fb040000006f0073001002000000570080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@DEVICE.os == \"W\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-43",
+      "description": "D:(XA;;FR;;;WD;(Title == \"VP\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c0001000000090034008900120001010000000000010000000061727478f80a0000005400690074006c00650010040000005600500080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Title == \"VP\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-44",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) && (@User.b == 2)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;((@USER.a == 1) && (@USER.b == 2)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-45",
+      "description": "D:(XA;;FR;;;WD;((@USER.a == 1) && (@USER.b == 2)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;((@USER.a == 1) && (@USER.b == 2)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-46",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) || (@User.b == 2) || (@User.c == 3)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a1f9020000006300040300000000000000030280a100",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(((@USER.a == 1) || (@USER.b == 2)) || (@USER.c == 3)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-47",
+      "description": "D:(XA;;FR;;;WD;(((@USER.a == 1) || (@USER.b == 2)) || (@USER.c == 3)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a1f9020000006300040300000000000000030280a100",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(((@USER.a == 1) || (@USER.b == 2)) || (@USER.c == 3)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-48",
+      "description": "D:(XA;;FR;;;WD;(!(@User.a == 1)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f9020000006100040100000000000000030280a2",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(!(@USER.a == 1)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-49",
+      "description": "D:(XA;;FR;;;WD;(!(@USER.a == 1)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f9020000006100040100000000000000030280a2",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(!(@USER.a == 1)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-50",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) && ((@User.b == 2) || !(@User.c == 3))))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280f9020000006300040300000000000000030280a2a1a0",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;((@USER.a == 1) && ((@USER.b == 2) || (!(@USER.c == 3)))))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-51",
+      "description": "D:(XA;;FR;;;WD;((@USER.a == 1) && ((@USER.b == 2) || (!(@USER.c == 3)))))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280f9020000006300040300000000000000030280a2a1a0",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;((@USER.a == 1) && ((@USER.b == 2) || (!(@USER.c == 3)))))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-52",
+      "description": "D:(XA;;FR;;;WD;(@User.a == #0102ff))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f902000000610018030000000102ff80",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == #0102ff))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-53",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == #0102FF))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f902000000610018030000000102ff80",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == #0102ff))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-54",
+      "description": "D:(XA;;FR;;;WD;(@User.a == {1, 2, 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200500001000000090048008900120001010000000000010000000061727478f90200000061005021000000040100000000000000030204020000000000000003020403000000000000000302800000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == {1, 2, 3}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-55",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == {1, 2, 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200500001000000090048008900120001010000000000010000000061727478f90200000061005021000000040100000000000000030204020000000000000003020403000000000000000302800000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == {1, 2, 3}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-56",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"é\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f90200000061001002000000e9008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"é\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-57",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == \"é\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f90200000061001002000000e9008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"é\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-58",
+      "description": "D:(XA;;FR;;;WD;(@User.objectSid == SID(BA)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200500001000000090048008900120001010000000000010000000061727478f9120000006f0062006a0065006300740053006900640051100000000102000000000005200000002002000080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.objectSid == SID(BA)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-59",
+      "description": "D:(XA;;FR;;;WD;(@USER.objectSid == SID(BA)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200500001000000090048008900120001010000000000010000000061727478f9120000006f0062006a0065006300740053006900640051100000000102000000000005200000002002000080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.objectSid == SID(BA)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-60",
+      "description": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@Device.Bitlocker >= 1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000004005800010000000b0050000001000001000000709529006d24d011a76800aa006e052901010000000000010000000061727478fb120000004200690074006c006f0063006b006500720004010000000000000003028500",
+      "attendu": {
+        "sddl_windows": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@DEVICE.Bitlocker >= 1))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-61",
+      "description": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@DEVICE.Bitlocker >= 1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000004005800010000000b0050000001000001000000709529006d24d011a76800aa006e052901010000000000010000000061727478fb120000004200690074006c006f0063006b006500720004010000000000000003028500",
+      "attendu": {
+        "sddl_windows": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@DEVICE.Bitlocker >= 1))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-62",
+      "description": "D:(XA;OICI;FA;;;WD;(Member_of {SID(BA)}))(A;;FA;;;SY)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020050000200000009033400ff011f00010100000000000100000000617274785015000000511000000001020000000000052000000020020000890000001400ff011f00010100000000000512000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;OICI;FA;;;WD;(Member_of {SID(BA)}))(A;;FA;;;SY)",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-63",
+      "description": "S:(RA;;;;;WD;(\"Project\",TS,0x0,\"Alpha\",\"Beta\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002005c00010000001200540000000000010100000000000100000000180000000300000000000000020000002800000034000000500072006f006a00650063007400000041006c007000680061000000420065007400610000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Project\",TS,0x0,\"Alpha\",\"Beta\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-64",
+      "description": "S:(RA;;;;;WD;(\"Level\",TI,0x0,-5,7))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01001080000000000000000014000000000000000200500001000000120048000000000001010000000000010000000018000000010000000000000002000000240000002c0000004c006500760065006c000000fbffffffffffffff0700000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Level\",TI,0x0,-5,7))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-65",
+      "description": "S:(RA;;;;;WD;(\"Count\",TU,0x0,5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100108000000000000000001400000000000000020044000100000012003c0000000000010100000000000100000000140000000200000000000000010000002000000043006f0075006e00740000000500000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Count\",TU,0x0,5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-66",
+      "description": "S:(RA;;;;;WD;(\"Count\",TU,0x0,+5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100108000000000000000001400000000000000020044000100000012003c0000000000010100000000000100000000140000000200000000000000010000002000000043006f0075006e00740000000500000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Count\",TU,0x0,5))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-67",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1,0))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004c00010000001200440000000000010100000000000100000000180000000600000000000000020000001e000000260000004f006b000000010000000000000000000000000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1,0))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-68",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,+1,+0))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004c00010000001200440000000000010100000000000100000000180000000200000000000000020000001e000000260000004f006b000000010000000000000000000000000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,1,0))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-69",
+      "description": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00ff10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100108000000000000000001400000000000000020044000100000012003c0000000000010100000000000100000000140000001000000000000000010000001e00000042006c006f00620000000300000000ff10000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00ff10))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-70",
+      "description": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00FF10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100108000000000000000001400000000000000020044000100000012003c0000000000010100000000000100000000140000001000000000000000010000001e00000042006c006f00620000000300000000ff10000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00ff10))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-71",
+      "description": "S:(RA;CI;;;;WD;(\"Project\",TS,0x10,\"Alpha\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004c000100000012024400000000000101000000000001000000001400000003000000100000000100000024000000500072006f006a00650063007400000041006c007000680061000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;CI;;;;WD;(\"Project\",TS,0x10,\"Alpha\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-72",
+      "description": "D:(XA;;FX;;;WD;(Member_of {SID(BA), SID(S-1-5-21-1-2-3-513)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c000100000009005400a0001200010100000000000100000000617274785036000000511000000001020000000000052000000020020000511c0000000105000000000005150000000100000002000000030000000102000089",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FX;;;WD;(Member_of {SID(BA), SID(S-1-5-21-1-2-3-513)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-73",
+      "description": "D:(XD;;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004800010000000a004000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000010000000200000003000000000200008900",
+      "attendu": {
+        "sddl_windows": "D:(XD;;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-74",
+      "description": "S:(XU;SA;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004800010000000d404000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000010000000200000003000000000200008900",
+      "attendu": {
+        "sddl_windows": "S:(XU;SA;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-75",
+      "description": "D:(XD;;FA;;;AU;(!(Member_of_any {SID(S-1-5-21-1-2-3-512), SID(BA)})))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002006000010000000a005800ff011f0001010000000000050b000000617274785036000000511c000000010500000000000515000000010000000200000003000000000200005110000000010200000000000520000000200200008ba2000000",
+      "attendu": {
+        "sddl_windows": "D:(XD;;FA;;;AU;(!(Member_of_any {SID(S-1-5-21-1-2-3-512), SID(BA)})))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-76",
+      "description": "D:(XA;;FR;;;WD;(@User.a == -0x10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610004f0ffffffffffffff02038000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == -0x10))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-77",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == -0x10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610004f0ffffffffffffff02038000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == -0x10))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-78",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"a b\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610010060000006100200062008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"a b\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-79",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == \"a b\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610010060000006100200062008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"a b\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-80",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f9020000006100100000000080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-81",
+      "description": "D:(XA;;FR;;;WD;(@USER.a == \"\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200300001000000090028008900120001010000000000010000000061727478f9020000006100100000000080000000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-82",
+      "description": "D:(XA;;FR;;;WD;(@User.a Contains {SID(BA), \"x\", 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020054000100000009004c008900120001010000000000010000000061727478f9020000006100502700000051100000000102000000000005200000002002000010020000007800040300000000000000030286",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a Contains {SID(BA), \"x\", 3}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-83",
+      "description": "D:(XA;;FR;;;WD;(@USER.a Contains {SID(BA), \"x\", 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020054000100000009004c008900120001010000000000010000000061727478f9020000006100502700000051100000000102000000000005200000002002000010020000007800040300000000000000030286",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a Contains {SID(BA), \"x\", 3}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-84",
+      "description": "S:(RA;;;;;WD;(\"Who\",TD,0x0,S-1-5-32-544))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004c00010000001200440000000000010100000000000100000000140000000500000000000000010000001c000000570068006f0000001000000001020000000000052000000020020000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-85",
+      "description": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004c00010000001200440000000000010100000000000100000000140000000500000000000000010000001c000000570068006f0000001000000001020000000000052000000020020000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-86",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004000010000001200380000000000010100000000000100000000140000000600000000000000010000001a0000004f006b00000001000000000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-87",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,+1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004000010000001200380000000000010100000000000100000000140000000200000000000000010000001a0000004f006b00000001000000000000000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,1))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-88",
+      "description": "S:(RA;;;;;WD;(\"Esp\",TS,0x0,\"a b\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002004000010000001200380000000000010100000000000100000000140000000300000000000000010000001c00000045007300700000006100200062000000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Esp\",TS,0x0,\"a b\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-89",
+      "description": "D:(XA;;FR;;;WD;(Member_of {SID(S-1-5-21-1-2-3-1105)}))(XA;;FR;;;WD;(Member_of SID(BA)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002007800020000000900400089001200010100000000000100000000617274785021000000511c000000010500000000000515000000010000000200000003000000510400008900090030008900120001010000000000010000000061727478511000000001020000000000052000000020020000890000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Member_of {SID(S-1-5-21-1-2-3-1105)}))(XA;;FR;;;WD;(Member_of SID(BA)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-90",
+      "description": "D:(XA;;FA;;;AU;(Member_of {SID(DA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020048000100000009004000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed000200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FA;;;AU;(Member_of {SID(DA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-91",
+      "description": "D:(XA;;FA;;;AU;(Member_of {SID(DU), SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c000100000009005400ff011f0001010000000000050b000000617274785036000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed0102000051100000000102000000000005200000002002000089",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FA;;;AU;(Member_of {SID(DU), SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-92",
+      "description": "D:(XD;;FA;;;AU;(Member_of {SID(DA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004800010000000a004000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed000200008900",
+      "attendu": {
+        "sddl_windows": "D:(XD;;FA;;;AU;(Member_of {SID(DA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-93",
+      "description": "D:(XA;;FR;;;WD;(Device_Member_of {SID(DA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002004800010000000900400089001200010100000000000100000000617274785021000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed000200008a00",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Device_Member_of {SID(DA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-94",
+      "description": "D:(ZA;;RPWP;bf967a68-0de6-11d0-a285-00aa003049e2;;AU;(Member_of {SID(DA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000004005c00010000000b0054003000000001000000687a96bfe60dd011a28500aa003049e201010000000000050b000000617274785021000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed000200008900",
+      "attendu": {
+        "sddl_windows": "D:(ZA;;RPWP;bf967a68-0de6-11d0-a285-00aa003049e2;;AU;(Member_of {SID(DA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-95",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) || (@User.b == 2) && (@User.c == 3)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280f9020000006300040300000000000000030280a0a100",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;((@USER.a == 1) || ((@USER.b == 2) && (@USER.c == 3))))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-96",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) && (@User.b == 2) || (@User.c == 3)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a0f9020000006300040300000000000000030280a100",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(((@USER.a == 1) && (@USER.b == 2)) || (@USER.c == 3)))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-97",
+      "description": "D:(XA;;FR;;;WD;(@user.a == 1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610004010000000000000003028000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == 1))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-98",
+      "description": "D:(XA;;FR;;;WD;(member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400890012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-99",
+      "description": "D:(XA;;FR;;;WD;(Member_of{SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400890012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-100",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Any_of @Resource.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400fa0e000000500072006f006a006500630074008800",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.Project Any_of @RESOURCE.Project))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-101",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"x;y)z\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "01000480000000000000000000000000140000000200380001000000090030008900120001010000000000010000000061727478f9020000006100100a00000078003b00790029007a008000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == \"x;y)z\"))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-102",
+      "description": "D:(XA;;FR;;;WD;(Member_of {SID(S-1-5-32-544)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010004800000000000000000000000001400000002003c000100000009003400890012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(Member_of {SID(BA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-103",
+      "description": "D:(XA;;FR;;;WD;(@User.a == 9223372036854775807))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020034000100000009002c008900120001010000000000010000000061727478f902000000610004ffffffffffffff7f03028000",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == 9223372036854775807))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-104",
+      "description": "D:(XA;;FR;;;WD;(@User.a == 1))(A;;FA;;;SY)(XD;;FA;;;AU;(Member_of {SID(DA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "0100048000000000000000000000000014000000020088000300000009002c008900120001010000000000010000000061727478f90200000061000401000000000000000302800000001400ff011f000101000000000005120000000a004000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000aa3d97cba5782bbd2ac14bed000200008900",
+      "attendu": {
+        "sddl_windows": "D:(XA;;FR;;;WD;(@USER.a == 1))(A;;FA;;;SY)(XD;;FA;;;AU;(Member_of {SID(DA)}))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    },
+    {
+      "id": "win-105",
+      "description": "S:(RA;;;;;WD;(\"Who\",TD,0x0,DA))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "ConvertStringSecurityDescriptorToSecurityDescriptorW(description)"
+      },
+      "hex": "010010800000000000000000140000000000000002005800010000001200500000000000010100000000000100000000140000000500000000000000010000001c000000570068006f0000001c000000010500000000000515000000aa3d97cba5782bbd2ac14bed00020000",
+      "attendu": {
+        "sddl_windows": "S:(RA;;;;;WD;(\"Who\",TD,0x0,DA))",
+        "sid_domaine": "S-1-5-21-3415686570-3173742757-3981164842"
+      }
+    }
+  ]
+}

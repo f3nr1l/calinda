@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Page « Groupes restreints » (J7.5) : pour chaque groupe, ses membres imposés et les
+// groupes dont il doit être membre, chacun modifiable par le dialogue des principaux ;
+// « Ajouter un groupe » cherche le groupe dans l'annuaire ou parmi les groupes intégrés.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireSecuriteGroupes: Adw.PreferencesPage {
+  Adw.PreferencesGroup {
+    Label warning {
+      xalign: 0;
+      wrap: true;
+    }
+  }
+
+  Adw.PreferencesGroup list_group {
+    title: _("Groups");
+
+    header-suffix: Button {
+      label: _("Add Group…");
+      clicked => $add();
+
+      styles [
+        "flat",
+      ]
+    };
+
+    ListBox groups_list {
+      selection-mode: none;
+
+      accessibility {
+        label: _("Restricted Groups");
+      }
+
+      styles [
+        "boxed-list",
+      ]
+    }
+  }
+}

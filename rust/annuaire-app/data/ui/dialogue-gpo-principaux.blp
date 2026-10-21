@@ -1,0 +1,126 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Comptes et groupes d'un réglage de sécurité (J7.5) : droit utilisateur, membres d'un
+// groupe restreint ou groupes dont il est membre. « Définir ce paramètre » distingue « non
+// défini » (la GPO n'en dit rien) d'une liste, même vide. Les actuels se décochent ; la
+// recherche (celle de l'assistant de délégation) et les principaux bien connus en ajoutent.
+// En mode « choix d'un groupe » (ajout d'un groupe restreint), un seul résultat se choisit.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoPrincipaux: Adw.Dialog {
+  focus-widget: principal_entry;
+  content-width: 600;
+  content-height: 720;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {};
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Confirm");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup explanation_group {
+        Label explanation {
+          xalign: 0;
+          wrap: true;
+        }
+
+        Adw.SwitchRow defined_switch {
+          title: _("Define this policy setting");
+          notify::active => $defined_toggled();
+        }
+      }
+
+      Adw.PreferencesGroup current_group {
+        title: _("Granted to");
+
+        ListBox current_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Current accounts and groups");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup add_group {
+        title: _("Add a group or an account");
+
+        SearchEntry principal_entry {
+          placeholder-text: _("Name or logon name of the group or account");
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the group or account to add");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup known_group {
+        title: _("Built-in groups and identities");
+        description: _("Built-in local groups and Windows identities, which the directory does not always contain.");
+
+        ListBox known_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Built-in groups and identities");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+    };
+  };
+}

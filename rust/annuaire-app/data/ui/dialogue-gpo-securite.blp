@@ -1,0 +1,108 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Paramètres de sécurité d'une GPO (J7.5) : GptTmpl.inf de la partie ordinateur. Une liste
+// des quatre pages (stratégie de mot de passe, de verrouillage, droits utilisateur, groupes
+// restreints), chacune poussée dans la vue de navigation (ui/gpo_securite.py) ; les
+// modifications s'accumulent et « Enregistrer » les écrit en une fois par l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoSecurite: Adw.Dialog {
+  title: _("Security Settings");
+  content-width: 720;
+  content-height: 760;
+  close-attempt => $closing();
+
+  child: Adw.ToolbarView {
+    content: Adw.NavigationView navigation {
+      Adw.NavigationPage {
+        title: _("Security Settings");
+        tag: "accueil";
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle title {
+              title: _("Security Settings");
+            };
+          }
+
+          content: Adw.PreferencesPage {
+            Adw.PreferencesGroup {
+              title: _("Computer Configuration › Windows Settings › Security Settings");
+              description: _("Security settings of the GPO (GptTmpl.inf file of the computer part), applied by the computers that receive it.");
+
+              ListBox pages_list {
+                selection-mode: none;
+                row-activated => $page_selected();
+
+                accessibility {
+                  label: _("Security settings pages");
+                }
+
+                styles [
+                  "boxed-list",
+                ]
+              }
+            }
+
+            Adw.PreferencesGroup state_group {
+              Label state {
+                xalign: 0;
+                wrap: true;
+                label: _("Reading the GPO on the PDC emulator…");
+
+                styles [
+                  "dim-label",
+                ]
+              }
+            }
+          };
+        };
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Label summary {
+        xalign: 0;
+        ellipsize: end;
+        label: _("No change");
+
+        styles [
+          "dim-label",
+        ]
+      }
+
+      [end]
+      Button save_button {
+        label: _("Save…");
+        sensitive: false;
+        tooltip-text: _("Show the write preview (Ctrl+S)");
+        clicked => $save();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+
+      [end]
+      Button cancel_button {
+        label: _("Discard Changes");
+        sensitive: false;
+        clicked => $forget();
+      }
+    }
+  };
+
+  ShortcutController {
+    scope: managed;
+
+    Shortcut {
+      trigger: "<Control>s";
+      action: "action(securite.enregistrer)";
+    }
+  }
+}

@@ -1,0 +1,356 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+// Santé DNS (J3.5, ui/sante_dns.py) : anomalies des zones, détail de celle qui est choisie,
+// corrections par l'aperçu commun.
+template $AnnuaireSanteDns: Adw.Window {
+  title: _("DNS Health");
+  default-width: 1000;
+  default-height: 680;
+  width-request: 360;
+  height-request: 294;
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {
+          title: _("DNS Health");
+        };
+
+        [start]
+        Button fix_button {
+          label: _("Fix…");
+          tooltip-text: _("Fix the selected issues, through the preview (Enter)");
+          action-name: "sante.corriger";
+
+          styles [
+            "suggested-action",
+          ]
+        }
+
+        [end]
+        MenuButton {
+          icon-name: "open-menu-symbolic";
+          menu-model: health_menu;
+          primary: true;
+          tooltip-text: _("DNS health menu");
+        }
+
+        [end]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Read again and diagnose (F5)");
+          action-name: "sante.actualiser";
+
+          accessibility {
+            label: _("Read again and diagnose");
+          }
+        }
+      }
+
+      content: Box {
+        orientation: vertical;
+
+        Label summary {
+          xalign: 0;
+          wrap: true;
+          margin-start: 12;
+          margin-end: 12;
+          margin-top: 8;
+          margin-bottom: 4;
+        }
+
+        // Réglages du diagnostic : le changer ne relit pas l'annuaire.
+        Box {
+          spacing: 6;
+          margin-start: 12;
+          margin-end: 12;
+          margin-bottom: 8;
+
+          Label {
+            label: _("Not refreshed for");
+            mnemonic-widget: threshold;
+          }
+
+          SpinButton threshold {
+            numeric: true;
+            value-changed => $settings_changed();
+
+            adjustment: Adjustment {
+              lower: 1;
+              upper: 3650;
+              step-increment: 1;
+              page-increment: 30;
+              value: 180;
+            };
+
+            accessibility {
+              label: _("Dynamic records not refreshed for, in days");
+            }
+          }
+
+          Label {
+            label: _("days; tombstones older than");
+          }
+
+          SpinButton tombstone_threshold {
+            numeric: true;
+            value-changed => $settings_changed();
+
+            adjustment: Adjustment {
+              lower: 0;
+              upper: 3650;
+              step-increment: 1;
+              page-increment: 7;
+              value: 14;
+            };
+
+            accessibility {
+              label: _("Old tombstones: older than, in days");
+            }
+          }
+
+          Label {
+            label: _("days");
+          }
+
+          CheckButton static_records {
+            label: _("Static A records without a computer");
+            margin-start: 12;
+            tooltip-text: _("Also report, as information, the hand-written A records that no computer account has (printers, devices, leftovers)");
+            toggled => $settings_changed();
+          }
+        }
+
+        Stack stack {
+          vexpand: true;
+
+          StackPage {
+            name: "table";
+
+            child: Paned {
+              orientation: vertical;
+              position: 380;
+              shrink-start-child: false;
+              shrink-end-child: false;
+
+              start-child: ScrolledWindow {
+                child: ColumnView table {
+                  tab-behavior: item;
+                  activate => $activated();
+
+                  accessibility {
+                    label: _("DNS issues");
+                  }
+
+                  styles [
+                    "data-table",
+                  ]
+
+                  model: MultiSelection selection {
+                    selection-changed => $selection_changed();
+
+                    model: Gio.ListStore store {
+                      item-type: typeof<$AnnuaireLigneSante>;
+                    };
+                  };
+
+                  ColumnViewColumn {
+                    title: _("Severity");
+                    fixed-width: 150;
+                    resizable: true;
+
+                    factory: BuilderListItemFactory {
+                      template ColumnViewCell {
+                        accessible-label: bind template.item as <$AnnuaireLigneSante>.accessible;
+
+                        child: Box {
+                          spacing: 6;
+
+                          Image {
+                            icon-name: bind template.item as <$AnnuaireLigneSante>.icone;
+                          }
+
+                          Label {
+                            xalign: 0;
+                            label: bind template.item as <$AnnuaireLigneSante>.gravite;
+                          }
+                        };
+                      }
+                    };
+                  }
+
+                  ColumnViewColumn {
+                    title: _("Rule");
+                    fixed-width: 150;
+                    resizable: true;
+
+                    factory: BuilderListItemFactory {
+                      template ColumnViewCell {
+                        child: Label {
+                          xalign: 0;
+                          label: bind template.item as <$AnnuaireLigneSante>.regle;
+                        };
+                      }
+                    };
+                  }
+
+                  ColumnViewColumn {
+                    title: _("Issue");
+                    fixed-width: 420;
+                    expand: true;
+                    resizable: true;
+
+                    factory: BuilderListItemFactory {
+                      template ColumnViewCell {
+                        child: Label {
+                          xalign: 0;
+                          ellipsize: end;
+                          label: bind template.item as <$AnnuaireLigneSante>.titre;
+                          tooltip-text: bind template.item as <$AnnuaireLigneSante>.titre;
+                        };
+                      }
+                    };
+                  }
+
+                  ColumnViewColumn {
+                    title: _("Fix");
+                    fixed-width: 260;
+                    resizable: true;
+
+                    factory: BuilderListItemFactory {
+                      template ColumnViewCell {
+                        child: Label {
+                          xalign: 0;
+                          ellipsize: end;
+                          label: bind template.item as <$AnnuaireLigneSante>.correction;
+                          tooltip-text: bind template.item as <$AnnuaireLigneSante>.correction;
+                        };
+                      }
+                    };
+                  }
+                };
+              };
+
+              end-child: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                child: Label details {
+                  xalign: 0;
+                  yalign: 0;
+                  wrap: true;
+                  selectable: true;
+                  margin-start: 12;
+                  margin-end: 12;
+                  margin-top: 8;
+                  margin-bottom: 8;
+
+                  accessibility {
+                    label: _("Details of the selected issue");
+                  }
+                };
+              };
+            };
+          }
+
+          StackPage {
+            name: "vide";
+
+            child: Adw.StatusPage empty_page {
+              icon-name: "object-select-symbolic";
+              title: _("No issues");
+            };
+          }
+
+          StackPage {
+            name: "chargement";
+
+            child: Spinner {
+              spinning: true;
+              halign: center;
+              valign: center;
+              width-request: 32;
+              height-request: 32;
+            };
+          }
+
+          StackPage {
+            name: "erreur";
+
+            child: Adw.StatusPage error {
+              icon-name: "dialog-warning-symbolic";
+
+              child: Button {
+                halign: center;
+                label: _("Try Again");
+                action-name: "sante.actualiser";
+
+                styles [
+                  "pill",
+                ]
+              };
+            };
+          }
+        }
+
+        Label write_state {
+          xalign: 0;
+          wrap: true;
+          visible: false;
+          margin-start: 12;
+          margin-end: 12;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+            "caption",
+          ]
+        }
+
+        Label reading {
+          xalign: 1;
+          margin-start: 12;
+          margin-end: 12;
+          margin-top: 6;
+          margin-bottom: 6;
+
+          styles [
+            "dim-label",
+            "caption",
+          ]
+        }
+      };
+    };
+  };
+}
+
+menu health_menu {
+  section {
+    item {
+      label: _("Fix the selected issues");
+      action: "sante.corriger";
+    }
+
+    item {
+      label: _("Select All");
+      action: "sante.tout";
+    }
+  }
+
+  section {
+    item {
+      label: _("Read again and diagnose");
+      action: "sante.actualiser";
+    }
+
+    item {
+      label: _("Close");
+      action: "window.close";
+    }
+  }
+}

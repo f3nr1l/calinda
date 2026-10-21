@@ -1,0 +1,121 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Valeur d'un attribut, ouverte depuis l'éditeur d'attributs (J4.4, ui/attributs.py).
+// À une valeur : une saisie, vérifiée à chaque frappe selon la syntaxe et les bornes ; vide,
+// elle efface l'attribut. Multivalué : la liste des valeurs, chacune retirable, et une
+// saisie pour en ajouter. En lecture seule : les valeurs, sélectionnables, et la raison.
+template $AnnuaireDialogueAttribut: Adw.Dialog {
+  content-width: 620;
+  content-height: 560;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {};
+
+      [start]
+      Button cancel_button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Confirm");
+        sensitive: false;
+        tooltip-text: _("Keep the change in the properties; it is applied with “Apply…”, after the preview");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup info_group {
+        Adw.ActionRow syntax_row {
+          title: _("Syntax");
+          subtitle-selectable: true;
+
+          styles [
+            "property",
+          ]
+        }
+
+        Adw.ActionRow reason_row {
+          title: _("Read-only");
+          subtitle-lines: 4;
+
+          styles [
+            "property",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup single_group {
+        title: _("Value");
+
+        Adw.EntryRow value_entry {
+          title: _("Value (empty: clear the attribute)");
+          input-hints: no_spellcheck;
+          activates-default: true;
+          changed => $entry_changed();
+        }
+      }
+
+      Adw.PreferencesGroup values_group {
+        title: _("Values");
+
+        [header-suffix]
+        Label values_count {
+          styles [
+            "dim-label",
+          ]
+        }
+
+        ListBox values_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Attribute values");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup add_group {
+        Adw.EntryRow add_entry {
+          title: _("Add a value");
+          input-hints: no_spellcheck;
+          show-apply-button: true;
+          changed => $addition_changed();
+          apply => $add();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          xalign: 0;
+          wrap: true;
+          selectable: true;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+  };
+}

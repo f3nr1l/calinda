@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+
+[package]
+name = "annuaire-codecs"
+description = "Pure codecs for Active Directory binary and text formats (SID, GUID, times, DNS records, gPLink, Registry.pol, GptTmpl.inf, security descriptors)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+name = "annuaire_codecs"
+
+# The codecs use the standard library alone.
+
+[dev-dependencies]
+# Reads the shared test vectors (tests/vecteurs/*.json); never part of a build.
+serde_json = "1"
+
+[lints]
+workspace = true

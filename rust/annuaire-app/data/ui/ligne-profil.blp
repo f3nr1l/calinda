@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireLigneProfil: Adw.ActionRow {
+  activatable: true;
+  action-name: "win.ouvrir-profil";
+
+  [prefix]
+  Image {
+    icon-name: "network-workgroup-symbolic";
+  }
+
+  [suffix]
+  Spinner waiting {
+    visible: false;
+  }
+
+  [suffix]
+  Image read_only_icon {
+    icon-name: "changes-prevent-symbolic";
+    tooltip-text: _("Read-only");
+  }
+
+  [suffix]
+  MenuButton {
+    icon-name: "view-more-symbolic";
+    valign: center;
+    tooltip-text: _("Actions on this profile");
+    menu-model: profile_menu;
+
+    styles [
+      "flat",
+    ]
+  }
+
+  [suffix]
+  Image {
+    icon-name: "go-next-symbolic";
+  }
+}
+
+menu profile_menu {
+  section {
+    item {
+      label: _("Edit…");
+      action: "profil.modifier";
+    }
+
+    item {
+      label: _("Get a Ticket…");
+      action: "profil.ticket";
+    }
+
+    item {
+      label: _("Erase the Local Copy");
+      action: "profil.effacer";
+    }
+
+    item {
+      label: _("Delete");
+      action: "profil.supprimer";
+    }
+  }
+}

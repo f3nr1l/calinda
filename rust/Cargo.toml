@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+#
+# Rust port of Annuaire (step R, ADR 0015).
+
+[workspace]
+resolver = "3"
+members = ["annuaire-codecs", "annuaire-core", "annuaire-app"]
+# Patched copies of published crates (see vendor/README.md): not members.
+exclude = ["vendor"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# Fedora 44 ships a recent stable Rust; edition 2024 needs 1.85.
+rust-version = "1.85"
+license = "GPL-3.0-or-later"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+# Codecs read untrusted bytes: no index or slice that can panic (use `get` or `Reader`).
+indexing_slicing = "warn"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+# A wrong value is worse than a panic: arithmetic stays checked in release builds.
+overflow-checks = true
+
+[patch.crates-io]
+# SASL confidentiality layer fixed (vendor/README.md, ADR 0016).
+ldap3 = { path = "vendor/ldap3" }
+# Session key of a GSSAPI context, for SMB signing and encryption (vendor/README.md, ADR 0017).
+libgssapi = { path = "vendor/libgssapi" }

@@ -1,0 +1,264 @@
+{
+  "format": 1,
+  "famille": "dnsproperty",
+  "description": "attribut dNSProperty des zones (MS-DNSP 2.3.2.1)",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "dnsproperty-lab.test-allow_update",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "01000000000000000000000001000000020000000200000000",
+      "attendu": {
+        "longueur_donnees": 1,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 2,
+        "id_nom": "ALLOW_UPDATE",
+        "valeur": 2
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-type",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000010000000100000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 1,
+        "id_nom": "TYPE",
+        "valeur": 1
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-norefresh_interval",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0400000000000000000000000100000010000000a800000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 16,
+        "id_nom": "NOREFRESH_INTERVAL",
+        "valeur": 168
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-aging_enabled_time",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000120000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 18,
+        "id_nom": "AGING_ENABLED_TIME",
+        "valeur": 0
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-refresh_interval",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0400000000000000000000000100000020000000a800000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 32,
+        "id_nom": "REFRESH_INTERVAL",
+        "valeur": 168
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-aging_state",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000400000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 64,
+        "id_nom": "AGING_STATE",
+        "valeur": 0
+      }
+    },
+    {
+      "id": "dnsproperty-lab.test-secure_time",
+      "provenance": {
+        "objet": "DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0800000000000000000000000100000008000000000000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 8,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 8,
+        "id_nom": "SECURE_TIME",
+        "valeur": 0
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-allow_update",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "01000000000000000000000001000000020000000200000000",
+      "attendu": {
+        "longueur_donnees": 1,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 2,
+        "id_nom": "ALLOW_UPDATE",
+        "valeur": 2
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-type",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000010000000100000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 1,
+        "id_nom": "TYPE",
+        "valeur": 1
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-norefresh_interval",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0400000000000000000000000100000010000000a800000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 16,
+        "id_nom": "NOREFRESH_INTERVAL",
+        "valeur": 168
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-aging_enabled_time",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000120000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 18,
+        "id_nom": "AGING_ENABLED_TIME",
+        "valeur": 0
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-refresh_interval",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0400000000000000000000000100000020000000a800000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 32,
+        "id_nom": "REFRESH_INTERVAL",
+        "valeur": 168
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-aging_state",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "04000000000000000000000001000000400000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 4,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 64,
+        "id_nom": "AGING_STATE",
+        "valeur": 0
+      }
+    },
+    {
+      "id": "dnsproperty-1.168.192.in-addr.arpa-secure_time",
+      "provenance": {
+        "objet": "DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dNSProperty",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dNSProperty"
+      },
+      "hex": "0800000000000000000000000100000008000000000000000000000000000000",
+      "attendu": {
+        "longueur_donnees": 8,
+        "longueur_nom": 0,
+        "drapeau": 0,
+        "version": 1,
+        "id": 8,
+        "id_nom": "SECURE_TIME",
+        "valeur": 0
+      }
+    }
+  ]
+}

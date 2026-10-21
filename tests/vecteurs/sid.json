@@ -1,0 +1,344 @@
+{
+  "format": 1,
+  "famille": "sid",
+  "description": "objectSid : SID binaire (MS-DTYP 2.4.2.2) et forme texte",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "sid-domaine",
+      "description": "objet domaine (pas de RID)",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' objectSid"
+      },
+      "hex": "01040000000000051500000055433741060e1d1e8de403a1",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-administrator",
+      "description": "RID 500",
+      "provenance": {
+        "objet": "CN=Administrator,CN=Users,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Administrator,CN=Users,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a1f4010000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-500",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          500
+        ],
+        "rid": 500
+      }
+    },
+    {
+      "id": "sid-krbtgt",
+      "description": "RID 502",
+      "provenance": {
+        "objet": "CN=krbtgt,CN=Users,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=krbtgt,CN=Users,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a1f6010000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-502",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          502
+        ],
+        "rid": 502
+      }
+    },
+    {
+      "id": "sid-domain-admins",
+      "description": "groupe, RID 512",
+      "provenance": {
+        "objet": "CN=Domain Admins,CN=Users,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Domain Admins,CN=Users,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a100020000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-512",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          512
+        ],
+        "rid": 512
+      }
+    },
+    {
+      "id": "sid-dc1",
+      "description": "compte du DC",
+      "provenance": {
+        "objet": "CN=DC1,OU=Domain Controllers,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=DC1,OU=Domain Controllers,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a1e8030000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-1000",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          1000
+        ],
+        "rid": 1000
+      }
+    },
+    {
+      "id": "sid-builtin-administrators",
+      "description": "S-1-5-32-544",
+      "provenance": {
+        "objet": "CN=Administrators,CN=Builtin,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Administrators,CN=Builtin,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01020000000000052000000020020000",
+      "attendu": {
+        "texte": "S-1-5-32-544",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          32,
+          544
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-utilisateur-labo",
+      "description": "RID > 1000",
+      "provenance": {
+        "objet": "CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Adam,OU=Utilisateurs,OU=Comptabilité,OU=Paris,OU=Labo,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a1ab2d0000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-11691",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          11691
+        ],
+        "rid": 11691
+      }
+    },
+    {
+      "id": "sid-groupe-labo",
+      "provenance": {
+        "objet": "CN=DL-Partage-000-RO,OU=Ressources,OU=Groupes,OU=Labo,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=DL-Partage-000-RO,OU=Ressources,OU=Groupes,OU=Labo,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01050000000000051500000055433741060e1d1e8de403a12a5b0000",
+      "attendu": {
+        "texte": "S-1-5-21-1094140757-505220614-2701386893-23338",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          21,
+          1094140757,
+          505220614,
+          2701386893,
+          23338
+        ],
+        "rid": 23338
+      }
+    },
+    {
+      "id": "sid-fsp-s-1-5-11",
+      "description": "SID bien connu (FSP)",
+      "provenance": {
+        "objet": "CN=S-1-5-11,CN=ForeignSecurityPrincipals,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=S-1-5-11,CN=ForeignSecurityPrincipals,DC=lab,DC=test' objectSid"
+      },
+      "hex": "01010000000000050b000000",
+      "attendu": {
+        "texte": "S-1-5-11",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          11
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-fsp-s-1-5-17",
+      "description": "SID bien connu (FSP)",
+      "provenance": {
+        "objet": "CN=S-1-5-17,CN=ForeignSecurityPrincipals,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=S-1-5-17,CN=ForeignSecurityPrincipals,DC=lab,DC=test' objectSid"
+      },
+      "hex": "010100000000000511000000",
+      "attendu": {
+        "texte": "S-1-5-17",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          17
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-fsp-s-1-5-4",
+      "description": "SID bien connu (FSP)",
+      "provenance": {
+        "objet": "CN=S-1-5-4,CN=ForeignSecurityPrincipals,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=S-1-5-4,CN=ForeignSecurityPrincipals,DC=lab,DC=test' objectSid"
+      },
+      "hex": "010100000000000504000000",
+      "attendu": {
+        "texte": "S-1-5-4",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          4
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-fsp-s-1-5-9",
+      "description": "SID bien connu (FSP)",
+      "provenance": {
+        "objet": "CN=S-1-5-9,CN=ForeignSecurityPrincipals,DC=lab,DC=test",
+        "attribut": "objectSid",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=S-1-5-9,CN=ForeignSecurityPrincipals,DC=lab,DC=test' objectSid"
+      },
+      "hex": "010100000000000509000000",
+      "attendu": {
+        "texte": "S-1-5-9",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          9
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-construit-s-1-1-0",
+      "description": "Tout le monde ; SID construit par l'oracle, pas lu dans l'annuaire",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "objectSid",
+        "commande": "ndr_pack(security.dom_sid('S-1-1-0'))"
+      },
+      "hex": "010100000000000100000000",
+      "attendu": {
+        "texte": "S-1-1-0",
+        "revision": 1,
+        "autorite": 1,
+        "sous_autorites": [
+          0
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-construit-s-1-5-18",
+      "description": "Système local ; SID construit par l'oracle, pas lu dans l'annuaire",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "objectSid",
+        "commande": "ndr_pack(security.dom_sid('S-1-5-18'))"
+      },
+      "hex": "010100000000000512000000",
+      "attendu": {
+        "texte": "S-1-5-18",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          18
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-construit-s-1-0-0",
+      "description": "Personne ; SID construit par l'oracle, pas lu dans l'annuaire",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "objectSid",
+        "commande": "ndr_pack(security.dom_sid('S-1-0-0'))"
+      },
+      "hex": "010100000000000000000000",
+      "attendu": {
+        "texte": "S-1-0-0",
+        "revision": 1,
+        "autorite": 0,
+        "sous_autorites": [
+          0
+        ],
+        "rid": null
+      }
+    },
+    {
+      "id": "sid-construit-s-1-5-32-544",
+      "description": "Administrateurs ; SID construit par l'oracle, pas lu dans l'annuaire",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "objectSid",
+        "commande": "ndr_pack(security.dom_sid('S-1-5-32-544'))"
+      },
+      "hex": "01020000000000052000000020020000",
+      "attendu": {
+        "texte": "S-1-5-32-544",
+        "revision": 1,
+        "autorite": 5,
+        "sous_autorites": [
+          32,
+          544
+        ],
+        "rid": null
+      }
+    }
+  ]
+}

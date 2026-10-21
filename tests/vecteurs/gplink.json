@@ -1,0 +1,236 @@
+{
+  "format": 1,
+  "famille": "gplink",
+  "description": "gPLink (liens de GPO et options) et gPOptions",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "gplink-2-liens",
+      "provenance": {
+        "objet": "OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b30463346373539432d304437332d343341342d383439312d3430444638393232373842437d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d5b4c4441503a2f2f434e3d7b41353638434332352d394343362d343043342d423031362d4434414638464535364333317d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d",
+      "texte": "[LDAP://CN={0F3F759C-0D73-43A4-8491-40DF892278BC},CN=Policies,CN=System,DC=lab,DC=test;0][LDAP://CN={A568CC25-9CC6-40C4-B016-D4AF8FE56C31},CN=Policies,CN=System,DC=lab,DC=test;0]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={0F3F759C-0D73-43A4-8491-40DF892278BC},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{0F3F759C-0D73-43A4-8491-40DF892278BC}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          },
+          {
+            "dn": "CN={A568CC25-9CC6-40C4-B016-D4AF8FE56C31},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{A568CC25-9CC6-40C4-B016-D4AF8FE56C31}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-3-liens",
+      "provenance": {
+        "objet": "OU=Production,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Production,OU=Lyon,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b42363836463530442d393838322d343743302d383745332d3045423535413631454246457d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d5b4c4441503a2f2f434e3d7b32364243303132442d304536342d343333462d423545302d4346363535384542413944397d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d5b4c4441503a2f2f434e3d7b44394532433942372d393345342d344342422d423432322d3130333436353237313545327d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d",
+      "texte": "[LDAP://CN={B686F50D-9882-47C0-87E3-0EB55A61EBFE},CN=Policies,CN=System,DC=lab,DC=test;0][LDAP://CN={26BC012D-0E64-433F-B5E0-CF6558EBA9D9},CN=Policies,CN=System,DC=lab,DC=test;0][LDAP://CN={D9E2C9B7-93E4-4CBB-B422-1034652715E2},CN=Policies,CN=System,DC=lab,DC=test;0]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={B686F50D-9882-47C0-87E3-0EB55A61EBFE},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{B686F50D-9882-47C0-87E3-0EB55A61EBFE}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          },
+          {
+            "dn": "CN={26BC012D-0E64-433F-B5E0-CF6558EBA9D9},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{26BC012D-0E64-433F-B5E0-CF6558EBA9D9}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          },
+          {
+            "dn": "CN={D9E2C9B7-93E4-4CBB-B422-1034652715E2},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{D9E2C9B7-93E4-4CBB-B422-1034652715E2}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-domaine",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b33314232463334302d303136442d313144322d393435462d3030433034464239383446397d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d",
+      "texte": "[LDAP://CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test;0]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{31B2F340-016D-11D2-945F-00C04FB984F9}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-options-0",
+      "provenance": {
+        "objet": "OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Bordeaux,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b38443438303035352d443233382d344438342d424430362d4538364137353834363537377d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d",
+      "texte": "[LDAP://CN={8D480055-D238-4D84-BD06-E86A75846577},CN=Policies,CN=System,DC=lab,DC=test;0]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={8D480055-D238-4D84-BD06-E86A75846577},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{8D480055-D238-4D84-BD06-E86A75846577}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-options-1",
+      "provenance": {
+        "objet": "OU=Ressources humaines,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Ressources humaines,OU=Lyon,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b45443230384334322d304239392d343039462d423834322d3636453443454439433646447d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b315d",
+      "texte": "[LDAP://CN={ED208C42-0B99-409F-B842-66E4CED9C6FD},CN=Policies,CN=System,DC=lab,DC=test;1]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={ED208C42-0B99-409F-B842-66E4CED9C6FD},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{ED208C42-0B99-409F-B842-66E4CED9C6FD}",
+            "options": 1,
+            "desactive": true,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-options-2",
+      "provenance": {
+        "objet": "OU=Ressources humaines,OU=Nantes,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Ressources humaines,OU=Nantes,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b32324239313838442d323446312d344339462d424144352d4338383144364242313334357d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b325d",
+      "texte": "[LDAP://CN={22B9188D-24F1-4C9F-BAD5-C881D6BB1345},CN=Policies,CN=System,DC=lab,DC=test;2]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={22B9188D-24F1-4C9F-BAD5-C881D6BB1345},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{22B9188D-24F1-4C9F-BAD5-C881D6BB1345}",
+            "options": 2,
+            "desactive": false,
+            "applique": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-r-et-d",
+      "provenance": {
+        "objet": "OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b45443230384334322d304239392d343039462d423834322d3636453443454439433646447d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b315d5b4c4441503a2f2f434e3d7b38443438303035352d443233382d344438342d424430362d4538364137353834363537377d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b305d",
+      "texte": "[LDAP://CN={ED208C42-0B99-409F-B842-66E4CED9C6FD},CN=Policies,CN=System,DC=lab,DC=test;1][LDAP://CN={8D480055-D238-4D84-BD06-E86A75846577},CN=Policies,CN=System,DC=lab,DC=test;0]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={ED208C42-0B99-409F-B842-66E4CED9C6FD},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{ED208C42-0B99-409F-B842-66E4CED9C6FD}",
+            "options": 1,
+            "desactive": true,
+            "applique": false
+          },
+          {
+            "dn": "CN={8D480055-D238-4D84-BD06-E86A75846577},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{8D480055-D238-4D84-BD06-E86A75846577}",
+            "options": 0,
+            "desactive": false,
+            "applique": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "gplink-vecteurs",
+      "provenance": {
+        "objet": "OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "gPLink",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Vecteurs,DC=lab,DC=test' gPLink"
+      },
+      "hex": "5b4c4441503a2f2f434e3d7b31384433394530302d463232422d343442392d423346362d3534303243444133374231457d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d746573743b335d",
+      "texte": "[LDAP://CN={18D39E00-F22B-44B9-B3F6-5402CDA37B1E},CN=Policies,CN=System,DC=lab,DC=test;3]",
+      "attendu": {
+        "liens": [
+          {
+            "dn": "CN={18D39E00-F22B-44B9-B3F6-5402CDA37B1E},CN=Policies,CN=System,DC=lab,DC=test",
+            "guid": "{18D39E00-F22B-44B9-B3F6-5402CDA37B1E}",
+            "options": 3,
+            "desactive": true,
+            "applique": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "gpoptions-1",
+      "provenance": {
+        "objet": "OU=Serveurs,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "gPOptions",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Serveurs,OU=Paris,OU=Labo,DC=lab,DC=test' gPOptions"
+      },
+      "hex": "31",
+      "texte": "1",
+      "attendu": {
+        "valeur": 1,
+        "heritage_bloque": true
+      }
+    },
+    {
+      "id": "gpoptions-0",
+      "provenance": {
+        "objet": "OU=Vecteurs,DC=lab,DC=test",
+        "attribut": "gPOptions",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Vecteurs,DC=lab,DC=test' gPOptions"
+      },
+      "hex": "30",
+      "texte": "0",
+      "attendu": {
+        "valeur": 0,
+        "heritage_bloque": false
+      }
+    }
+  ]
+}

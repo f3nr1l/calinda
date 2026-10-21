@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Entrée brute du Registry.pol d'une GPO (J7.3, ui/editeur_modeles.py) : partie, action (poser,
+// supprimer la valeur, supprimer toutes les valeurs de la clé), clé, nom, type et données
+// validées à la saisie.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueRegistreBrut: Adw.Dialog {
+  title: _("Add a registry entry");
+  content-width: 560;
+  content-height: 640;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Add a registry entry");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button apply_button {
+        label: _("Apply");
+        tooltip-text: _("Put the entry in the draft (Ctrl+Enter)");
+        clicked => $apply();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ComboRow part_combo {
+          title: _("Part");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Computer Configuration (HKLM)"),
+              _("User Configuration (HKCU)"),
+            ]
+          };
+        }
+
+        Adw.ComboRow action_combo {
+          title: _("Action");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Set the value"),
+              _("Delete the value"),
+              _("Delete all values of the key"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Registry");
+        description: _("Give the key without the hive, which the part sets. Without a name, the value set is the key's default value.");
+
+        Adw.EntryRow key_entry {
+          title: _("Key");
+          changed => $changed();
+        }
+
+        Adw.EntryRow name_entry {
+          title: _("Value name");
+          changed => $changed();
+        }
+
+        Adw.ComboRow type_combo {
+          title: _("Type");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              "REG_SZ",
+              "REG_EXPAND_SZ",
+              "REG_DWORD",
+              "REG_QWORD",
+              "REG_MULTI_SZ",
+              "REG_BINARY",
+            ]
+          };
+        }
+
+        Adw.EntryRow data_entry {
+          title: _("Data");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow decimal_switch {
+          title: _("Decimal (otherwise hexadecimal)");
+          active: true;
+          notify::active => $base_changed();
+        }
+      }
+
+      Adw.PreferencesGroup multiple_group {
+        title: _("Data");
+        description: _("One string per line.");
+        visible: false;
+
+        Frame {
+          child: TextView multi_text {
+            height-request: 100;
+            top-margin: 6;
+            bottom-margin: 6;
+            left-margin: 6;
+            right-margin: 6;
+            accepts-tab: false;
+
+            accessibility {
+              label: _("Value data, one string per line");
+            }
+
+            styles [
+              "monospace",
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          wrap: true;
+          xalign: 0;
+          visible: false;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+  };
+}

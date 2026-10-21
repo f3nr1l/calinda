@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Page « Stratégie de mot de passe » ou « Stratégie de verrouillage du compte » (J7.5) :
+// portée de la politique (racine du domaine ou non, DC Samba ou Windows), un réglage par
+// ligne (interrupteur « Définir », valeur, explication, valeur de l'objet domaine), et les
+// stratégies affinées (PSO) en lecture. Lignes construites par ui/gpo_securite.py.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireSecuriteComptes: Adw.PreferencesPage {
+  Adw.PreferencesGroup scope_group {
+    Label scope_text {
+      xalign: 0;
+      wrap: true;
+      selectable: true;
+    }
+  }
+
+  Adw.PreferencesGroup settings_group {
+    description: _("Turn on a setting's switch to define it in the GPO; off, the setting is “Not Defined” and the GPO says nothing about it.");
+
+    ListBox settings_list {
+      selection-mode: none;
+
+      accessibility {
+        label: _("Settings");
+      }
+
+      styles [
+        "boxed-list",
+      ]
+    }
+  }
+
+  Adw.PreferencesGroup pso_group {
+    title: _("Fine-grained password policies (PSO)");
+    description: _("msDS-PasswordSettings objects: each replaces the domain policy for the accounts and groups it names, the lowest precedence winning. Read for information; they are managed in the “Password Policies” window (Ctrl+M).");
+    visible: false;
+
+    ListBox pso_list {
+      selection-mode: none;
+
+      accessibility {
+        label: _("Fine-grained password policies");
+      }
+
+      styles [
+        "boxed-list",
+      ]
+    }
+  }
+}

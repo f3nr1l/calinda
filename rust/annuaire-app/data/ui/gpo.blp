@@ -1,0 +1,460 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Fenêtre « Stratégies de groupe » (J5.2, ui/gpo.py) : à gauche l'arbre domaine → OU → GPO
+// liées dans l'ordre des liens, et toutes les GPO ; à droite le détail du nœud choisi (GPO :
+// état, versions annuaire et SYSVOL, liens, filtrage ; conteneur : ses liens).
+// Les actions d'écriture (J5.3 à J5.6) se placent dans `gpo_actions` et la section
+// `section_actions` du menu (ui/actions_gpo.py).
+template $AnnuaireGpo: Adw.Window {
+  title: _("Group Policy");
+  default-width: 1000;
+  default-height: 680;
+  width-request: 360;
+  height-request: 294;
+
+  Adw.Breakpoint {
+    condition ("max-width: 640sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.NavigationSplitView split_view {
+      min-sidebar-width: 260;
+      max-sidebar-width: 400;
+
+      sidebar: Adw.NavigationPage {
+        title: _("Group Policy");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle domain_title {
+              title: _("Group Policy");
+            };
+
+            [start]
+            Box gpo_actions {
+              spacing: 6;
+
+              Button {
+                icon-name: "list-add-symbolic";
+                tooltip-text: _("New GPO (Ctrl+N)");
+                action-name: "gpo.creer";
+
+                accessibility {
+                  label: _("New GPO");
+                }
+              }
+
+              Button {
+                icon-name: "document-edit-symbolic";
+                tooltip-text: _("Edit the GPO contents (Ctrl+M)");
+                action-name: "gpo.modifier";
+
+                accessibility {
+                  label: _("Edit the GPO contents");
+                }
+              }
+            }
+
+            [end]
+            MenuButton {
+              icon-name: "open-menu-symbolic";
+              menu-model: gpo_menu;
+              primary: true;
+              tooltip-text: _("Group Policy menu");
+            }
+          }
+
+          [top]
+          Adw.Banner sysvol_banner {
+            button-label: _("Details");
+            button-clicked => $sysvol_details();
+          }
+
+          content: Stack tree_stack {
+            StackPage {
+              name: "arbre";
+
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                child: ListView tree {
+                  tab-behavior: item;
+
+                  accessibility {
+                    label: _("Domain, organizational units and linked GPOs");
+                  }
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  model: SingleSelection tree_selection {
+                    autoselect: true;
+                    notify::selected-item => $selected();
+                  };
+
+                  factory: BuilderListItemFactory {
+                    template ListItem {
+                      accessible-label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.accessible;
+
+                      child: TreeExpander {
+                        list-row: bind template.item;
+
+                        child: Box {
+                          spacing: 8;
+
+                          Image {
+                            icon-name: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.icone;
+                          }
+
+                          Box {
+                            orientation: vertical;
+                            valign: center;
+                            hexpand: true;
+
+                            Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.titre;
+                            }
+
+                            Label {
+                              xalign: 0;
+                              ellipsize: end;
+                              visible: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.a-sous-titre;
+                              label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.sous-titre;
+
+                              styles [
+                                "dim-label",
+                                "caption",
+                              ]
+                            }
+                          }
+
+                          Image {
+                            icon-name: "dialog-warning-symbolic";
+                            tooltip-text: _("Alert: see the details");
+                            visible: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudGpo>.alerte;
+
+                            styles [
+                              "warning",
+                            ]
+                          }
+                        };
+                      };
+                    }
+                  };
+                };
+              };
+            }
+
+            StackPage {
+              name: "chargement";
+
+              child: Spinner {
+                spinning: true;
+                halign: center;
+                valign: center;
+                width-request: 32;
+                height-request: 32;
+              };
+            }
+
+            StackPage {
+              name: "erreur";
+
+              child: Adw.StatusPage tree_error {
+                icon-name: "dialog-warning-symbolic";
+
+                child: Button {
+                  halign: center;
+                  label: _("Try Again");
+                  action-name: "gpo.actualiser";
+
+                  styles [
+                    "pill",
+                  ]
+                };
+              };
+            }
+          };
+        };
+      };
+
+      content: Adw.NavigationPage detail_page {
+        title: _("Details");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle detail_title {};
+
+            [end]
+            Button {
+              icon-name: "view-refresh-symbolic";
+              tooltip-text: _("Refresh (F5)");
+              action-name: "gpo.actualiser";
+
+              accessibility {
+                label: _("Refresh");
+              }
+            }
+          }
+
+          content: Stack detail_stack {
+            transition-type: crossfade;
+
+            StackPage {
+              name: "vide";
+
+              child: Adw.StatusPage {
+                icon-name: "text-x-generic-symbolic";
+                title: _("Choose a GPO or a container");
+              };
+            }
+
+            StackPage {
+              name: "gpo";
+
+              child: Adw.PreferencesPage gpo_page {
+                Adw.PreferencesGroup alerts_group {
+                  title: _("Alerts");
+
+                  ListBox alerts_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Alerts");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  title: _("Status");
+
+                  ListBox state_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Status");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  title: _("Versions");
+                  description: _("Version of each part in the directory and in GPT.INI in the SYSVOL; they must be equal.");
+
+                  ListBox versions_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Versions");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup links_group {
+                  title: _("Links");
+
+                  ListBox links_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Links");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup filtering_group {
+                  title: _("Security Filtering");
+                  description: _("Accounts and groups that receive this GPO (Read and “Apply group policy”).");
+
+                  ListBox filtering_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Security Filtering");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+
+                Adw.PreferencesGroup {
+                  title: _("Details");
+
+                  ListBox details_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Details");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+              };
+            }
+
+            StackPage {
+              name: "conteneur";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup container_group {
+                  title: _("Linked GPOs, in link order");
+
+                  ListBox container_list {
+                    selection-mode: none;
+
+                    accessibility {
+                      label: _("Linked GPOs");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+              };
+            }
+          };
+        };
+      };
+    };
+  };
+}
+
+menu gpo_menu {
+  section section_actions {
+    item {
+      label: _("New GPO…");
+      action: "gpo.creer";
+    }
+
+    item {
+      label: _("Edit Contents…");
+      action: "gpo.modifier";
+    }
+
+    item {
+      label: _("Link an Existing GPO…");
+      action: "gpo.lier";
+    }
+
+    item {
+      label: _("Block Inheritance");
+      action: "gpo.bloquer-heritage";
+    }
+  }
+
+  section {
+    item {
+      label: _("Link Enabled");
+      action: "gpo.lien-actif";
+    }
+
+    item {
+      label: _("Enforced link");
+      action: "gpo.lien-applique";
+    }
+
+    item {
+      label: _("Move Link Up");
+      action: "gpo.monter";
+    }
+
+    item {
+      label: _("Move Link Down");
+      action: "gpo.descendre";
+    }
+
+    item {
+      label: _("Remove the Link");
+      action: "gpo.delier";
+    }
+  }
+
+  section {
+    item {
+      label: _("Security Settings…");
+      action: "gpo.securite";
+    }
+
+    item {
+      label: _("Security Filtering…");
+      action: "gpo.filtrage";
+    }
+
+    item {
+      label: _("Align SYSVOL Permissions");
+      action: "gpo.aligner";
+    }
+
+    item {
+      label: _("Back Up the GPO…");
+      action: "gpo.sauvegarder";
+    }
+
+    item {
+      label: _("Restore a GPO…");
+      action: "gpo.restaurer";
+    }
+
+    item {
+      label: _("Remove Folders Without a GPO From SYSVOL…");
+      action: "gpo.orphelins";
+    }
+
+    item {
+      label: _("Delete the GPO…");
+      action: "gpo.supprimer";
+    }
+
+    item {
+      label: _("Delete the Orphaned Folder…");
+      action: "gpo.supprimer-orphelin";
+    }
+  }
+
+  section {
+    item {
+      label: _("Compare the DCs' SYSVOL");
+      action: "gpo.comparer";
+    }
+
+    item {
+      label: _("Refresh");
+      action: "gpo.actualiser";
+    }
+  }
+}

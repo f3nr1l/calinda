@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Classes auxiliaires d'un objet, ouvertes depuis l'éditeur d'attributs (ui/attributs.py) :
+// une ligne cochable par classe que le schéma propose, avec les attributs qu'elle apporte.
+// « Valider » range la modification d'objectClass dans la fiche, comme une autre valeur.
+template $AnnuaireDialogueClasses: Adw.Dialog {
+  content-width: 620;
+  content-height: 520;
+  title: _("Auxiliary Classes");
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button cancel_button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Confirm");
+        sensitive: false;
+        tooltip-text: _("Keep the change in the properties; it is applied with “Apply…”, after the preview");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup group {
+        description: _("Offered by the schema for the class of the object and its parents (auxiliaryClass, systemAuxiliaryClass). The attributes of an added class are then filled in the editor, before applying.");
+
+        ListBox list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Auxiliary Classes");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          xalign: 0;
+          wrap: true;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+  };
+}

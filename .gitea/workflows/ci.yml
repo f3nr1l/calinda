@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+#
+# RPM (J2.10) : SRPM et RPM construits dans Fedora (crates copiées dans l'archive, construction
+# hors ligne, cargo test dans %check), paquet installé et lancé jusqu'à son aide, catalogue
+# français et traductions du .desktop et de la metainfo vérifiés, rpmlint, RPM publié en
+# artefact.
+# Rust : crates annuaire-codecs, annuaire-core et annuaire-app dans Fedora (cargo du système),
+# fmt, clippy, tests (vecteurs partagés, logique des écrans) ; Blueprint compilés et catalogue
+# fr complet, .pot du dépôt égal à celui des sources.
+# Les tests labo (ADR 0020, #[ignore]) ne tournent pas ici. Aucun secret requis.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  rpm:
+    runs-on: ubuntu-latest
+    container: fedora:44
+    steps:
+      # node pour les actions JavaScript (checkout, upload-artifact), git pour meson dist.
+      # cargo-vendor-filterer : crates copiées dans l'archive par « meson dist ».
+      - name: Outils
+        run: |
+          dnf -y -q install nodejs git-core meson rpm-build 'dnf5-command(builddep)' cargo-vendor-filterer procps-ng
+          free -m && nproc
+      - uses: actions/checkout@v4
+      # Dépendances de construction prises dans le .spec : une seule liste à tenir.
+      - name: BuildRequires
+        run: |
+          sed 's/@VERSION@/0/' packaging/rpm/calinda.spec.in > "$RUNNER_TEMP/deps.spec"
+          dnf -y -q builddep "$RUNNER_TEMP/deps.spec"
+      - name: Archive (meson dist)
+        run: |
+          git config --global --add safe.directory "$PWD"
+          meson setup "$RUNNER_TEMP/dist"
+          meson dist -C "$RUNNER_TEMP/dist" --no-tests --formats xztar
+      # %check : desktop-file-validate, appstreamcli validate, tests contre le buildroot.
+      - name: SRPM et RPM
+        run: |
+          rpmbuild -ta --define "_topdir $RUNNER_TEMP/rpmbuild" "$RUNNER_TEMP"/dist/meson-dist/calinda-*.tar.xz
+          mkdir "$RUNNER_TEMP/paquets"
+          cp "$RUNNER_TEMP"/rpmbuild/RPMS/*/*.rpm "$RUNNER_TEMP"/rpmbuild/SRPMS/*.rpm "$RUNNER_TEMP/paquets/"
+      # L'image fedora n'installe que les catalogues en_US (%_install_langs) : levé, pour que
+      # le catalogue français du paquet soit installé et vérifié.
+      - name: Installation du RPM
+        run: |
+          rm -f /etc/rpm/macros.image-language-conf
+          dnf -y -q install "$RUNNER_TEMP"/paquets/calinda-[0-9]*.$(uname -m).rpm
+      # Bascule (ADR 0019) : le lanceur est le binaire de l'application Rust, qui démarre jusqu'à
+      # son aide (ressource et schéma trouvés), et le catalogue français est installé.
+      - name: Binaire et français
+        run: |
+          head -c 4 /usr/bin/calinda | grep -q ELF
+          grep -qx 'Exec=calinda' /usr/share/applications/io.github.f3nr1l.Calinda.desktop
+          calinda --help
+          msgunfmt /usr/share/locale/fr/LC_MESSAGES/calinda.mo | grep -qx 'msgstr "Annuler"'
+          grep -qx 'Comment\[fr\]=Administration d.un domaine Active Directory / Samba' \
+            /usr/share/applications/io.github.f3nr1l.Calinda.desktop
+          grep -q '<summary xml:lang="fr">' /usr/share/metainfo/io.github.f3nr1l.Calinda.metainfo.xml
+          if rpm -qR calinda | grep -i python; then exit 1; fi
+      # Erreurs de rpmlint bloquantes ; les avertissements restent dans le journal.
+      - name: rpmlint
+        run: |
+          dnf -y -q install rpmlint
+          rpmlint -r packaging/rpm/calinda.rpmlintrc "$RUNNER_TEMP"/paquets/*.rpm
+      - name: Tailles
+        run: |
+          cd "$RUNNER_TEMP/paquets"
+          ls -l *.rpm
+          rpm -q --qf 'Installé : %{SIZE} octets\n' calinda
+          rpm -qR calinda | grep -v '^rpmlib('
+      - uses: actions/upload-artifact@v3  # v4 refusée par Gitea (« not supported on GHES »)
+        with:
+          name: rpm-fedora-44
+          path: ${{ runner.temp }}/paquets/
+
+  rust:
+    runs-on: ubuntu-latest
+    container: fedora:44
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - name: Outils
+        working-directory: /
+        # clang-devel (bindgen de libgssapi-sys), krb5-devel et openssl-devel : annuaire-core ;
+        # gtk4-devel, libadwaita-devel, blueprint-compiler, meson et gettext : annuaire-app ;
+        # desktop-file-utils pour « meson setup » (update-desktop-database du post_install) ;
+        # sqlite-devel : copie locale (rusqlite, SQLite du système).
+        run: |
+          dnf -y -q install nodejs git-core cargo rust clippy rustfmt gcc \
+            clang-devel krb5-devel openssl-devel \
+            gtk4-devel libadwaita-devel blueprint-compiler meson gettext glib2-devel \
+            desktop-file-utils sqlite-devel
+      - uses: actions/checkout@v4
+      - name: Versions
+        run: cargo --version && rustc --version
+      - name: cargo fmt --check
+        run: cargo fmt --all --check
+      - name: cargo clippy
+        run: cargo clippy --locked --all-targets --all-features -- -D warnings
+      # Les tests labo sont compilés et listés, pas lancés (#[ignore], ADR 0020).
+      - name: cargo test
+        run: cargo test --locked --all-features
+      # Les Blueprint se compilent ; le catalogue fr traduit tout le .pot régénéré (sources,
+      # Blueprint, .desktop, metainfo), sans « fuzzy ». Le binaire est vérifié par cargo
+      # (clippy, test) ; meson ne le reconstruit pas.
+      - name: Blueprint et catalogue
+        working-directory: .
+        run: |
+          meson setup "$RUNNER_TEMP/app"
+          cp po/calinda.pot "$RUNNER_TEMP/depot.pot"
+          meson compile -C "$RUNNER_TEMP/app" app-blueprints calinda-pot
+          msgcmp --use-untranslated "$RUNNER_TEMP/depot.pot" po/calinda.pot
+          msgcmp --use-untranslated po/calinda.pot "$RUNNER_TEMP/depot.pot"
+          msgcmp po/fr.po po/calinda.pot
+          msgfmt --check --statistics -o /dev/null po/fr.po
+          ! grep -q '^#, fuzzy' po/fr.po

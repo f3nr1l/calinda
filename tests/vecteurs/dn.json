@@ -1,0 +1,324 @@
+{
+  "format": 1,
+  "famille": "dn",
+  "description": "noms distingués : échappements RFC 4514, conflits CNF",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "dn-ou-r-et-d",
+      "description": "virgule échappée dans une valeur de RDN",
+      "provenance": {
+        "objet": "OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "4f553d5226445c2c20496e6e6f766174696f6e2c4f553d50617269732c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "OU",
+            "valeur": "R&D, Innovation"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Paris"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "R&D, Innovation"
+      }
+    },
+    {
+      "id": "dn-dans-r-et-d",
+      "description": "objet sous une OU à virgule échappée",
+      "provenance": {
+        "objet": "CN=Adam Barbier,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam Barbier,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d4164616d20426172626965722c4f553d5574696c69736174657572732c4f553d5226445c2c20496e6e6f766174696f6e2c4f553d50617269732c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "CN=Adam Barbier,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "Adam Barbier"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Utilisateurs"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "R&D, Innovation"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Paris"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Adam Barbier"
+      }
+    },
+    {
+      "id": "dn-cnf-utilisateur",
+      "description": "conflit : saut de ligne échappé en \\0A",
+      "provenance": {
+        "objet": "CN=Aïcha Gillet\\0ACNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Aïcha Gillet\\0ACNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d41c3af6368612047696c6c65745c3041434e463a64393330376531632d326535642d343364312d623662392d3233336361306135373239302c4f553d5574696c69736174657572732c4f553d5226445c2c20496e6e6f766174696f6e2c4f553d50617269732c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "CN=Aïcha Gillet\\0ACNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290,OU=Utilisateurs,OU=R&D\\, Innovation,OU=Paris,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "Aïcha Gillet\nCNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Utilisateurs"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "R&D, Innovation"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Paris"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Aïcha Gillet\nCNF:d9307e1c-2e5d-43d1-b6b9-233ca0a57290"
+      }
+    },
+    {
+      "id": "dn-cnf-ou",
+      "description": "OU en conflit",
+      "provenance": {
+        "objet": "OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "4f553d56656e7465735c3041434e463a65643531343730312d646439372d343364332d616232372d6361386337333532626463322c4f553d4c796f6e2c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "OU",
+            "valeur": "Ventes\nCNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Lyon"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Ventes\nCNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2"
+      }
+    },
+    {
+      "id": "dn-dans-cnf-ou",
+      "description": "objet sous une OU en conflit",
+      "provenance": {
+        "objet": "CN=Stagiaire 1,OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Stagiaire 1,OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d53746167696169726520312c4f553d56656e7465735c3041434e463a65643531343730312d646439372d343364332d616232372d6361386337333532626463322c4f553d4c796f6e2c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "CN=Stagiaire 1,OU=Ventes\\0ACNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2,OU=Lyon,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "Stagiaire 1"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Ventes\nCNF:ed514701-dd97-43d3-ab27-ca8c7352bdc2"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Lyon"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Stagiaire 1"
+      }
+    },
+    {
+      "id": "dn-apostrophe",
+      "description": "apostrophe et accents (UTF-8, sans échappement)",
+      "provenance": {
+        "objet": "CN=Adam N'Diaye,OU=Utilisateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Adam N'Diaye,OU=Utilisateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d4164616d204e2744696179652c4f553d5574696c69736174657572732c4f553d526573736f75726365732068756d61696e65732c4f553d426f7264656175782c4f553d4c61626f2c44433d6c61622c44433d74657374",
+      "texte": "CN=Adam N'Diaye,OU=Utilisateurs,OU=Ressources humaines,OU=Bordeaux,OU=Labo,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "Adam N'Diaye"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Utilisateurs"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Ressources humaines"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Bordeaux"
+          },
+          {
+            "attribut": "OU",
+            "valeur": "Labo"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Adam N'Diaye"
+      }
+    },
+    {
+      "id": "dn-lostandfound",
+      "description": "objet rangé dans LostAndFound",
+      "provenance": {
+        "objet": "CN=Compte orphelin,CN=LostAndFound,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Compte orphelin,CN=LostAndFound,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d436f6d707465206f727068656c696e2c434e3d4c6f7374416e64466f756e642c44433d6c61622c44433d74657374",
+      "texte": "CN=Compte orphelin,CN=LostAndFound,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "Compte orphelin"
+          },
+          {
+            "attribut": "CN",
+            "valeur": "LostAndFound"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "Compte orphelin"
+      }
+    },
+    {
+      "id": "dn-gpo",
+      "description": "accolades",
+      "provenance": {
+        "objet": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test",
+        "attribut": "distinguishedName",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test' distinguishedName name"
+      },
+      "hex": "434e3d7b33314232463334302d303136442d313144322d393435462d3030433034464239383446397d2c434e3d506f6c69636965732c434e3d53797374656d2c44433d6c61622c44433d74657374",
+      "texte": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test",
+      "attendu": {
+        "composants": [
+          {
+            "attribut": "CN",
+            "valeur": "{31B2F340-016D-11D2-945F-00C04FB984F9}"
+          },
+          {
+            "attribut": "CN",
+            "valeur": "Policies"
+          },
+          {
+            "attribut": "CN",
+            "valeur": "System"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "lab"
+          },
+          {
+            "attribut": "DC",
+            "valeur": "test"
+          }
+        ],
+        "name": "{31B2F340-016D-11D2-945F-00C04FB984F9}"
+      }
+    }
+  ]
+}

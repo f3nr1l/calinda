@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Recherche de membres à ajouter (J2.5).
+template $AnnuaireDialogueMembres: Adw.Dialog {
+  title: _("Add Members");
+  content-width: 520;
+  content-height: 560;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {}
+
+    [top]
+    SearchBar {
+      search-mode-enabled: true;
+      show-close-button: false;
+
+      child: Adw.Clamp {
+        maximum-size: 480;
+
+        child: SearchEntry member_entry {
+          hexpand: true;
+          placeholder-text: _("Name, logon name or email");
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the members to add");
+          }
+        };
+      };
+    }
+
+    content: Stack search_state {
+      StackPage {
+        name: "invite";
+
+        child: Adw.StatusPage {
+          icon-name: "system-search-symbolic";
+          description: _("The beginning of the name is enough.");
+        };
+      }
+
+      StackPage {
+        name: "resultats";
+
+        child: ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: Box {
+            orientation: vertical;
+            spacing: 12;
+            margin-start: 12;
+            margin-end: 12;
+            margin-top: 12;
+            margin-bottom: 12;
+            valign: start;
+
+            ListBox candidates_list {
+              selection-mode: none;
+
+              styles [
+                "boxed-list",
+              ]
+            }
+
+            // Résultats montrés par tranches (RESULTATS_MAX), la recherche lit tout.
+            Box {
+              spacing: 12;
+
+              Label candidates_count {
+                xalign: 0;
+                hexpand: true;
+                wrap: true;
+
+                styles [
+                  "dim-label",
+                ]
+              }
+
+              Button more_button {
+                label: _("Show more");
+                visible: false;
+                clicked => $show_more();
+              }
+            }
+          };
+        };
+      }
+
+      StackPage {
+        name: "vide";
+
+        child: Adw.StatusPage search_message {
+          icon-name: "edit-find-symbolic";
+          title: _("No results");
+        };
+      }
+    };
+  };
+}

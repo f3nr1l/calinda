@@ -1,0 +1,96 @@
+{
+  "format": 1,
+  "famille": "guid",
+  "description": "GUID binaire en ordre d'octets mixte (MS-DTYP 2.3.4.2) et forme texte",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "guid-domaine",
+      "provenance": {
+        "objet": "DC=lab,DC=test",
+        "attribut": "objectGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=lab,DC=test' objectGUID"
+      },
+      "hex": "c3b0ab49bf43b144b3c01d10a676e905",
+      "attendu": {
+        "texte": "49abb0c3-43bf-44b1-b3c0-1d10a676e905"
+      }
+    },
+    {
+      "id": "guid-administrator",
+      "provenance": {
+        "objet": "CN=Administrator,CN=Users,DC=lab,DC=test",
+        "attribut": "objectGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Administrator,CN=Users,DC=lab,DC=test' objectGUID"
+      },
+      "hex": "0694c2944a5dea4d94271e4e5ebba5a6",
+      "attendu": {
+        "texte": "94c29406-5d4a-4dea-9427-1e4e5ebba5a6"
+      }
+    },
+    {
+      "id": "guid-gpo-default-domain-policy",
+      "provenance": {
+        "objet": "CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test",
+        "attribut": "objectGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=lab,DC=test' objectGUID"
+      },
+      "hex": "1703c1810cba8e41a827d3343dd0bb7f",
+      "attendu": {
+        "texte": "81c10317-ba0c-418e-a827-d3343dd0bb7f"
+      }
+    },
+    {
+      "id": "guid-schema-user",
+      "provenance": {
+        "objet": "CN=User,CN=Schema,CN=Configuration,DC=lab,DC=test",
+        "attribut": "schemaIDGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=User,CN=Schema,CN=Configuration,DC=lab,DC=test' schemaIDGUID"
+      },
+      "hex": "ba7a96bfe60dd011a28500aa003049e2",
+      "attendu": {
+        "texte": "bf967aba-0de6-11d0-a285-00aa003049e2"
+      }
+    },
+    {
+      "id": "guid-schema-member",
+      "provenance": {
+        "objet": "CN=Member,CN=Schema,CN=Configuration,DC=lab,DC=test",
+        "attribut": "schemaIDGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Member,CN=Schema,CN=Configuration,DC=lab,DC=test' schemaIDGUID"
+      },
+      "hex": "c07996bfe60dd011a28500aa003049e2",
+      "attendu": {
+        "texte": "bf9679c0-0de6-11d0-a285-00aa003049e2"
+      }
+    },
+    {
+      "id": "guid-schema-member-jeu",
+      "provenance": {
+        "objet": "CN=Member,CN=Schema,CN=Configuration,DC=lab,DC=test",
+        "attribut": "attributeSecurityGUID",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=Member,CN=Schema,CN=Configuration,DC=lab,DC=test' attributeSecurityGUID"
+      },
+      "hex": "40c20abca979d011902000c04fc2d4cf",
+      "attendu": {
+        "texte": "bc0ac240-79a9-11d0-9020-00c04fc2d4cf"
+      }
+    },
+    {
+      "id": "guid-ntds-invocationid",
+      "provenance": {
+        "objet": "CN=NTDS Settings,CN=DC1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=lab,DC=test",
+        "attribut": "invocationId",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'CN=NTDS Settings,CN=DC1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=lab,DC=test' invocationId"
+      },
+      "hex": "9cd97937a6a47249999542b792cc1602",
+      "attendu": {
+        "texte": "3779d99c-a4a6-4972-9995-42b792cc1602"
+      }
+    }
+  ]
+}

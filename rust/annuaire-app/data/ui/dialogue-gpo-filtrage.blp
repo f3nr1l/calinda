@@ -1,0 +1,118 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Filtrage de sécurité d'une GPO (J5.5) : comptes et groupes à qui elle s'applique (lecture
+// et « Appliquer la stratégie de groupe »), sur l'objet et sur son dossier SYSVOL. Les
+// actuels se décochent pour être retirés ; la recherche (celle de l'assistant de délégation,
+// J4.3) en ajoute.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoFiltrage: Adw.Dialog {
+  focus-widget: principal_entry;
+  title: _("Security Filtering");
+  content-width: 600;
+  content-height: 720;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Security Filtering");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup current_group {
+        title: _("The GPO applies to");
+        description: _("Uncheck to remove. Like the GPMC: Read and the “Apply group policy” right, on the object and on each item of its SYSVOL folder.");
+
+        ListBox current_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Accounts and groups the GPO applies to");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Add a group or an account");
+
+        SearchEntry principal_entry {
+          placeholder-text: _("Name or logon name of the group or account");
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the group or account to add");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup additions_group {
+        title: _("Will be added");
+        visible: false;
+
+        ListBox additions_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Groups and accounts to add");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+    };
+  };
+}

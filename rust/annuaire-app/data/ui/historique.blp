@@ -1,0 +1,129 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+template $AnnuaireDialogueHistorique: Adw.Dialog {
+  title: _("Change History");
+  content-width: 900;
+  content-height: 640;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      [start]
+      Button undo_change_button {
+        label: _("Undo this change");
+        sensitive: false;
+        clicked => $undo_change();
+
+        styles [
+          "destructive-action",
+        ]
+      }
+
+      [end]
+      Button {
+        icon-name: "view-refresh-symbolic";
+        tooltip-text: _("Read the log again");
+        clicked => $reload();
+      }
+    }
+
+    content: Stack stack {
+      StackPage {
+        name: "vide";
+
+        child: Adw.StatusPage {
+          icon-name: "document-open-recent-symbolic";
+          title: _("No change recorded for this domain");
+          description: _("The local log ($XDG_STATE_HOME/calinda/changes.jsonl) keeps every write made from this computer.");
+        };
+      }
+
+      StackPage {
+        name: "liste";
+
+        child: Paned {
+          orientation: vertical;
+          position: 300;
+          shrink-start-child: false;
+          shrink-end-child: false;
+
+          start-child: ScrolledWindow {
+            hscrollbar-policy: never;
+
+            child: ListView list_view {
+              styles [
+                "navigation-sidebar",
+              ]
+
+              accessibility {
+                label: _("Changes in the log");
+              }
+
+              model: SingleSelection selection {
+                autoselect: true;
+                notify::selected-item => $selected();
+
+                model: Gio.ListStore store {
+                  item-type: typeof<$AnnuaireEntreeHistorique>;
+                };
+              };
+
+              factory: BuilderListItemFactory {
+                template ListItem {
+                  accessible-label: bind template.item as <$AnnuaireEntreeHistorique>.titre;
+                  accessible-description: bind template.item as <$AnnuaireEntreeHistorique>.sous-titre;
+
+                  child: Box {
+                    orientation: vertical;
+                    margin-top: 6;
+                    margin-bottom: 6;
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: bind template.item as <$AnnuaireEntreeHistorique>.titre;
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: bind template.item as <$AnnuaireEntreeHistorique>.sous-titre;
+
+                      styles [
+                        "caption",
+                        "dim-label",
+                      ]
+                    }
+                  };
+                }
+              };
+            };
+          };
+
+          end-child: ScrolledWindow {
+            child: Label detail {
+              xalign: 0;
+              yalign: 0;
+              wrap: true;
+              wrap-mode: word_char;
+              selectable: true;
+              margin-start: 12;
+              margin-end: 12;
+              margin-top: 12;
+              margin-bottom: 12;
+
+              styles [
+                "monospace",
+              ]
+            };
+          };
+        };
+      }
+    };
+  };
+}

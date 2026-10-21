@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Un filtre de ciblage d'une préférence (J7.6) : groupe de sécurité, unité d'organisation,
+// nom de l'ordinateur ou utilisateur ; le groupe, l'OU et l'utilisateur se cherchent dans
+// l'annuaire (recherche de l'assistant de délégation), le nom d'ordinateur se saisit.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePrefCible: Adw.Dialog {
+  focus-widget: search_entry;
+  title: _("Targeting filter");
+  content-width: 560;
+  content-height: 640;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Targeting filter");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup search_group {
+        title: _("Choose from the directory");
+
+        SearchEntry search_entry {
+          placeholder-text: _("Name or logon name");
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search the directory");
+          }
+        }
+
+        Label count {
+          xalign: 0;
+          margin-bottom: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Search results");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup computer_group {
+        title: _("Computer name");
+        visible: false;
+
+        Adw.EntryRow computer_entry {
+          title: _("Name");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow dns_switch {
+          title: _("Fully qualified DNS name (otherwise NetBIOS name)");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: C_("noun", "Filter");
+
+        Adw.ActionRow chosen_row {
+          title: _("Chosen");
+          subtitle: _("Nothing yet");
+          subtitle-selectable: true;
+
+          styles [
+            "property",
+          ]
+        }
+
+        Adw.SwitchRow not_switch {
+          title: _("Is not (negation)");
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow ou_switch {
+          title: _("Combined with the previous filter by OR (otherwise AND)");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow computer_switch {
+          title: _("Evaluate for the computer (otherwise for the user)");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow direct_switch {
+          title: _("Direct member of the OU only");
+          visible: false;
+          notify::active => $changed();
+        }
+      }
+    };
+  };
+}

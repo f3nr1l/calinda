@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+#
+# Filtres rpmlint de Calinda (J6.2), lus par « rpmlint -r » (CI, job rpm).
+
+# gtk4 et libadwaita nommés dans Requires (ADR 0019 § 8) en plus des bibliothèques que rpm
+# trouve : la dépendance explicite est voulue.
+addFilter("explicit-lib-dependency libadwaita")

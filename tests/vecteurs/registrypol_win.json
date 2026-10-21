@@ -1,0 +1,267 @@
+{
+ "format": 1,
+ "famille": "registrypol_win",
+ "description": "Registry.pol écrits par la GPMC (Set-GPRegistryValue) sur le DC Windows",
+ "source": {
+  "dc": "WDC1.win.test",
+  "domaine": "win.test",
+  "windows": "Windows Server 2025, GPMC"
+ },
+ "vecteurs": [
+  {
+   "id": "registrypol-gpmc-windows-machine",
+   "description": "Set-GPRegistryValue, partie machine, SYSVOL de WDC1.win.test",
+   "provenance": {
+    "objet": "\\\\WDC1.win.test\\SYSVOL\\win.test\\Policies\\{GUID}\\Machine\\Registry.pol",
+    "attribut": "(fichier)",
+    "commande": "[IO.File]::ReadAllBytes(...)",
+    "preparation": "labo/extraire_registrypol_gpmc.py wdc"
+   },
+   "hex": "50526567010000005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b005400650078007400650000003b00010000003b00180000003b00c9007400e9002000e00020005000610072006900730000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b004300680065006d0069006e0000003b00020000003b00240000003b002500530079007300740065006d0052006f006f00740025005c00540065006d00700000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b0045006e00740069006500720000003b00040000003b00040000003b002a0000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b0045006e0074006900650072004d006100780000003b00040000003b00040000003b00ffffffff5d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b004700720061006e00640000003b000b0000003b00080000003b00efcdab89674523015d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b004c00690073007400650000003b00070000003b001a0000003b0075006e00000064006500750078000000e9007400e900000000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b004f006300740065007400730000003b00030000003b00050000003b0000017f80ff5d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b00560069006400650000003b00010000003b00020000003b0000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b002a002a00640065006c002e0041006e006300690065006e006e00650000003b00010000003b00020000003b0000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a00370050005c005000750072006700650000003b002a002a00640065006c00560061006c0073002e0000003b00010000003b00020000003b0000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a00370050005c005300700065006300690061006c006500730000003b002a002a00440065006c00650074006500560061006c0075006500730000003b00010000003b00080000003b0061003b00620000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a00370050005c005300700065006300690061006c006500730000003b002a002a00440065006c006500740065004b0065007900730000003b00010000003b00180000003b0053006f007500730031003b0053006f0075007300320000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a00370050005c005300700065006300690061006c006500730000003b002a002a005300650063007500720065004b006500790000003b00040000003b00040000003b00010000005d00",
+   "attendu": {
+    "signature": "PReg",
+    "version": 1,
+    "entrees": [
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Texte",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": "Été à Paris"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Chemin",
+      "type": 2,
+      "type_nom": "EXPAND_SZ",
+      "donnees": "%SystemRoot%\\Temp"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Entier",
+      "type": 4,
+      "type_nom": "DWORD",
+      "donnees": 42
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "EntierMax",
+      "type": 4,
+      "type_nom": "DWORD",
+      "donnees": 4294967295
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Grand",
+      "type": 11,
+      "type_nom": "QWORD",
+      "donnees": 81985529216486895
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Liste",
+      "type": 7,
+      "type_nom": "MULTI_SZ",
+      "donnees": [
+       "un",
+       "deux",
+       "été"
+      ]
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Octets",
+      "type": 3,
+      "type_nom": "BINARY",
+      "donnees": "00017f80ff"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Vide",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": ""
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "**del.Ancienne",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": ""
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P\\Purge",
+      "valeur": "**delVals.",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": ""
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P\\Speciales",
+      "valeur": "**DeleteValues",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": "a;b"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P\\Speciales",
+      "valeur": "**DeleteKeys",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": "Sous1;Sous2"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P\\Speciales",
+      "valeur": "**SecureKey",
+      "type": 4,
+      "type_nom": "DWORD",
+      "donnees": 1
+     }
+    ],
+    "gpmc": [
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Texte",
+      "Type": "String",
+      "PolicyState": "Set",
+      "Valeur": "Été à Paris"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Chemin",
+      "Type": "ExpandString",
+      "PolicyState": "Set",
+      "Valeur": "%SystemRoot%\\Temp"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Entier",
+      "Type": "DWord",
+      "PolicyState": "Set",
+      "Valeur": "42"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "EntierMax",
+      "Type": "DWord",
+      "PolicyState": "Set",
+      "Valeur": "-1"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Grand",
+      "Type": "QWord",
+      "PolicyState": "Set",
+      "Valeur": "81985529216486895"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Liste",
+      "Type": "MultiString",
+      "PolicyState": "Set",
+      "Valeur": "un deux été"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Octets",
+      "Type": "Binary",
+      "PolicyState": "Set",
+      "Valeur": "0 1 127 128 255"
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Vide",
+      "Type": "String",
+      "PolicyState": "Set",
+      "Valeur": ""
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Ancienne",
+      "Type": "String",
+      "PolicyState": "Delete",
+      "Valeur": ""
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P\\Purge",
+      "ValueName": null,
+      "Type": "",
+      "PolicyState": "",
+      "Valeur": ""
+     },
+     {
+      "Hive": "LocalMachine",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P\\Speciales",
+      "ValueName": null,
+      "Type": "",
+      "PolicyState": "",
+      "Valeur": ""
+     }
+    ],
+    "version_gpo": 131085,
+    "extensions": "[{35378EAC-683F-11D2-A89A-00C04FBBCFA2}{D02B1F72-3407-48AE-BA88-E8213C6761F1}]"
+   }
+  },
+  {
+   "id": "registrypol-gpmc-windows-utilisateur",
+   "description": "Set-GPRegistryValue, partie utilisateur, SYSVOL de WDC1.win.test",
+   "provenance": {
+    "objet": "\\\\WDC1.win.test\\SYSVOL\\win.test\\Policies\\{GUID}\\User\\Registry.pol",
+    "attribut": "(fichier)",
+    "commande": "[IO.File]::ReadAllBytes(...)",
+    "preparation": "labo/extraire_registrypol_gpmc.py wdc"
+   },
+   "hex": "50526567010000005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b005400650078007400650000003b00010000003b00180000003b007500740069006c00690073006100740065007500720000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c004a003700500000003b0045006300720061006e0000003b00040000003b00040000003b00580200005d00",
+   "attendu": {
+    "signature": "PReg",
+    "version": 1,
+    "entrees": [
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Texte",
+      "type": 1,
+      "type_nom": "SZ",
+      "donnees": "utilisateur"
+     },
+     {
+      "cle": "Software\\Policies\\Annuaire\\J7P",
+      "valeur": "Ecran",
+      "type": 4,
+      "type_nom": "DWORD",
+      "donnees": 600
+     }
+    ],
+    "gpmc": [
+     {
+      "Hive": "CurrentUser",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Texte",
+      "Type": "String",
+      "PolicyState": "Set",
+      "Valeur": "utilisateur"
+     },
+     {
+      "Hive": "CurrentUser",
+      "KeyPath": "Software\\Policies\\Annuaire\\J7P",
+      "ValueName": "Ecran",
+      "Type": "DWord",
+      "PolicyState": "Set",
+      "Valeur": "600"
+     }
+    ],
+    "version_gpo": 131085,
+    "extensions": "[{35378EAC-683F-11D2-A89A-00C04FBBCFA2}{D02B1F73-3407-48AE-BA88-E8213C6761F1}]"
+   }
+  }
+ ]
+}

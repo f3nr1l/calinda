@@ -1,0 +1,247 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Élément de registre d'une GPO (préférence Registry.xml, J7.6) : ruche, clé, valeur (ou valeur par défaut, ou la clé seule), type et données, ciblage et options communes.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePrefRegistre: Adw.Dialog {
+  title: _("Registry Item");
+  content-width: 600;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Registry Item");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ComboRow action_combo {
+          title: _("Action");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Create"),
+              _("Replace"),
+              _("Update"),
+              _("Delete"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Registry");
+        description: _("Without a value name or “Default value”, the item applies to the key itself.");
+
+        Adw.ComboRow hive_combo {
+          title: _("Hive");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              "HKEY_LOCAL_MACHINE",
+              "HKEY_CURRENT_USER",
+              "HKEY_CLASSES_ROOT",
+              "HKEY_USERS",
+              "HKEY_CURRENT_CONFIG",
+            ]
+          };
+        }
+
+        Adw.EntryRow key_entry {
+          title: _("Key path");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow default_value_switch {
+          title: _("Default value");
+          notify::active => $changed();
+        }
+
+        Adw.EntryRow name_entry {
+          title: _("Value name");
+          changed => $changed();
+        }
+
+        Adw.ComboRow type_combo {
+          title: _("Value type");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              "REG_SZ",
+              "REG_EXPAND_SZ",
+              "REG_MULTI_SZ",
+              "REG_DWORD",
+              "REG_QWORD",
+              "REG_BINARY",
+            ]
+          };
+        }
+
+        Adw.EntryRow data_entry {
+          title: _("Value data");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow decimal_switch {
+          title: _("Decimal (otherwise hexadecimal)");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup multiple_group {
+        title: _("Value data");
+        description: _("One string per line.");
+        visible: false;
+
+        Frame {
+          child: TextView multi_text {
+            height-request: 100;
+            top-margin: 6;
+            bottom-margin: 6;
+            left-margin: 6;
+            right-margin: 6;
+
+            accessibility {
+              label: _("Value data, one string per line");
+            }
+          };
+        }
+      }
+
+      Adw.PreferencesGroup targets_group {
+        title: _("Targeting");
+        description: _("Without a filter, the item applies to everyone who receives the GPO.");
+
+        [header-suffix]
+        MenuButton target_button {
+          icon-name: "list-add-symbolic";
+          tooltip-text: _("Add a filter");
+          menu-model: targets_menu;
+
+          accessibility {
+            label: _("Add a targeting filter");
+          }
+
+          styles [
+            "flat",
+          ]
+        }
+
+        ListBox targets_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Targeting filters, in order");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Common options");
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow stop_switch {
+          title: _("Stop processing items in this extension if an error occurs");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow context_switch {
+          title: _("Run in logged-on user's security context");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow remove_switch {
+          title: _("Remove this item when it is no longer applied");
+          subtitle: _("Requires the “Replace” action");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow disabled_switch {
+          title: _("Disable this item");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          wrap: true;
+          xalign: 0;
+          visible: false;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+  };
+}
+
+menu targets_menu {
+  section {
+    item {
+      label: _("Security Group…");
+      action: "dialogue.cible";
+      target: "FilterGroup";
+    }
+
+    item {
+      label: _("Organizational Unit…");
+      action: "dialogue.cible";
+      target: "FilterOrgUnit";
+    }
+
+    item {
+      label: _("Computer Name…");
+      action: "dialogue.cible";
+      target: "FilterComputer";
+    }
+
+    item {
+      label: _("User…");
+      action: "dialogue.cible";
+      target: "FilterUser";
+    }
+  }
+}

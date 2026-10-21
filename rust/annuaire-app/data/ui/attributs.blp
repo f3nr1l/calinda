@@ -1,0 +1,213 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+// Éditeur d'attributs, onglet « Attributs » de la fiche (J4.4, ui/attributs.py). Tous les
+// attributs de l'objet, renseignés ou permis par sa classe ; Entrée ou double clic ouvre
+// la valeur (dialogue-attribut.blp). Les modifications rejoignent le brouillon de la fiche.
+template $AnnuaireEditeurAttributs: Box {
+  orientation: vertical;
+
+  Box {
+    spacing: 6;
+    margin-start: 12;
+    margin-end: 12;
+    margin-top: 6;
+    margin-bottom: 6;
+
+    SearchEntry search {
+      hexpand: true;
+      placeholder-text: _("Search for an attribute");
+      search-changed => $filter_changed();
+
+      accessibility {
+        label: _("Search for an attribute by name");
+      }
+    }
+
+    ToggleButton filled_button {
+      label: _("Set");
+      tooltip-text: _("Only attributes that have a value");
+      toggled => $filter_changed();
+    }
+
+    ToggleButton editable_button {
+      label: _("Editable");
+      tooltip-text: _("Only attributes that this account can edit here");
+      toggled => $filter_changed();
+    }
+
+    Button classes_button {
+      label: _("Auxiliary Classes…");
+      tooltip-text: _("Add or remove an auxiliary class (objectClass) and the attributes it brings");
+      sensitive: false;
+      clicked => $edit_classes();
+    }
+  }
+
+  Stack state {
+    vexpand: true;
+    transition-type: crossfade;
+
+    StackPage {
+      name: "chargement";
+
+      child: Box {
+        orientation: vertical;
+        spacing: 12;
+        valign: center;
+
+        Spinner {
+          spinning: true;
+          width-request: 32;
+          height-request: 32;
+        }
+
+        Label waiting {
+          label: _("Reading attributes and schema…");
+
+          styles [
+            "dim-label",
+          ]
+        }
+      };
+    }
+
+    StackPage {
+      name: "erreur";
+
+      child: Adw.StatusPage error {
+        icon-name: "dialog-warning-symbolic";
+        title: _("Cannot read");
+      };
+    }
+
+    StackPage {
+      name: "vide";
+
+      child: Adw.StatusPage {
+        icon-name: "edit-find-symbolic";
+        title: _("No matching attribute");
+      };
+    }
+
+    StackPage {
+      name: "liste";
+
+      child: ScrolledWindow {
+        hscrollbar-policy: never;
+
+        child: ColumnView table {
+          tab-behavior: item;
+          reorderable: false;
+          activate => $activated();
+
+          accessibility {
+            label: _("Object attributes");
+          }
+
+          styles [
+            "data-table",
+          ]
+
+          model: SingleSelection selection {
+            autoselect: false;
+
+            model: Gio.ListStore store {
+              item-type: typeof<$AnnuaireLigneAttribut>;
+            };
+          };
+
+          ColumnViewColumn {
+            title: _("Attribute");
+            fixed-width: 190;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  ellipsize: end;
+                  label: bind template.item as <$AnnuaireLigneAttribut>.nom;
+                  tooltip-text: bind template.item as <$AnnuaireLigneAttribut>.nom;
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("Value");
+            expand: true;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  ellipsize: end;
+                  label: bind template.item as <$AnnuaireLigneAttribut>.resume;
+                  tooltip-text: bind template.item as <$AnnuaireLigneAttribut>.resume;
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("Type");
+            fixed-width: 150;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  ellipsize: end;
+                  label: bind template.item as <$AnnuaireLigneAttribut>.type;
+                  tooltip-text: bind template.item as <$AnnuaireLigneAttribut>.type;
+
+                  styles [
+                    "dim-label",
+                  ]
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("Status");
+            fixed-width: 105;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  ellipsize: end;
+                  label: bind template.item as <$AnnuaireLigneAttribut>.etat;
+                  tooltip-text: bind template.item as <$AnnuaireLigneAttribut>.raison;
+                };
+              }
+            };
+          }
+        };
+      };
+    }
+  }
+
+  Label count {
+    xalign: 0;
+    margin-start: 12;
+    margin-end: 12;
+    margin-top: 4;
+    margin-bottom: 4;
+    ellipsize: end;
+
+    styles [
+      "dim-label",
+      "caption",
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: 2026 René Onier -->
+<component type="desktop-application">
+  <id>io.github.f3nr1l.Calinda</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later AND CC-BY-SA-4.0</project_license>
+  <name>Calinda</name>
+  <summary>Manage an Active Directory domain</summary>
+  <description>
+    <p>
+      Calinda manages an Active Directory or Samba domain from GNOME: accounts,
+      groups, organizational units, DNS and GPOs, without a Windows computer.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.f3nr1l.Calinda.desktop</launchable>
+  <developer id="io.github.f3nr1l">
+    <name translate="no">René Onier</name>
+  </developer>
+  <url type="homepage">https://github.com/f3nr1l/calinda</url>
+  <url type="bugtracker">https://github.com/f3nr1l/calinda/issues</url>
+  <content_rating type="oars-1.1"/>
+  <!-- translate="no" : notes de version et nom du développeur hors catalogue. Notes en
+       anglais, la langue source depuis la bascule (1.1.0). -->
+  <releases>
+    <release version="1.2.0" date="2026-10-17">
+      <description translate="no">
+        <p>Annuaire is now called Calinda.</p>
+        <ul>
+          <li>New application identifier, command and package name.</li>
+          <li>Domain controllers that only speak SMB 2 (Windows Server 2008 R2 and earlier) are supported for the SYSVOL through a domain profile option, “Allow SMB 2 with signing only (older controllers)”, off by default.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.0" date="2026-10-16">
+      <description translate="no">
+        <p>The application is now written in Rust: same screens, same data.</p>
+        <ul>
+          <li>Starts ten times faster and uses less memory.</li>
+          <li>No Python dependency left: GTK 4, libadwaita and system libraries only.</li>
+          <li>English is the source language, French a translation; the desktop entry and these metadata are translated.</li>
+          <li>Messages about Active Directory formats (SDDL, DNS, group policies) are translated.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.0" date="2026-10-15">
+      <description translate="no">
+        <p>Editor of the content of group policies.</p>
+        <ul>
+          <li>Administrative templates (ADMX of the central store) and raw registry values, written to Registry.pol.</li>
+          <li>Security settings: passwords and lockout, user rights, restricted groups.</li>
+          <li>Preferences: mapped drives, printers, shortcuts, registry, with item-level targeting.</li>
+          <li>Fine-grained password policies (PSO): creation, modification, deletion.</li>
+          <li>Conditional permissions read and written in SDDL.</li>
+          <li>Direct access to the DNS, DNS Health, Group Policy and History windows.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.5.0" date="2026-10-14">
+      <description translate="no">
+        <p>Group policy management, without an editor of their content.</p>
+        <ul>
+          <li>Group policies: inventory, links, creation and deletion, security filtering, backup and restore, resultant policy of an account or a computer.</li>
+          <li>DNS: reading and writing of the directory zones, diagnosis of their health.</li>
+          <li>Object security in plain words and in SDDL, delegation of control, attribute editor.</li>
+          <li>Local copy of the directory and incremental synchronization.</li>
+          <li>English interface.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.1.0" date="2026-10-13">
+      <description translate="no">
+        <p>First version: accounts, groups and organizational units, search, preview and undo of changes.</p>
+      </description>
+    </release>
+  </releases>
+</component>

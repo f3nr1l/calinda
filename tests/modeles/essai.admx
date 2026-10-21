@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Modèle d'essai d'Annuaire (pas un modèle de Microsoft) : un exemple de chaque élément,
+     des listes de valeurs, une catégorie dont le parent est dans socle.admx. -->
+<policyDefinitions xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions"
+                   revision="1.0" schemaVersion="1.0">
+  <policyNamespaces>
+    <target prefix="essai" namespace="Annuaire.Essai" />
+    <using prefix="socle" namespace="Annuaire.Essai.Socle" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <categories>
+    <category name="Options" displayName="$(string.Options)">
+      <parentCategory ref="socle:Systeme" />
+    </category>
+    <category name="Orpheline" displayName="$(string.Orpheline)">
+      <parentCategory ref="socle:Inconnue" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="Valeurs" class="Machine" displayName="$(string.Valeurs)"
+            explainText="$(string.Valeurs_Aide)" key="Software\Policies\Annuaire\Essai"
+            valueName="Mode">
+      <parentCategory ref="Options" />
+      <supportedOn ref="socle:SUPPORTED_Tous" />
+      <enabledValue><decimal value="2" /></enabledValue>
+      <disabledValue><decimal value="0" /></disabledValue>
+      <enabledList defaultKey="Software\Policies\Annuaire\Essai\Liste">
+        <item valueName="Active"><value><string>oui</string></value></item>
+        <item key="Software\Policies\Annuaire\Autre" valueName="Niveau"><value><longDecimal value="5000000000" /></value></item>
+      </enabledList>
+      <disabledList>
+        <item key="Software\Policies\Annuaire\Essai\Liste" valueName="Active"><value><delete /></value></item>
+      </disabledList>
+    </policy>
+    <policy name="Options" class="User" displayName="$(string.OptionsStrategie)"
+            explainText="$(string.Options_Aide)" presentation="$(presentation.Options)"
+            key="Software\Policies\Annuaire\Options">
+      <parentCategory ref="Options" />
+      <supportedOn ref="socle:SUPPORTED_Tous" />
+      <elements>
+        <boolean id="Case" valueName="Case" />
+        <boolean id="CaseValeurs" valueName="CaseValeurs">
+          <trueValue><string>vrai</string></trueValue>
+          <falseValue><string>faux</string></falseValue>
+          <trueList>
+            <item key="Software\Policies\Annuaire\Options\Vrai" valueName="Aussi"><value><decimal value="1" /></value></item>
+          </trueList>
+        </boolean>
+        <decimal id="Nombre" valueName="Nombre" minValue="1" maxValue="99" required="true" />
+        <decimal id="NombreTexte" valueName="NombreTexte" storeAsText="true" maxValue="500" />
+        <longDecimal id="Grand" valueName="Grand" maxValue="9000000000" />
+        <text id="Texte" valueName="Texte" maxLength="10" />
+        <text id="Chemin" valueName="Chemin" expandable="true" key="Software\Policies\Annuaire\Chemins" />
+        <enum id="Choix" valueName="Choix" required="true">
+          <item displayName="$(string.Choix_Un)"><value><decimal value="1" /></value></item>
+          <item displayName="$(string.Choix_Deux)"><value><string>deux</string></value>
+            <valueList><item valueName="Extra"><value><decimal value="7" /></value></item></valueList>
+          </item>
+          <item displayName="$(string.Choix_Aucun)"><value><delete /></value></item>
+        </enum>
+        <list id="Liste" key="Software\Policies\Annuaire\Options\Liste" valuePrefix="Element" />
+        <list id="Noms" key="Software\Policies\Annuaire\Options\Noms" explicitValue="true" additive="true" />
+        <list id="Brute" key="Software\Policies\Annuaire\Options\Brute" />
+        <multiText id="Lignes" valueName="Lignes" maxStrings="3" />
+      </elements>
+    </policy>
+    <policy name="Rangee" class="Machine" displayName="$(string.Rangee)"
+            explainText="$(string.Rangee_Aide)" key="Software\Policies\Annuaire\Rangee"
+            valueName="Rangee">
+      <parentCategory ref="Orpheline" />
+    </policy>
+  </policies>
+</policyDefinitions>

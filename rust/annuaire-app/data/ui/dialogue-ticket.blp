@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueTicket: Adw.Dialog {
+  title: _("Kerberos Ticket");
+  content-width: 500;
+  default-widget: get_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button get_button {
+        clicked => $get();
+
+        child: Stack button_stack {
+          StackPage {
+            name: "texte";
+
+            child: Label {
+              label: _("Get");
+            };
+          }
+
+          StackPage {
+            name: "attente";
+
+            child: Spinner {
+              spinning: true;
+            };
+          }
+        };
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup group {
+        description: _("Logon name alone, or user@REALM. The password is used to request the ticket from the domain controller, then erased: it is neither stored nor logged.");
+
+        Adw.EntryRow account_entry {
+          title: _("Account");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.PasswordEntryRow password_entry {
+          title: _("Password");
+          activates-default: true;
+        }
+      }
+    };
+  };
+}

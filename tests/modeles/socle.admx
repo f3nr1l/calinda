@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Modèle d'essai d'Annuaire (pas un modèle de Microsoft) : catégories racines et
+     « pris en charge sur » cités par essai.admx, sous un autre espace de noms. -->
+<policyDefinitions xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions"
+                   revision="1.0" schemaVersion="1.0">
+  <policyNamespaces>
+    <target prefix="socle" namespace="Annuaire.Essai.Socle" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <supportedOn>
+    <definitions>
+      <definition name="SUPPORTED_Tous" displayName="$(string.SUPPORTED_Tous)" />
+    </definitions>
+  </supportedOn>
+  <categories>
+    <category name="Racine" displayName="$(string.Racine)" />
+    <category name="Systeme" displayName="$(string.Systeme)" explainText="$(string.Systeme_Aide)">
+      <parentCategory ref="Racine" />
+    </category>
+  </categories>
+  <policies>
+    <policy name="Simple" class="Both" displayName="$(string.Simple)"
+            explainText="$(string.Simple_Aide)" key="Software\Policies\Annuaire\Socle"
+            valueName="Simple">
+      <parentCategory ref="Racine" />
+      <supportedOn ref="SUPPORTED_Tous" />
+    </policy>
+  </policies>
+</policyDefinitions>

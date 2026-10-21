@@ -1,0 +1,224 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+using Gio 2.0;
+
+template $AnnuaireDialogueApercu: Adw.Dialog {
+  title: _("Preview of Changes");
+  content-width: 900;
+  content-height: 560;
+  default-widget: apply_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button cancel_button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button apply_button {
+        sensitive: false;
+        clicked => $apply();
+
+        child: Stack button_stack {
+          StackPage {
+            name: "texte";
+
+            child: Label apply_label {
+              label: _("Apply");
+            };
+          }
+
+          StackPage {
+            name: "attente";
+
+            child: Spinner {
+              spinning: true;
+            };
+          }
+        };
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner banner {}
+
+    content: Box {
+      orientation: vertical;
+      spacing: 12;
+      margin-start: 12;
+      margin-end: 12;
+      margin-top: 12;
+      margin-bottom: 12;
+
+      Label summary {
+        xalign: 0;
+        wrap: true;
+
+        styles [
+          "heading",
+        ]
+      }
+
+      Box {
+        spacing: 8;
+
+        Spinner check_spinner {
+          spinning: true;
+        }
+
+        Label check_state {
+          xalign: 0;
+          wrap: true;
+          hexpand: true;
+          label: _("Checking beforehand…");
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Label problems {
+        visible: false;
+        xalign: 0;
+        wrap: true;
+        selectable: true;
+
+        styles [
+          "error",
+        ]
+      }
+
+      Label warnings {
+        visible: false;
+        xalign: 0;
+        wrap: true;
+
+        styles [
+          "warning",
+        ]
+      }
+
+      ScrolledWindow {
+        vexpand: true;
+        hscrollbar-policy: never;
+
+        child: ColumnView table {
+          reorderable: false;
+
+          accessibility {
+            label: _("Planned changes");
+          }
+
+          styles [
+            "data-table",
+          ]
+
+          model: NoSelection {
+            model: Gio.ListStore store {
+              item-type: typeof<$AnnuaireLigneApercu>;
+            };
+          };
+
+          ColumnViewColumn {
+            title: _("Object");
+            fixed-width: 320;
+            expand: true;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Box {
+                  orientation: vertical;
+
+                  Label {
+                    xalign: 0;
+                    wrap: true;
+                    wrap-mode: word_char;
+                    label: bind template.item as <$AnnuaireLigneApercu>.objet;
+                  }
+
+                  Label {
+                    xalign: 0;
+                    label: bind template.item as <$AnnuaireLigneApercu>.action;
+
+                    styles [
+                      "caption",
+                      "dim-label",
+                    ]
+                  }
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("Attribute");
+            fixed-width: 160;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  wrap: true;
+                  wrap-mode: word_char;
+                  label: bind template.item as <$AnnuaireLigneApercu>.attribut;
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("Before");
+            fixed-width: 190;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  wrap: true;
+                  wrap-mode: word_char;
+                  selectable: true;
+                  label: bind template.item as <$AnnuaireLigneApercu>.avant;
+                };
+              }
+            };
+          }
+
+          ColumnViewColumn {
+            title: _("After");
+            fixed-width: 190;
+            resizable: true;
+
+            factory: BuilderListItemFactory {
+              template ColumnViewCell {
+                child: Label {
+                  xalign: 0;
+                  wrap: true;
+                  wrap-mode: word_char;
+                  selectable: true;
+                  label: bind template.item as <$AnnuaireLigneApercu>.apres;
+                };
+              }
+            };
+          }
+        };
+      }
+    };
+  };
+}

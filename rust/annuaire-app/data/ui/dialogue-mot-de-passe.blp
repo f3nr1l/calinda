@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueMotDePasse: Adw.Dialog {
+  title: _("Reset Password");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup group {
+        description: _("Sent to the domain controller over the encrypted connection, then forgotten: it is neither stored nor logged, and the preview hides it.");
+
+        Adw.PasswordEntryRow password_entry {
+          title: _("New password");
+        }
+
+        Adw.PasswordEntryRow confirmation_entry {
+          title: _("Confirm password");
+          activates-default: true;
+        }
+
+        Adw.SwitchRow change_switch {
+          title: _("User must change password at next logon");
+          active: true;
+        }
+      }
+    };
+  };
+}

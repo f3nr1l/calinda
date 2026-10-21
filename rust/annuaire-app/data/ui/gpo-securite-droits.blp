@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Page « Attribution des droits utilisateur » (J7.5) : les droits de Windows avec, pour
+// chacun, les comptes et groupes à qui la GPO l'accorde (noms en clair). Une ligne s'ouvre
+// sur le dialogue des principaux (dialogue-gpo-principaux.blp).
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireSecuriteDroits: Adw.PreferencesPage {
+  Adw.PreferencesGroup {
+    Label warning {
+      xalign: 0;
+      wrap: true;
+    }
+  }
+
+  Adw.PreferencesGroup {
+    SearchEntry filter_entry {
+      placeholder-text: _("Filter rights");
+      margin-bottom: 6;
+      search-changed => $filter();
+
+      accessibility {
+        label: _("Filter rights by name");
+      }
+    }
+
+    ListBox rights_list {
+      selection-mode: none;
+      row-activated => $right_selected();
+
+      accessibility {
+        label: _("User rights");
+      }
+
+      styles [
+        "boxed-list",
+      ]
+    }
+  }
+}

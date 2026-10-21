@@ -1,0 +1,202 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Page « Modèles d'administration » de l'éditeur de GPO (J7.3, ui/editeur_modeles.py) :
+// recherche plein texte et filtre « configurés seulement » en tête, puis la liste des
+// sous-dossiers et des stratégies du nœud choisi (Entrée ouvre la fiche d'une stratégie) ;
+// « Paramètres supplémentaires » et « Registre (brut) » montrent des entrées du fichier, que
+// l'on ajoute (Ctrl+N), modifie (Entrée) ou retire.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuairePageModeles: Adw.Bin {
+  child: Box {
+    orientation: vertical;
+
+    Box bar {
+      spacing: 8;
+      margin-start: 12;
+      margin-end: 12;
+      margin-top: 8;
+      margin-bottom: 8;
+
+      SearchEntry search {
+        hexpand: true;
+        placeholder-text: _("Search for a policy (title, explanation, key)");
+        search-changed => $search_changed();
+        activate => $activate_first();
+
+        accessibility {
+          label: _("Search the administrative templates");
+        }
+      }
+
+      ToggleButton configured_only {
+        label: _("Configured only");
+        tooltip-text: _("Show only enabled or disabled settings (Ctrl+Shift+F)");
+        toggled => $filter_toggled();
+      }
+    }
+
+    Separator {}
+
+    Stack state {
+      vexpand: true;
+      transition-type: crossfade;
+
+      StackPage {
+        name: "liste";
+
+        child: ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: ListView list {
+            single-click-activate: false;
+            tab-behavior: item;
+            activate => $activated();
+
+            accessibility {
+              label: _("Folders and policies");
+            }
+
+            styles [
+              "rich-list",
+            ]
+
+            model: SingleSelection selection {
+              autoselect: true;
+            };
+
+            factory: BuilderListItemFactory {
+              template ListItem {
+                accessible-label: bind template.item as <$AnnuaireLigneModele>.accessible;
+
+                child: Box {
+                  spacing: 12;
+
+                  Image {
+                    icon-name: bind template.item as <$AnnuaireLigneModele>.icone;
+                  }
+
+                  Box {
+                    orientation: vertical;
+                    valign: center;
+                    hexpand: true;
+
+                    Label {
+                      xalign: 0;
+                      wrap: true;
+                      label: bind template.item as <$AnnuaireLigneModele>.titre;
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      visible: bind template.item as <$AnnuaireLigneModele>.a-sous-titre;
+                      label: bind template.item as <$AnnuaireLigneModele>.sous-titre;
+
+                      styles [
+                        "dim-label",
+                        "caption",
+                      ]
+                    }
+                  }
+
+                  Image {
+                    icon-name: "document-edit-symbolic";
+                    tooltip-text: _("Changed, not saved yet");
+                    visible: bind template.item as <$AnnuaireLigneModele>.modifiee;
+
+                    styles [
+                      "accent",
+                    ]
+                  }
+                };
+              }
+            };
+          };
+        };
+      }
+
+      StackPage {
+        name: "vide";
+
+        child: Adw.StatusPage empty {
+          icon-name: "edit-find-symbolic";
+          title: _("No Policy");
+        };
+      }
+
+      StackPage {
+        name: "chargement";
+
+        child: Box {
+          orientation: vertical;
+          spacing: 12;
+          halign: center;
+          valign: center;
+
+          Spinner {
+            spinning: true;
+            width-request: 32;
+            height-request: 32;
+          }
+
+          Label loading_text {
+            label: _("Reading the administrative templates…");
+
+            styles [
+              "dim-label",
+            ]
+          }
+        };
+      }
+
+      StackPage {
+        name: "absent";
+
+        child: Adw.StatusPage no_central_store {
+          icon-name: "folder-documents-symbolic";
+          title: _("No Central Store");
+          description: _("The SYSVOL has no Policies\\PolicyDefinitions folder: administrative templates cannot be shown. The GPO's registry content remains visible under “Registry (raw)”.");
+        };
+      }
+
+      StackPage {
+        name: "entrees";
+
+        child: Adw.PreferencesPage {
+          Adw.PreferencesGroup entries_group {
+            [header-suffix]
+            Button add_button {
+              icon-name: "list-add-symbolic";
+              tooltip-text: _("Add an entry (Ctrl+N)");
+              valign: center;
+              clicked => $add();
+
+              accessibility {
+                label: _("Add a registry entry");
+              }
+
+              styles [
+                "flat",
+              ]
+            }
+
+            ListBox entries_list {
+              selection-mode: none;
+
+              accessibility {
+                label: _("Registry entries");
+              }
+
+              styles [
+                "boxed-list",
+              ]
+            }
+          }
+        };
+      }
+    }
+  };
+}

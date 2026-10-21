@@ -1,0 +1,381 @@
+{
+  "format": 1,
+  "famille": "dnsrecord",
+  "description": "attribut dnsRecord (MS-DNSP 2.3.2.2), un vecteur par valeur",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "dns-soa-lab.test-racine-0",
+      "description": "racine de zone : SOA, NS, A (provisionnement)",
+      "provenance": {
+        "objet": "DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "3b00060005f000000b00000000000e1000000000000000000000000b00000384000002580001518000000e100e0303646331036c616204746573740015030a686f73746d6173746572036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 59,
+        "type": 6,
+        "type_nom": "SOA",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 11,
+        "ttl": 3600,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": {
+          "serie": 11,
+          "rafraichissement": 900,
+          "nouvel_essai": 600,
+          "expiration": 86400,
+          "minimum": 3600,
+          "serveur": "dc1.lab.test",
+          "responsable": "hostmaster.lab.test"
+        }
+      }
+    },
+    {
+      "id": "dns-ns-lab.test-racine-1",
+      "description": "racine de zone : SOA, NS, A (provisionnement)",
+      "provenance": {
+        "objet": "DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "1000020005f00000010000000000038400000000000000000e0303646331036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 16,
+        "type": 2,
+        "type_nom": "NS",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "dc1.lab.test"
+      }
+    },
+    {
+      "id": "dns-a-lab.test-racine-2",
+      "description": "racine de zone : SOA, NS, A (provisionnement)",
+      "provenance": {
+        "objet": "DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=@,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "0400010005f0000001000000000003840000000000000000c0a8011b",
+      "attendu": {
+        "longueur_donnees": 4,
+        "type": 1,
+        "type_nom": "A",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "192.168.1.27"
+      }
+    },
+    {
+      "id": "dns-a-lab.test-dc1",
+      "description": "A du DC",
+      "provenance": {
+        "objet": "DC=dc1,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=dc1,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "0400010005f0000001000000000003840000000000000000c0a8011b",
+      "attendu": {
+        "longueur_donnees": 4,
+        "type": 1,
+        "type_nom": "A",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "192.168.1.27"
+      }
+    },
+    {
+      "id": "dns-a-lab.test-bdx-pc0001",
+      "description": "A dynamique (horodatage en heures depuis 1601), peupler.py",
+      "provenance": {
+        "objet": "DC=bdx-pc0001,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=bdx-pc0001,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "0400010005f0000001000000000004b0000000001ef338000a050342",
+      "attendu": {
+        "longueur_donnees": 4,
+        "type": 1,
+        "type_nom": "A",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 1200,
+        "reserve": 0,
+        "horodatage": 3732254,
+        "donnees": "10.5.3.66"
+      }
+    },
+    {
+      "id": "dns-srv-lab.test-_ldap._tcp",
+      "description": "SRV (provisionnement)",
+      "provenance": {
+        "objet": "DC=_ldap._tcp,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=_ldap._tcp,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "1600210005f00000010000000000038400000000000000000000006401850e0303646331036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 22,
+        "type": 33,
+        "type_nom": "SRV",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": {
+          "priorite": 0,
+          "poids": 100,
+          "port": 389,
+          "cible": "dc1.lab.test"
+        }
+      }
+    },
+    {
+      "id": "dns-cname-lab.test-intranet",
+      "description": "CNAME écrit par peupler.py",
+      "provenance": {
+        "objet": "DC=intranet,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=intranet,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "1d00050005f000000100000000000e1000000000000000001b03107372762d696e7472616e65742d6f6c64036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 29,
+        "type": 5,
+        "type_nom": "CNAME",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 3600,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "srv-intranet-old.lab.test"
+      }
+    },
+    {
+      "id": "dns-aaaa-lab.test-vecteur-aaaa",
+      "provenance": {
+        "objet": "DC=vecteur-aaaa,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=vecteur-aaaa,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord",
+        "preparation": "samba-tool dns add 127.0.0.1 lab.test vecteur-aaaa AAAA \"2001:db8::1b\" -P"
+      },
+      "hex": "10001c0005f000000200000000000384000000000000000020010db800000000000000000000001b",
+      "attendu": {
+        "longueur_donnees": 16,
+        "type": 28,
+        "type_nom": "AAAA",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 2,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "2001:0db8:0000:0000:0000:0000:0000:001b"
+      }
+    },
+    {
+      "id": "dns-mx-lab.test-vecteur-mx",
+      "provenance": {
+        "objet": "DC=vecteur-mx,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=vecteur-mx,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord",
+        "preparation": "samba-tool dns add 127.0.0.1 lab.test vecteur-mx MX \"mail.lab.test 10\" -P"
+      },
+      "hex": "13000f0005f0000003000000000003840000000000000000000a0f03046d61696c036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 19,
+        "type": 15,
+        "type_nom": "MX",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 3,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": {
+          "priorite": 10,
+          "cible": "mail.lab.test"
+        }
+      }
+    },
+    {
+      "id": "dns-txt-lab.test-vecteur-txt",
+      "description": "deux chaînes, accents (UTF-8)",
+      "provenance": {
+        "objet": "DC=vecteur-txt,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=vecteur-txt,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord",
+        "preparation": "samba-tool dns add 127.0.0.1 lab.test vecteur-txt TXT \"'v=spf1 -all' 'deuxième chaîne, accentuée'\" -P"
+      },
+      "hex": "2a00100005f00000040000000000038400000000000000000b763d73706631202d616c6c1d6465757869c3a86d6520636861c3ae6e652c20616363656e7475c3a965",
+      "attendu": {
+        "longueur_donnees": 42,
+        "type": 16,
+        "type_nom": "TXT",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 4,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": [
+          "v=spf1 -all",
+          "deuxième chaîne, accentuée"
+        ]
+      }
+    },
+    {
+      "id": "dns-tombstone-lab.test-vecteur-tombe",
+      "description": "nœud en tombstone (dNSTombstoned = TRUE)",
+      "provenance": {
+        "objet": "DC=vecteur-tombe,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=vecteur-tombe,DC=lab.test,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord",
+        "preparation": "samba-tool dns add 127.0.0.1 lab.test vecteur-tombe A 192.0.2.1 -P, puis SamDB.dns_replace_by_dn(<nœud>, [])"
+      },
+      "hex": "08000000050000006e000000000000000000000000000000004a78443c5bdd01",
+      "attendu": {
+        "longueur_donnees": 8,
+        "type": 0,
+        "type_nom": "TOMBSTONE",
+        "version": 5,
+        "rang": 0,
+        "rang_nom": "NONE",
+        "drapeaux": 0,
+        "serie": 110,
+        "ttl": 0,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": {
+          "nttime": 134363878295882240,
+          "iso": "2026-10-13T17:57:09.5882240Z"
+        },
+        "dNSTombstoned": "TRUE"
+      }
+    },
+    {
+      "id": "dns-ptr-1.168.192.in-addr.arpa-27",
+      "description": "PTR de dc1",
+      "provenance": {
+        "objet": "DC=27,DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=27,DC=1.168.192.in-addr.arpa,CN=MicrosoftDNS,DC=DomainDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "10000c0005f000000100000000000e1000000000000000000e0303646331036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 16,
+        "type": 12,
+        "type_nom": "PTR",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 3600,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "dc1.lab.test"
+      }
+    },
+    {
+      "id": "dns-soa-_msdcs.lab.test-racine-0",
+      "description": "zone _msdcs : SOA, NS",
+      "provenance": {
+        "objet": "DC=@,DC=_msdcs.lab.test,CN=MicrosoftDNS,DC=ForestDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=@,DC=_msdcs.lab.test,CN=MicrosoftDNS,DC=ForestDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "3b00060005f000000100000000000e1000000000000000000000000100000384000002580001518000000e100e0303646331036c616204746573740015030a686f73746d6173746572036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 59,
+        "type": 6,
+        "type_nom": "SOA",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 3600,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": {
+          "serie": 1,
+          "rafraichissement": 900,
+          "nouvel_essai": 600,
+          "expiration": 86400,
+          "minimum": 3600,
+          "serveur": "dc1.lab.test",
+          "responsable": "hostmaster.lab.test"
+        }
+      }
+    },
+    {
+      "id": "dns-ns-_msdcs.lab.test-racine-1",
+      "description": "zone _msdcs : SOA, NS",
+      "provenance": {
+        "objet": "DC=@,DC=_msdcs.lab.test,CN=MicrosoftDNS,DC=ForestDnsZones,DC=lab,DC=test",
+        "attribut": "dnsRecord",
+        "commande": "ldbsearch -H /var/lib/samba/private/sam.ldb -s base -b 'DC=@,DC=_msdcs.lab.test,CN=MicrosoftDNS,DC=ForestDnsZones,DC=lab,DC=test' dnsRecord"
+      },
+      "hex": "1000020005f00000010000000000038400000000000000000e0303646331036c6162047465737400",
+      "attendu": {
+        "longueur_donnees": 16,
+        "type": 2,
+        "type_nom": "NS",
+        "version": 5,
+        "rang": 240,
+        "rang_nom": "ZONE",
+        "drapeaux": 0,
+        "serie": 1,
+        "ttl": 900,
+        "reserve": 0,
+        "horodatage": 0,
+        "donnees": "dc1.lab.test"
+      }
+    }
+  ]
+}

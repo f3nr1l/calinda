@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: 2026 René Onier -->
+<!-- Interfaces de l'application Rust (ADR 0019) : Blueprint convertis de l'application
+     Python (data/ui), mêmes chemins de ressource. Un fichier par écran porté. -->
+<gresources>
+  <gresource prefix="/io/github/f3nr1l/Calinda/ui">
+    <file preprocess="xml-stripblanks">accueil.ui</file>
+    <file preprocess="xml-stripblanks">apercu.ui</file>
+    <file preprocess="xml-stripblanks">attributs.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-ace.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-attribut.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-classes.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-delegation.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-deplacer.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-enregistrement-dns.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-filtrage.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-lier.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-nom.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-principaux.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-restaurer.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-sauvegarde.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-gpo-securite.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-groupe.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-membres.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-mot-de-passe.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-ou.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pref-cible.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pref-imprimante.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pref-lecteur.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pref-raccourci.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pref-registre.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-profil.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-pso.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-registre-brut.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-renommer.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-strategie.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-ticket.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-utilisateur.ui</file>
+    <file preprocess="xml-stripblanks">dns.ui</file>
+    <file preprocess="xml-stripblanks">editeur-gpo.ui</file>
+    <file preprocess="xml-stripblanks">editeur-modeles.ui</file>
+    <file preprocess="xml-stripblanks">fenetre.ui</file>
+    <file preprocess="xml-stripblanks">fiche.ui</file>
+    <file preprocess="xml-stripblanks">gpo.ui</file>
+    <file preprocess="xml-stripblanks">gpo-securite-comptes.ui</file>
+    <file preprocess="xml-stripblanks">gpo-securite-droits.ui</file>
+    <file preprocess="xml-stripblanks">gpo-securite-groupes.ui</file>
+    <file preprocess="xml-stripblanks">historique.ui</file>
+    <file preprocess="xml-stripblanks">ligne-profil.ui</file>
+    <file preprocess="xml-stripblanks">preferences.ui</file>
+    <file preprocess="xml-stripblanks">pso.ui</file>
+    <file preprocess="xml-stripblanks">recherche.ui</file>
+    <file preprocess="xml-stripblanks">sante-dns.ui</file>
+    <file preprocess="xml-stripblanks">securite.ui</file>
+    <file preprocess="xml-stripblanks">strategie.ui</file>
+  </gresource>
+  <!-- Racine des ressources : Adw.Application y cherche l'aide des raccourcis (Ctrl+?). -->
+  <gresource prefix="/io/github/f3nr1l/Calinda">
+    <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
+  </gresource>
+  <gresource prefix="/io/github/f3nr1l/Calinda/icons/scalable/actions">
+    <file alias="io.github.f3nr1l.Calinda-groupe-symbolic.svg">io.github.f3nr1l.Calinda-groupe-symbolic.svg</file>
+  </gresource>
+</gresources>

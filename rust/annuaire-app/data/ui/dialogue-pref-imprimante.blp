@@ -1,0 +1,216 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Imprimante partagée d'une GPO (préférence Printers.xml, J7.6) : partage, imprimante par défaut, port local, ciblage et options communes.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePrefImprimante: Adw.Dialog {
+  title: _("Shared Printer");
+  content-width: 600;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      title-widget: Adw.WindowTitle title {
+        title: _("Shared Printer");
+      };
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ComboRow action_combo {
+          title: _("Action");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Create"),
+              _("Replace"),
+              _("Update"),
+              _("Delete"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Printer");
+
+        Adw.EntryRow path_entry {
+          title: _("Share path (\\\\server\\printer)");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow default_switch {
+          title: _("Set this printer as the default printer");
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow no_local_switch {
+          title: _("Only if a local printer is not present");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow delete_all_switch {
+          title: _("Delete all shared connections");
+          subtitle: _("With the “Delete” action");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.EntryRow location_entry {
+          title: _("Location");
+          changed => $changed();
+        }
+
+        Adw.EntryRow comment_entry {
+          title: _("Comment");
+          changed => $changed();
+        }
+
+        Adw.EntryRow port_entry {
+          title: _("Local port (LPT1…, optional)");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow reconnect_switch {
+          title: _("Reconnect");
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow delete_port_switch {
+          title: _("Unmap the local port");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup targets_group {
+        title: _("Targeting");
+        description: _("Without a filter, the item applies to everyone who receives the GPO.");
+
+        [header-suffix]
+        MenuButton target_button {
+          icon-name: "list-add-symbolic";
+          tooltip-text: _("Add a filter");
+          menu-model: targets_menu;
+
+          accessibility {
+            label: _("Add a targeting filter");
+          }
+
+          styles [
+            "flat",
+          ]
+        }
+
+        ListBox targets_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Targeting filters, in order");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Common options");
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+          changed => $changed();
+        }
+
+        Adw.SwitchRow stop_switch {
+          title: _("Stop processing items in this extension if an error occurs");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow context_switch {
+          title: _("Run in logged-on user's security context");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow remove_switch {
+          title: _("Remove this item when it is no longer applied");
+          subtitle: _("Requires the “Replace” action");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+
+        Adw.SwitchRow disabled_switch {
+          title: _("Disable this item");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label message {
+          wrap: true;
+          xalign: 0;
+          visible: false;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+  };
+}
+
+menu targets_menu {
+  section {
+    item {
+      label: _("Security Group…");
+      action: "dialogue.cible";
+      target: "FilterGroup";
+    }
+
+    item {
+      label: _("Organizational Unit…");
+      action: "dialogue.cible";
+      target: "FilterOrgUnit";
+    }
+
+    item {
+      label: _("Computer Name…");
+      action: "dialogue.cible";
+      target: "FilterComputer";
+    }
+
+    item {
+      label: _("User…");
+      action: "dialogue.cible";
+      target: "FilterUser";
+    }
+  }
+}

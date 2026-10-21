@@ -1,0 +1,132 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Fenêtre « Stratégies de mot de passe » (ADR 0014 § 6) : la politique du domaine, puis les
+// stratégies affinées (PSO) par priorité, chacune avec ses cibles ; « Nouvelle stratégie »
+// (Ctrl+N), « Modifier » (Entrée sur une ligne) et « Supprimer » passent par le dialogue de
+// stratégie et par l'aperçu commun. Lignes construites par ui/pso.py.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuairePso: Adw.Window {
+  title: _("Password Policies");
+  default-width: 820;
+  default-height: 660;
+  width-request: 360;
+  height-request: 294;
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {
+          title: _("Password Policies");
+        };
+
+        [start]
+        Button new_button {
+          icon-name: "list-add-symbolic";
+          tooltip-text: _("New Fine-grained password policy (Ctrl+N)");
+          action-name: "pso.nouvelle";
+
+          accessibility {
+            label: _("New Fine-grained password policy");
+          }
+        }
+
+        [end]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Refresh (F5)");
+          action-name: "pso.actualiser";
+
+          accessibility {
+            label: _("Refresh");
+          }
+        }
+      }
+
+      content: Stack state {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "chargement";
+
+          child: Spinner {
+            spinning: true;
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        }
+
+        StackPage {
+          name: "erreur";
+
+          child: Adw.StatusPage error {
+            icon-name: "dialog-warning-symbolic";
+
+            child: Button {
+              label: _("Read Again");
+              halign: center;
+              action-name: "pso.actualiser";
+
+              styles [
+                "pill",
+              ]
+            };
+          };
+        }
+
+        StackPage {
+          name: "contenu";
+
+          child: Adw.PreferencesPage {
+            Adw.PreferencesGroup {
+              title: _("Domain policy");
+              description: _("It applies to the accounts that no fine-grained policy targets. It is set in the Default Domain Policy (Group Policy, Security Settings).");
+
+              Adw.ActionRow domain_row {
+                title: _("Default Domain Policy");
+                subtitle-lines: 0;
+
+                styles [
+                  "property",
+                ]
+              }
+            }
+
+            Adw.PreferencesGroup psos_group {
+              title: _("Fine-grained password policies (PSO)");
+              description: _("Each replaces the domain policy for the accounts and global groups it applies to. Among several, the lowest precedence wins; a policy linked to the account itself wins over those of its groups.");
+
+              ListBox psos_list {
+                selection-mode: none;
+
+                accessibility {
+                  label: _("Fine-grained password policies");
+                }
+
+                styles [
+                  "boxed-list",
+                ]
+              }
+
+              Label none_label {
+                label: _("No fine-grained password policy in this domain.");
+                xalign: 0;
+                wrap: true;
+                visible: false;
+
+                styles [
+                  "dim-label",
+                ]
+              }
+            }
+          };
+        }
+      };
+    };
+  };
+}

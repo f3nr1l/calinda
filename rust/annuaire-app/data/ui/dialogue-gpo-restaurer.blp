@@ -1,0 +1,144 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Restauration d'une GPO (J5.6) : archive choisie dans le dossier des sauvegardes, résumé,
+// puis à l'identique (même GUID) ou en copie sous un nouveau GUID. « Continuer » mène à
+// l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoRestaurer: Adw.Dialog {
+  focus-widget: archives_list;
+  title: _("Restore a GPO");
+  content-width: 620;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Backup");
+
+        Adw.EntryRow folder_entry {
+          title: _("Backup folder");
+          show-apply-button: true;
+          apply => $reload();
+
+          [suffix]
+          Button {
+            icon-name: "folder-open-symbolic";
+            tooltip-text: _("Choose the folder");
+            valign: center;
+            clicked => $choose();
+
+            accessibility {
+              label: _("Choose the folder");
+            }
+
+            styles [
+              "flat",
+            ]
+          }
+        }
+
+        ListBox archives_list {
+          selection-mode: single;
+          margin-top: 12;
+          row-selected => $archive_selected();
+
+          accessibility {
+            label: _("Backup archives");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label archives_state {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup summary_group {
+        title: _("Contents");
+        visible: false;
+
+        ListBox summary_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Backup contents");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup mode_group {
+        title: _("Restore");
+        visible: false;
+
+        Adw.ActionRow same_row {
+          title: _("As is, under its GUID");
+          subtitle: _("Recreates the GPO if it was deleted, otherwise brings it back to this state (files, permissions, attributes); its version is raised above the current one so that computers apply it again");
+          activatable-widget: same_choice;
+
+          [prefix]
+          CheckButton same_choice {
+            active: true;
+            toggled => $mode_changed();
+          }
+        }
+
+        Adw.ActionRow copy_row {
+          title: _("As a copy, under a new GUID");
+          subtitle: _("A new GPO, not linked, with the contents and the filtering of the backup");
+          activatable-widget: copy_choice;
+
+          [prefix]
+          CheckButton copy_choice {
+            group: same_choice;
+            toggled => $mode_changed();
+          }
+        }
+
+        Adw.EntryRow name_entry {
+          title: _("Name of the copy");
+          visible: false;
+          changed => $mode_changed();
+        }
+      }
+    };
+  };
+}

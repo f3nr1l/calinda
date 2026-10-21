@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<policyDefinitionResources xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions"
+                           revision="1.0" schemaVersion="1.0">
+  <displayName>Socle</displayName>
+  <description>Test template</description>
+  <resources>
+    <stringTable>
+      <string id="SUPPORTED_Tous">Every version</string>
+      <string id="Racine">Root</string>
+      <string id="Systeme">System</string>
+      <string id="Systeme_Aide">System settings.</string>
+      <string id="Simple">Simple setting</string>
+      <string id="Simple_Aide">Writes REG_DWORD 1 when enabled.</string>
+    </stringTable>
+  </resources>
+</policyDefinitionResources>

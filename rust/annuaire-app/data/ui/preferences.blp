@@ -1,0 +1,164 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Page d'une famille de préférences d'une partie de GPO (J7.6) : la liste ordonnée des
+// éléments, leurs actions (ajouter, modifier, supprimer, monter, descendre) et, au-dessus,
+// l'alerte d'un mot de passe enregistré (MS14-025) ou d'un fichier illisible.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuairePreferences: Adw.Bin {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.Banner banner {
+      revealed: false;
+    }
+
+    content: Stack stack {
+      transition-type: crossfade;
+
+      StackPage {
+        name: "chargement";
+
+        child: Spinner {
+          spinning: true;
+          halign: center;
+          valign: center;
+          width-request: 32;
+          height-request: 32;
+        };
+      }
+
+      StackPage {
+        name: "erreur";
+
+        child: Adw.StatusPage error {
+          icon-name: "dialog-error-symbolic";
+          title: _("Cannot read");
+        };
+      }
+
+      StackPage {
+        name: "liste";
+
+        child: ScrolledWindow {
+          hscrollbar-policy: never;
+
+          child: Adw.Clamp {
+            maximum-size: 900;
+            margin-top: 18;
+            margin-bottom: 18;
+            margin-start: 12;
+            margin-end: 12;
+
+            child: Box {
+              orientation: vertical;
+              spacing: 12;
+
+              Adw.PreferencesGroup group {
+                [header-suffix]
+                Box {
+                  spacing: 6;
+
+                  Button add_button {
+                    icon-name: "list-add-symbolic";
+                    tooltip-text: _("Add an item (Ctrl+N)");
+                    clicked => $add();
+
+                    accessibility {
+                      label: _("Add an item");
+                    }
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  Button edit_button {
+                    icon-name: "document-edit-symbolic";
+                    tooltip-text: _("Edit the selected item (Enter)");
+                    clicked => $edit();
+
+                    accessibility {
+                      label: _("Edit the selected item");
+                    }
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  Button delete_button {
+                    icon-name: "user-trash-symbolic";
+                    tooltip-text: _("Delete the selected item (Delete)");
+                    clicked => $delete();
+
+                    accessibility {
+                      label: _("Delete the selected item");
+                    }
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  Button up_button {
+                    icon-name: "go-up-symbolic";
+                    tooltip-text: _("Move up (Alt+Up)");
+                    clicked => $move_up();
+
+                    accessibility {
+                      label: _("Move the selected item up");
+                    }
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  Button down_button {
+                    icon-name: "go-down-symbolic";
+                    tooltip-text: _("Move down (Alt+Down)");
+                    clicked => $move_down();
+
+                    accessibility {
+                      label: _("Move the selected item down");
+                    }
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+                }
+
+                ListBox list {
+                  selection-mode: single;
+                  row-activated => $activated();
+                  row-selected => $selected();
+
+                  accessibility {
+                    label: _("Items, in processing order");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+
+              Label empty {
+                label: _("No items. Ctrl+N adds one.");
+                wrap: true;
+                xalign: 0;
+
+                styles [
+                  "dim-label",
+                ]
+              }
+            };
+          };
+        };
+      }
+    };
+  };
+}

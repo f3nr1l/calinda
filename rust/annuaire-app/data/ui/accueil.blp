@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireAccueil: Adw.Bin {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle {
+        title: _("Calinda");
+      };
+
+      [start]
+      Button add_button {
+        tooltip-text: _("Add a domain (Ctrl+N)");
+        action-name: "win.ajouter-domaine";
+
+        child: Adw.ButtonContent {
+          icon-name: "list-add-symbolic";
+          label: _("Add a domain");
+        };
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Domains");
+        description: _("Choose the domain to manage. A profile is read-only until it has been edited.");
+
+        ListBox profiles_list {
+          selection-mode: none;
+
+          styles [
+            "boxed-list",
+          ]
+
+          // Aucun profil : un état vide qui dit quoi faire, avec le bouton dessous.
+          [placeholder]
+          Adw.StatusPage {
+            icon-name: "network-workgroup-symbolic";
+            title: _("No domain");
+            description: _("Add the domain to manage: its DNS name is enough, the controllers are found in DNS.");
+
+            styles [
+              "compact",
+            ]
+          }
+        }
+
+        // Sous la liste, toujours visible : l'ajout d'un domaine ne se cherche pas.
+        Button {
+          halign: center;
+          margin-top: 18;
+          action-name: "win.ajouter-domaine";
+          tooltip-text: _("Add a domain (Ctrl+N)");
+
+          child: Adw.ButtonContent {
+            icon-name: "list-add-symbolic";
+            label: _("Add a domain…");
+          };
+
+          styles [
+            "pill",
+            "suggested-action",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Kerberos");
+        description: _("The connection uses the session's Kerberos ticket; no password is stored.");
+
+        Adw.ActionRow ticket_row {
+          title: _("Session ticket");
+          subtitle: _("Reading the cache…");
+
+          [prefix]
+          Image {
+            icon-name: "security-high-symbolic";
+          }
+
+          [suffix]
+          Button {
+            label: _("Get a Ticket…");
+            valign: center;
+            action-name: "win.obtenir-ticket";
+          }
+        }
+      }
+    };
+  };
+}

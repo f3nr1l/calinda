@@ -1,0 +1,261 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Onglet « Sécurité » de la fiche (J4.2) : les droits en clair, par section (refus,
+// délégations, explicites, héritées, audit), et le détail ACE par ACE avec le SDDL.
+// Les lignes des listes sont remplies par ui/securite.py (textes de vue/securite.py).
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuairePageSecurite: Adw.Bin {
+  child: Stack state {
+    transition-type: crossfade;
+
+    StackPage {
+      name: "chargement";
+
+      child: Spinner {
+        spinning: true;
+        halign: center;
+        valign: center;
+        width-request: 32;
+        height-request: 32;
+      };
+    }
+
+    StackPage {
+      name: "erreur";
+
+      child: Adw.StatusPage error {
+        icon-name: "dialog-warning-symbolic";
+
+        child: Button {
+          label: _("Read Again");
+          halign: center;
+          clicked => $reload();
+
+          styles [
+            "pill",
+          ]
+        };
+      };
+    }
+
+    StackPage {
+      name: "contenu";
+
+      child: Box {
+        orientation: vertical;
+
+        StackSwitcher {
+          stack: views;
+          halign: center;
+          margin-top: 12;
+          margin-bottom: 6;
+        }
+
+        Stack views {
+          vexpand: true;
+          transition-type: crossfade;
+
+          StackPage {
+            name: "clair";
+            title: _("In plain words");
+
+            child: Adw.PreferencesPage {
+              Adw.PreferencesGroup owner_group {
+                title: _("Owner and auditing");
+
+                header-suffix: Button delegate_button {
+                  label: _("Delegate…");
+                  tooltip-text: _("Delegate tasks on this object to a group or an account");
+                  valign: center;
+                  clicked => $delegate();
+                };
+
+                Adw.ActionRow owner_row {
+                  title: _("Owner");
+                  subtitle-selectable: true;
+
+                  styles [
+                    "property",
+                  ]
+                }
+
+                Adw.ActionRow audit_row {
+                  title: _("Auditing (SACL)");
+
+                  styles [
+                    "property",
+                  ]
+                }
+
+                Adw.ActionRow no_effect_row {
+                  title: _("Permissions with no effect on this object");
+                  visible: false;
+
+                  styles [
+                    "property",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup deny_group {
+                title: _("Deny");
+                description: _("A Deny entry takes precedence over an Allow entry of the same rank.");
+
+                ListBox deny_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Deny");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup delegations_group {
+                title: _("Delegations");
+                description: _("Recognized delegated tasks (templates of the Delegation of Control Wizard).");
+
+                ListBox delegations_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Delegations");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup explicit_group {
+                title: _("Explicit permissions");
+
+                ListBox explicit_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Explicit permissions");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup inherited_group {
+                title: _("Inherited permissions");
+                description: _("Inherited from a parent object; they are changed where they are defined.");
+
+                ListBox inherited_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Inherited permissions");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup audit_group {
+                title: _("Auditing (SACL)");
+
+                ListBox audit_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Auditing");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+            };
+          }
+
+          StackPage {
+            name: "detail";
+            title: _("ACEs and SDDL");
+
+            child: Adw.PreferencesPage {
+              Adw.PreferencesGroup {
+                title: _("SDDL of the security descriptor");
+
+                header-suffix: Button copy_button {
+                  icon-name: "edit-copy-symbolic";
+                  tooltip-text: _("Copy the SDDL");
+                  valign: center;
+                  clicked => $copy();
+                  accessibility {
+                    label: _("Copy the SDDL");
+                  }
+
+                  styles [
+                    "flat",
+                  ]
+                };
+
+                Box {
+                  styles [
+                    "card",
+                  ]
+
+                  // Coupé n'importe où, sans tiret ajouté (ui/securite.py) : le SDDL se
+                  // copie tel qu'il s'affiche.
+                  Label sddl {
+                    wrap: true;
+                    wrap-mode: char;
+                    selectable: true;
+                    xalign: 0;
+                    hexpand: true;
+                    margin-start: 12;
+                    margin-end: 12;
+                    margin-top: 12;
+                    margin-bottom: 12;
+                    accessibility {
+                      label: _("SDDL of the security descriptor");
+                    }
+
+                    styles [
+                      "monospace",
+                    ]
+                  }
+                }
+              }
+
+              Adw.PreferencesGroup aces_group {
+                title: _("Access control entries");
+                description: _("In the order of the descriptor: DACL, then SACL if it was read.");
+
+                header-suffix: Button add_ace_button {
+                  label: _("Add…");
+                  tooltip-text: _("Add an entry typed in SDDL, conditional or not");
+                  valign: center;
+                  clicked => $add_ace();
+                };
+
+                ListBox aces_list {
+                  selection-mode: none;
+                  accessibility {
+                    label: _("Access control entries");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+              }
+            };
+          }
+        }
+      };
+    }
+  };
+}

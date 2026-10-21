@@ -1,0 +1,60 @@
+diff -ru a/src/context.rs b/src/context.rs
+--- a/src/context.rs	2006-07-23 21:21:28.000000000 -0400
++++ b/src/context.rs	2026-10-15 15:51:57.509639238 -0400
+@@ -20,6 +20,7 @@
+ use libgssapi_sys::{
+     gss_iov_buffer_desc, gss_unwrap_iov, gss_wrap_iov, gss_wrap_iov_length,
+ };
++use libgssapi_sys::{gss_buffer_set_t, gss_inquire_sec_context_by_oid, gss_release_buffer_set};
+ use std::{ffi, os::raw::c_int, ptr, time::Duration};
+ 
+ bitflags! {
+@@ -879,3 +880,48 @@
+         }
+     }
+ }
++
++unsafe fn inquire_by_oid(ctx: gss_ctx_id_t, desired: &Oid) -> Result<Vec<Vec<u8>>, Error> {
++    let mut minor = GSS_S_COMPLETE;
++    let mut set: gss_buffer_set_t = ptr::null_mut();
++    let major = gss_inquire_sec_context_by_oid(
++        &mut minor as *mut OM_uint32,
++        ctx,
++        desired.to_c(),
++        &mut set as *mut gss_buffer_set_t,
++    );
++    if major != GSS_S_COMPLETE {
++        return Err(Error {
++            major: MajorFlags::from_bits_retain(major),
++            minor,
++        });
++    }
++    let mut values = Vec::new();
++    if !set.is_null() {
++        let count = (*set).count;
++        for i in 0..count {
++            let buf = &*(*set).elements.add(i);
++            values.push(if buf.value.is_null() || buf.length == 0 {
++                Vec::new()
++            } else {
++                std::slice::from_raw_parts(buf.value.cast::<u8>(), buf.length).to_vec()
++            });
++        }
++        gss_release_buffer_set(&mut minor as *mut OM_uint32, &mut set as *mut gss_buffer_set_t);
++    }
++    Ok(values)
++}
++
++impl ClientCtx {
++    /// Values of a context attribute (`gss_inquire_sec_context_by_oid`), for instance the
++    /// session key (`GSS_INQ_SSPI_SESSION_KEY`). Fails on a context not yet established.
++    pub fn inquire_sec_context_by_oid(&self, desired: &Oid) -> Result<Vec<Vec<u8>>, Error> {
++        if self.ctx.is_null() {
++            return Err(Error {
++                major: MajorFlags::GSS_S_NO_CONTEXT,
++                minor: 0,
++            });
++        }
++        unsafe { inquire_by_oid(self.ctx, desired) }
++    }
++}

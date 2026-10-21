@@ -1,0 +1,159 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Barre de recherche globale (J2.3), en tête de la barre latérale.
+template $AnnuaireRecherche: Box {
+  orientation: vertical;
+  spacing: 6;
+  margin-start: 6;
+  margin-end: 6;
+  margin-top: 6;
+  margin-bottom: 6;
+
+  Box {
+    spacing: 6;
+
+    SearchEntry entry {
+      hexpand: true;
+      placeholder-text: _("Search the domain");
+      tooltip-text: _("Name, logon name, email or description; Enter to search (Ctrl+F)");
+      activate => $run();
+
+      accessibility {
+        label: _("Search the domain");
+      }
+    }
+
+    MenuButton queries_button {
+      icon-name: "document-open-recent-symbolic";
+      tooltip-text: _("Saved queries");
+      menu-model: queries_menu;
+
+      accessibility {
+        label: _("Saved queries");
+      }
+    }
+  }
+
+  Box {
+    spacing: 6;
+    homogeneous: true;
+
+    // Libellés posés par le code (annuaire/vue/recherche.py), dans l'ordre de TYPES et ETATS.
+    DropDown type_combo {
+      tooltip-text: _("Object type");
+      notify::selected => $filters_changed();
+    }
+
+    DropDown state_dropdown {
+      tooltip-text: _("Account status");
+      notify::selected => $filters_changed();
+    }
+  }
+}
+
+menu queries_menu {
+  section {
+    label: _("Saved queries");
+
+    item {
+      label: _("Inactive for…");
+      action: "recherche.inactifs";
+    }
+
+    item {
+      label: _("Disabled accounts");
+      action: "recherche.requete";
+      target: "desactives";
+    }
+
+    item {
+      label: _("Locked-out accounts");
+      action: "recherche.requete";
+      target: "verrouilles";
+    }
+
+    item {
+      label: _("Password that never expires");
+      action: "recherche.requete";
+      target: "mot-de-passe-permanent";
+    }
+
+    item {
+      label: _("Administrators (recursive)");
+      action: "recherche.requete";
+      target: "administrateurs";
+    }
+
+    item {
+      label: _("Accounts that never logged on");
+      action: "recherche.requete";
+      target: "jamais-connectes";
+    }
+
+    item {
+      label: _("Conflicting objects (CNF)");
+      action: "recherche.requete";
+      target: "conflits";
+    }
+  }
+
+  // Les recherches de l'utilisateur s'ajoutent ici (section remplie par le code).
+  section {
+    item {
+      label: _("Save the Search…");
+      action: "recherche.enregistrer";
+    }
+  }
+}
+
+Adw.AlertDialog inactive_dialog {
+  heading: _("Inactive Accounts");
+  body: _("Accounts with no activity for the chosen number of days, checked on every controller of the domain. An account that never logged on is judged by its creation date; disabled accounts are included.");
+  default-response: "rechercher";
+  close-response: "annuler";
+
+  extra-child: Adw.PreferencesGroup {
+    Adw.SpinRow days {
+      title: _("Days without activity");
+
+      adjustment: Adjustment {
+        lower: 0;
+        upper: 3650;
+        step-increment: 1;
+        page-increment: 30;
+        value: 180;
+      };
+    }
+  };
+
+  responses [
+    annuler: _("Cancel"),
+    rechercher: _("Search") suggested,
+  ]
+
+  response => $inactive_answered();
+}
+
+Adw.AlertDialog save_dialog {
+  heading: _("Save the Search");
+  default-response: "enregistrer";
+  close-response: "renoncer";
+
+  extra-child: Adw.PreferencesGroup {
+    Adw.EntryRow search_name {
+      title: _("Name");
+      activates-default: true;
+    }
+  };
+
+  responses [
+    renoncer: _("Cancel"),
+    enregistrer: _("Save") suggested,
+  ]
+
+  response => $save_answered();
+}

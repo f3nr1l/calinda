@@ -1,0 +1,167 @@
+{
+  "format": 1,
+  "famille": "registrypol",
+  "description": "fichiers Registry.pol (MS-GPREG 2.2.1)",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "registrypol-machine",
+      "provenance": {
+        "objet": "/var/lib/samba/sysvol/lab.test/Policies/{18D39E00-F22B-44B9-B3F6-5402CDA37B1E}/Machine/Registry.pol",
+        "attribut": "(fichier)",
+        "commande": "cat '/var/lib/samba/sysvol/lab.test/Policies/{18D39E00-F22B-44B9-B3F6-5402CDA37B1E}/Machine/Registry.pol'",
+        "preparation": "samba-tool gpo load {18D39E00-F22B-44B9-B3F6-5402CDA37B1E} --content=<REGISTRE> (voir extraire_vecteurs.py)"
+      },
+      "hex": "50526567010000005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b0045006e00740069006500720000003b00040000003b00040000003b00010000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b0045006e0074006900650072004d006100780000003b00040000003b00040000003b00ffffffff5d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b004700720061006e00640000003b000b0000003b00080000003b00efcdab89674523015d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b005400650078007400650000003b00010000003b00260000003b00c9007400e9002000e0002000500061007200690073002c002000320030002000b000430000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b00560069006400650000003b00010000003b00020000003b0000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b004300680065006d0069006e0000003b00020000003b00240000003b002500530079007300740065006d0052006f006f00740025005c00540065006d00700000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b004c00690073007400650000003b00070000003b001a0000003b0075006e00000064006500750078000000e9007400e900000000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b004f006300740065007400730000003b00030000003b00050000003b0000017f80ff5d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c005600650063007400650075007200730000003b002a002a00640065006c002e0041006e006300690065006e006e00650000003b00010000003b00040000003b00200000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c0041006e006e00750061006900720065005c00560065006300740065007500720073005c005000750072006700650000003b002a002a00640065006c00760061006c0073002e0000003b00010000003b00040000003b00200000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c004d006900630072006f0073006f00660074005c00570069006e0064006f00770073005c00570069006e0064006f00770073005500700064006100740065005c004100550000003b004e006f004100750074006f0055007000640061007400650000003b00040000003b00040000003b00010000005d00",
+      "attendu": {
+        "signature": "PReg",
+        "version": 1,
+        "entrees": [
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Entier",
+            "type": 4,
+            "type_nom": "DWORD",
+            "taille": 4,
+            "donnees": 1
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "EntierMax",
+            "type": 4,
+            "type_nom": "DWORD",
+            "taille": 4,
+            "donnees": 4294967295
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Grand",
+            "type": 11,
+            "type_nom": "QWORD",
+            "taille": 8,
+            "donnees": 81985529216486895
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Texte",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 38,
+            "donnees": "Été à Paris, 20 °C"
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Vide",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 2,
+            "donnees": ""
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Chemin",
+            "type": 2,
+            "type_nom": "EXPAND_SZ",
+            "taille": 36,
+            "donnees": "%SystemRoot%\\Temp"
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Liste",
+            "type": 7,
+            "type_nom": "MULTI_SZ",
+            "taille": 26,
+            "donnees": [
+              "un",
+              "deux",
+              "été"
+            ]
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "Octets",
+            "type": 3,
+            "type_nom": "BINARY",
+            "taille": 5,
+            "donnees": "00017f80ff"
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs",
+            "valeur": "**del.Ancienne",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 4,
+            "donnees": " "
+          },
+          {
+            "cle": "Software\\Policies\\Annuaire\\Vecteurs\\Purge",
+            "valeur": "**delvals.",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 4,
+            "donnees": " "
+          },
+          {
+            "cle": "Software\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU",
+            "valeur": "NoAutoUpdate",
+            "type": 4,
+            "type_nom": "DWORD",
+            "taille": 4,
+            "donnees": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "registrypol-user",
+      "provenance": {
+        "objet": "/var/lib/samba/sysvol/lab.test/Policies/{18D39E00-F22B-44B9-B3F6-5402CDA37B1E}/User/Registry.pol",
+        "attribut": "(fichier)",
+        "commande": "cat '/var/lib/samba/sysvol/lab.test/Policies/{18D39E00-F22B-44B9-B3F6-5402CDA37B1E}/User/Registry.pol'",
+        "preparation": "samba-tool gpo load {18D39E00-F22B-44B9-B3F6-5402CDA37B1E} --content=<REGISTRE> (voir extraire_vecteurs.py)"
+      },
+      "hex": "50526567010000005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c004d006900630072006f0073006f00660074005c00570069006e0064006f00770073005c0043006f006e00740072006f006c002000500061006e0065006c005c004400650073006b0074006f00700000003b00530063007200650065006e00530061007600650041006300740069007600650000003b00010000003b00040000003b00310000005d005b0053006f006600740077006100720065005c0050006f006c00690063006900650073005c004d006900630072006f0073006f00660074005c00570069006e0064006f00770073005c0043006f006e00740072006f006c002000500061006e0065006c005c004400650073006b0074006f00700000003b00530063007200650065006e005300610076006500540069006d0065004f007500740000003b00010000003b00080000003b0036003000300000005d00",
+      "attendu": {
+        "signature": "PReg",
+        "version": 1,
+        "entrees": [
+          {
+            "cle": "Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+            "valeur": "ScreenSaveActive",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 4,
+            "donnees": "1"
+          },
+          {
+            "cle": "Software\\Policies\\Microsoft\\Windows\\Control Panel\\Desktop",
+            "valeur": "ScreenSaveTimeOut",
+            "type": 1,
+            "type_nom": "SZ",
+            "taille": 8,
+            "donnees": "600"
+          }
+        ]
+      }
+    },
+    {
+      "id": "registrypol-vide",
+      "description": "en-tête seul, aucune entrée",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "(fichier)",
+        "commande": "ndr_pack(preg.file())"
+      },
+      "hex": "5052656701000000",
+      "attendu": {
+        "signature": "PReg",
+        "version": 1,
+        "entrees": []
+      }
+    }
+  ]
+}

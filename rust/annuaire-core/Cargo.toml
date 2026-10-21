@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+
+[package]
+name = "annuaire-core"
+description = "Core of Annuaire: connection to Active Directory domain controllers, paged searches, object model, changesets, journal, and the SYSVOL over SMB"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+name = "annuaire_core"
+
+[features]
+default = []
+# Local copy of a domain in SQLite (`store`, `sync`, `sql_filter`, `cache`), for the Rust
+# interface (R4.4); the system SQLite, as the Python standard library uses it.
+local-copy = ["dep:rusqlite"]
+# Backups of the GPOs in `tar.gz` archives (`gpo_backup`, R4.8), for the Rust interface.
+gpo-backup = ["dep:flate2", "dep:tar"]
+# Content of the GPOs (R4.9): administrative templates (ADMX, cache in `json.gz`), Group
+# Policy Preferences (XML), security settings; for the Rust interface.
+gpo-content = ["dep:flate2", "dep:roxmltree", "dep:unicode-normalization"]
+
+[dependencies]
+annuaire-codecs = { path = "../annuaire-codecs" }
+# GSSAPI with the Kerberos confidentiality layer and TLS channel binding (ADR 0001, 0016);
+# patched copy in ../vendor/ldap3. OpenSSL rather than rustls: Samba's certificate has no
+# subjectAltName.
+ldap3 = { version = "0.12.1", default-features = false, features = ["gssapi", "tls-native"] }
+native-tls = "0.2"
+# SMB (ADR 0017): Kerberos on the credential cache (patched copy in ../vendor/libgssapi, already
+# linked through ldap3) and the SMB 3 primitives from the system OpenSSL (already linked by
+# native-tls): SHA-512, HMAC, CMAC, AES-GCM, AES-CCM.
+# `store`: a ticket obtained by password goes to the cache of the session (R4.2, `kinit`).
+libgssapi = { version = "0.9.1", default-features = false, features = ["store"] }
+openssl = "0.10"
+# Journal and journaled forms: JSON in the key order of Python (`json.dumps`).
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", default-features = false, features = ["rt-multi-thread", "time", "sync", "net"] }
+rusqlite = { version = "0.40", optional = true, features = ["functions"] }
+# GPO backups: gzip in pure Rust (miniz_oxide), tar without extended attributes.
+flate2 = { version = "1", optional = true }
+tar = { version = "0.4", optional = true, default-features = false }
+# ADMX, ADML and preference files: a read-only tree with the byte ranges of the nodes (exact
+# round trip of the preferences); no DTD.
+roxmltree = { version = "0.20", optional = true }
+# Search of the administrative templates without accents (NFKD, as `unicodedata`).
+unicode-normalization = { version = "0.1", optional = true }
+
+# Lab tests (ADR 0020): ignored by default, run with `--ignored` against the lab.
+[[test]]
+name = "labo_gpo"
+required-features = ["gpo-backup"]
+
+[[test]]
+name = "labo_content"
+required-features = ["gpo-content"]
+
+[[test]]
+name = "labo_cache"
+required-features = ["local-copy"]
+
+[[test]]
+name = "labo_gpmc"
+required-features = ["gpo-backup", "gpo-content"]
+
+[[test]]
+name = "labo_windows"
+required-features = ["local-copy"]
+
+[[example]]
+name = "copy_membership"
+required-features = ["local-copy"]
+
+[lints]
+workspace = true

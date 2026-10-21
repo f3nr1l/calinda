@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+// Ajout ou modification d'un enregistrement DNS (J3.4, ui/dns_enregistrement.py). Seuls les
+// champs du type choisi sont visibles ; la saisie est vérifiée à chaque frappe.
+template $AnnuaireDialogueEnregistrementDns: Adw.Dialog {
+  title: _("New DNS Record");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button cancel_button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Stack confirm_stack {
+        StackPage {
+          name: "bouton";
+
+          child: Button confirm_button {
+            label: _("Continue");
+            sensitive: false;
+            clicked => $confirm();
+
+            styles [
+              "suggested-action",
+            ]
+          };
+        }
+
+        StackPage {
+          name: "attente";
+
+          child: Spinner {
+            spinning: true;
+            tooltip-text: _("Reading the name on the domain controller");
+          };
+        }
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup name_group {
+        Adw.EntryRow name_entry {
+          title: _("Name, relative to the zone (@: the zone itself)");
+          input-hints: no_spellcheck;
+          changed => $changed();
+        }
+
+        Adw.ComboRow type_combo {
+          title: _("Type");
+          notify::selected => $type_changed();
+          // Éléments nommés pour AT-SPI (sans fabrique, l'élément de liste n'a pas de nom).
+          factory: BuilderListItemFactory {
+            template ListItem {
+              accessible-label: bind template.item as <StringObject>.string;
+
+              child: Label {
+                xalign: 0;
+                label: bind template.item as <StringObject>.string;
+              };
+            }
+          };
+
+          model: StringList {
+            strings [
+              "A",
+              "AAAA",
+              "CNAME",
+              "PTR",
+              "MX",
+              "SRV",
+              "TXT",
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup data_group {
+        title: _("Data");
+
+        Adw.EntryRow address_entry {
+          title: _("IP address");
+          input-hints: no_spellcheck;
+          changed => $changed();
+        }
+
+        Adw.SpinRow priority_entry {
+          title: _("Priority");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 65535;
+            step-increment: 1;
+            page-increment: 10;
+          };
+        }
+
+        Adw.SpinRow weight_entry {
+          title: _("Weight");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 65535;
+            step-increment: 1;
+            page-increment: 10;
+          };
+        }
+
+        Adw.SpinRow port_entry {
+          title: _("Port");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 65535;
+            step-increment: 1;
+            page-increment: 100;
+          };
+        }
+
+        Adw.EntryRow target_entry {
+          title: _("Target name");
+          input-hints: no_spellcheck;
+          changed => $changed();
+        }
+
+        Adw.EntryRow text_entry {
+          title: _("Text (one string, or several in quotes)");
+          changed => $changed();
+        }
+
+        Adw.SpinRow ttl_entry {
+          title: _("Time to live (TTL, in seconds)");
+          numeric: true;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 0;
+            upper: 2147483647;
+            value: 900;
+            step-increment: 60;
+            page-increment: 3600;
+          };
+        }
+      }
+
+      Adw.PreferencesGroup ptr_group {
+        Adw.SwitchRow ptr_switch {
+          title: _("Also create the reverse pointer (PTR)");
+          sensitive: false;
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Label state {
+          xalign: 0;
+          wrap: true;
+          selectable: true;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+  };
+}

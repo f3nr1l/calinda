@@ -1,0 +1,73 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueRenommer: Adw.Dialog {
+  title: _("Rename");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow name_entry {
+          title: _("New name");
+          activates-default: true;
+          changed => $name_changed();
+        }
+      }
+
+      Adw.PreferencesGroup account_group {
+        title: _("Also update");
+
+        Adw.SwitchRow display_switch {
+          title: _("Display name (displayName)");
+          active: true;
+        }
+
+        Adw.EntryRow display_entry {
+          title: _("Display name");
+          sensitive: bind display_switch.active;
+        }
+
+        Adw.SwitchRow identifier_switch {
+          title: _("Account name (sAMAccountName)");
+          active: false;
+        }
+
+        Adw.EntryRow identifier_entry {
+          title: _("Logon name");
+          input-hints: no_spellcheck;
+          sensitive: bind identifier_switch.active;
+        }
+      }
+    };
+  };
+}

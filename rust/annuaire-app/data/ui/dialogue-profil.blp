@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueProfil: Adw.Dialog {
+  title: _("Add a domain");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Add");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow domain_entry {
+          title: _("DNS name of the domain (lab.test)");
+          show-apply-button: true;
+          input-hints: no_spellcheck;
+          apply => $discover();
+        }
+
+        Adw.ActionRow discovery_row {
+          title: _("Domain controllers");
+          subtitle: _("Confirm the domain name to look them up in DNS.");
+
+          [suffix]
+          Spinner discovery_spinner {
+            visible: false;
+          }
+        }
+
+        Adw.ComboRow dc_combo {
+          title: _("Preferred controller");
+
+          model: StringList dc_list {
+            strings [
+              _("Automatic (DNS)"),
+            ]
+          };
+        }
+
+        Adw.ComboRow write_dc_combo {
+          title: _("Write controller");
+
+          model: StringList write_dc_list {
+            strings [
+              _("PDC emulator (DNS)"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Security");
+
+        Adw.ComboRow mode_combo {
+          title: _("Encryption");
+          notify::selected => $mode_changed();
+
+          model: StringList {
+            strings [
+              _("Sealed GSSAPI"),
+              _("LDAPS"),
+              _("StartTLS"),
+            ]
+          };
+        }
+
+        Adw.ActionRow ca_row {
+          title: _("Certificate of the domain CA");
+          subtitle: _("Required for LDAPS and StartTLS; compare its fingerprint with the DC's.");
+          subtitle-selectable: true;
+          visible: false;
+
+          [suffix]
+          Button {
+            label: _("Choose…");
+            valign: center;
+            clicked => $choose_ca();
+          }
+        }
+
+        Adw.SwitchRow read_only_switch {
+          title: _("Read-only");
+          subtitle: _("No change can be sent to the directory.");
+          active: true;
+        }
+
+        Adw.SwitchRow cache_switch {
+          title: _("Local copy");
+          subtitle: _("Keeps on this computer the names, accounts and memberships read, without any secret, for immediate display. Unencrypted copy: for a customer's domain, prefer an encrypted disk. Turning it off erases the copy.");
+          active: true;
+        }
+
+        Adw.SwitchRow smb2_switch {
+          title: _("Allow SMB 2 with signing only (older controllers)");
+          subtitle: _("For domain controllers that know SMB 2 only (Windows Server 2008 R2 and earlier). The SYSVOL content then travels unencrypted, but authenticated and protected against modification. SMB 3 stays encrypted.");
+          active: false;
+        }
+      }
+    };
+  };
+}

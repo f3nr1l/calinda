@@ -1,0 +1,12 @@
+# Écrans que l'application n'atteint que par ses crochets d'essai (fiche ouverte depuis le
+# tableau : AT-SPI ne sait pas activer une ligne) : audit_ecrans.sh SORTIE tests/interface/ecrans-fiche.txt.
+fiche-general|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=general|dom|wait:4
+fiche-compte|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=compte|dom|wait:4
+fiche-groupes|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=groupes|dom|wait:4
+fiche-attributs|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=attributs|dom|wait:5
+fiche-classes|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=attributs|dom|wait:5|Classes auxiliaires…|pause:2
+fiche-securite|env:ANNUAIRE_ESSAI_FICHE=OU=Paris,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=securite|dom|wait:5
+fiche-delegation|env:ANNUAIRE_ESSAI_FICHE=OU=Paris,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=securite|dom|wait:5|Déléguer…|pause:2
+fiche-strategie|env:ANNUAIRE_ESSAI_FICHE=CN=Administrator,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=strategie|dom|wait:5
+fiche-membres|env:ANNUAIRE_ESSAI_FICHE=CN=Domain Admins,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=membres|dom|wait:4
+fiche-membres-ajout|env:ANNUAIRE_ESSAI_FICHE=CN=Domain Admins,CN=Users,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=membres|dom|wait:4|Ajouter des membres|pause:2

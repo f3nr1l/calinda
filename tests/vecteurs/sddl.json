@@ -1,0 +1,2172 @@
+{
+  "format": 1,
+  "famille": "sddl",
+  "description": "SDDL de Samba : descripteurs construits, écrits et relus par l'oracle",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "sddl-sid-aa",
+      "description": "abréviation AA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000043020000",
+      "attendu": {
+        "sddl": "O:AA",
+        "sddl_sans_domaine": "O:AA",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000043020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ac",
+      "description": "abréviation AC",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010200000000000f0200000001000000",
+      "attendu": {
+        "sddl": "O:AC",
+        "sddl_sans_domaine": "O:AC",
+        "relu_hex": "0100008014000000000000000000000000000000010200000000000f0200000001000000"
+      }
+    },
+    {
+      "id": "sddl-sid-an",
+      "description": "abréviation AN",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000507000000",
+      "attendu": {
+        "sddl": "O:AN",
+        "sddl_sans_domaine": "O:AN",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000507000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ao",
+      "description": "abréviation AO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000024020000",
+      "attendu": {
+        "sddl": "O:AO",
+        "sddl_sans_domaine": "O:AO",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000024020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ap",
+      "description": "abréviation AP",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10d020000",
+      "attendu": {
+        "sddl": "O:AP",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-525",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10d020000"
+      }
+    },
+    {
+      "id": "sddl-sid-as",
+      "description": "abréviation AS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001201000000",
+      "attendu": {
+        "sddl": "O:AS",
+        "sddl_sans_domaine": "O:AS",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001201000000"
+      }
+    },
+    {
+      "id": "sddl-sid-au",
+      "description": "abréviation AU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001010000000000050b000000",
+      "attendu": {
+        "sddl": "O:AU",
+        "sddl_sans_domaine": "O:AU",
+        "relu_hex": "010000801400000000000000000000000000000001010000000000050b000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ba",
+      "description": "abréviation BA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000020020000",
+      "attendu": {
+        "sddl": "O:BA",
+        "sddl_sans_domaine": "O:BA",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000020020000"
+      }
+    },
+    {
+      "id": "sddl-sid-bg",
+      "description": "abréviation BG",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000022020000",
+      "attendu": {
+        "sddl": "O:BG",
+        "sddl_sans_domaine": "O:BG",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000022020000"
+      }
+    },
+    {
+      "id": "sddl-sid-bo",
+      "description": "abréviation BO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000027020000",
+      "attendu": {
+        "sddl": "O:BO",
+        "sddl_sans_domaine": "O:BO",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000027020000"
+      }
+    },
+    {
+      "id": "sddl-sid-bu",
+      "description": "abréviation BU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000021020000",
+      "attendu": {
+        "sddl": "O:BU",
+        "sddl_sans_domaine": "O:BU",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000021020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ca",
+      "description": "abréviation CA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a105020000",
+      "attendu": {
+        "sddl": "O:CA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-517",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a105020000"
+      }
+    },
+    {
+      "id": "sddl-sid-cd",
+      "description": "abréviation CD",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000003e020000",
+      "attendu": {
+        "sddl": "O:CD",
+        "sddl_sans_domaine": "O:CD",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000003e020000"
+      }
+    },
+    {
+      "id": "sddl-sid-cg",
+      "description": "abréviation CG",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000301000000",
+      "attendu": {
+        "sddl": "O:CG",
+        "sddl_sans_domaine": "O:CG",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000301000000"
+      }
+    },
+    {
+      "id": "sddl-sid-cn",
+      "description": "abréviation CN",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000",
+      "attendu": {
+        "sddl": "O:CN",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-522",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000"
+      }
+    },
+    {
+      "id": "sddl-sid-co",
+      "description": "abréviation CO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000300000000",
+      "attendu": {
+        "sddl": "O:CO",
+        "sddl_sans_domaine": "O:CO",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000300000000"
+      }
+    },
+    {
+      "id": "sddl-sid-cy",
+      "description": "abréviation CY",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000039020000",
+      "attendu": {
+        "sddl": "O:CY",
+        "sddl_sans_domaine": "O:CY",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000039020000"
+      }
+    },
+    {
+      "id": "sddl-sid-da",
+      "description": "abréviation DA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a100020000",
+      "attendu": {
+        "sddl": "O:DA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-512",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a100020000"
+      }
+    },
+    {
+      "id": "sddl-sid-dc",
+      "description": "abréviation DC",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a103020000",
+      "attendu": {
+        "sddl": "O:DC",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-515",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a103020000"
+      }
+    },
+    {
+      "id": "sddl-sid-dd",
+      "description": "abréviation DD",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a104020000",
+      "attendu": {
+        "sddl": "O:DD",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-516",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a104020000"
+      }
+    },
+    {
+      "id": "sddl-sid-dg",
+      "description": "abréviation DG",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a102020000",
+      "attendu": {
+        "sddl": "O:DG",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-514",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a102020000"
+      }
+    },
+    {
+      "id": "sddl-sid-du",
+      "description": "abréviation DU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a101020000",
+      "attendu": {
+        "sddl": "O:DU",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-513",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a101020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ea",
+      "description": "abréviation EA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a107020000",
+      "attendu": {
+        "sddl": "O:EA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-519",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a107020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ed",
+      "description": "abréviation ED",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000509000000",
+      "attendu": {
+        "sddl": "O:ED",
+        "sddl_sans_domaine": "O:ED",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000509000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ek",
+      "description": "abréviation EK",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10f020000",
+      "attendu": {
+        "sddl": "O:EK",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-527",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10f020000"
+      }
+    },
+    {
+      "id": "sddl-sid-er",
+      "description": "abréviation ER",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000003d020000",
+      "attendu": {
+        "sddl": "O:ER",
+        "sddl_sans_domaine": "O:ER",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000003d020000"
+      }
+    },
+    {
+      "id": "sddl-sid-es",
+      "description": "abréviation ES",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000040020000",
+      "attendu": {
+        "sddl": "O:ES",
+        "sddl_sans_domaine": "O:ES",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000040020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ha",
+      "description": "abréviation HA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000042020000",
+      "attendu": {
+        "sddl": "O:HA",
+        "sddl_sans_domaine": "O:HA",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000042020000"
+      }
+    },
+    {
+      "id": "sddl-sid-hi",
+      "description": "abréviation HI",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001000300000",
+      "attendu": {
+        "sddl": "O:HI",
+        "sddl_sans_domaine": "O:HI",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001000300000"
+      }
+    },
+    {
+      "id": "sddl-sid-is",
+      "description": "abréviation IS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000038020000",
+      "attendu": {
+        "sddl": "O:IS",
+        "sddl_sans_domaine": "O:IS",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000038020000"
+      }
+    },
+    {
+      "id": "sddl-sid-iu",
+      "description": "abréviation IU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000504000000",
+      "attendu": {
+        "sddl": "O:IU",
+        "sddl_sans_domaine": "O:IU",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000504000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ka",
+      "description": "abréviation KA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10e020000",
+      "attendu": {
+        "sddl": "O:KA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-526",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a10e020000"
+      }
+    },
+    {
+      "id": "sddl-sid-la",
+      "description": "abréviation LA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f4010000",
+      "attendu": {
+        "sddl": "O:LA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-500",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f4010000"
+      }
+    },
+    {
+      "id": "sddl-sid-lg",
+      "description": "abréviation LG",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f5010000",
+      "attendu": {
+        "sddl": "O:LG",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-501",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f5010000"
+      }
+    },
+    {
+      "id": "sddl-sid-ls",
+      "description": "abréviation LS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000513000000",
+      "attendu": {
+        "sddl": "O:LS",
+        "sddl_sans_domaine": "O:LS",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000513000000"
+      }
+    },
+    {
+      "id": "sddl-sid-lu",
+      "description": "abréviation LU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000002f020000",
+      "attendu": {
+        "sddl": "O:LU",
+        "sddl_sans_domaine": "O:LU",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000002f020000"
+      }
+    },
+    {
+      "id": "sddl-sid-lw",
+      "description": "abréviation LW",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001000100000",
+      "attendu": {
+        "sddl": "O:LW",
+        "sddl_sans_domaine": "O:LW",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001000100000"
+      }
+    },
+    {
+      "id": "sddl-sid-me",
+      "description": "abréviation ME",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001000200000",
+      "attendu": {
+        "sddl": "O:ME",
+        "sddl_sans_domaine": "O:ME",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001000200000"
+      }
+    },
+    {
+      "id": "sddl-sid-mp",
+      "description": "abréviation MP",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001000210000",
+      "attendu": {
+        "sddl": "O:MP",
+        "sddl_sans_domaine": "O:MP",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001000210000"
+      }
+    },
+    {
+      "id": "sddl-sid-ms",
+      "description": "abréviation MS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000041020000",
+      "attendu": {
+        "sddl": "O:MS",
+        "sddl_sans_domaine": "O:MS",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000041020000"
+      }
+    },
+    {
+      "id": "sddl-sid-mu",
+      "description": "abréviation MU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000002e020000",
+      "attendu": {
+        "sddl": "O:MU",
+        "sddl_sans_domaine": "O:MU",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000002e020000"
+      }
+    },
+    {
+      "id": "sddl-sid-no",
+      "description": "abréviation NO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000002c020000",
+      "attendu": {
+        "sddl": "O:NO",
+        "sddl_sans_domaine": "O:NO",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000002c020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ns",
+      "description": "abréviation NS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000514000000",
+      "attendu": {
+        "sddl": "O:NS",
+        "sddl_sans_domaine": "O:NS",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000514000000"
+      }
+    },
+    {
+      "id": "sddl-sid-nu",
+      "description": "abréviation NU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000502000000",
+      "attendu": {
+        "sddl": "O:NU",
+        "sddl_sans_domaine": "O:NU",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000502000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ow",
+      "description": "abréviation OW",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000304000000",
+      "attendu": {
+        "sddl": "O:OW",
+        "sddl_sans_domaine": "O:OW",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000304000000"
+      }
+    },
+    {
+      "id": "sddl-sid-pa",
+      "description": "abréviation PA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a108020000",
+      "attendu": {
+        "sddl": "O:PA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-520",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a108020000"
+      }
+    },
+    {
+      "id": "sddl-sid-po",
+      "description": "abréviation PO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000026020000",
+      "attendu": {
+        "sddl": "O:PO",
+        "sddl_sans_domaine": "O:PO",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000026020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ps",
+      "description": "abréviation PS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001010000000000050a000000",
+      "attendu": {
+        "sddl": "O:PS",
+        "sddl_sans_domaine": "O:PS",
+        "relu_hex": "010000801400000000000000000000000000000001010000000000050a000000"
+      }
+    },
+    {
+      "id": "sddl-sid-pu",
+      "description": "abréviation PU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000023020000",
+      "attendu": {
+        "sddl": "O:PU",
+        "sddl_sans_domaine": "O:PU",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000023020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ra",
+      "description": "abréviation RA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000003f020000",
+      "attendu": {
+        "sddl": "O:RA",
+        "sddl_sans_domaine": "O:RA",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000003f020000"
+      }
+    },
+    {
+      "id": "sddl-sid-rc",
+      "description": "abréviation RC",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001010000000000050c000000",
+      "attendu": {
+        "sddl": "O:RC",
+        "sddl_sans_domaine": "O:RC",
+        "relu_hex": "010000801400000000000000000000000000000001010000000000050c000000"
+      }
+    },
+    {
+      "id": "sddl-sid-rd",
+      "description": "abréviation RD",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000002b020000",
+      "attendu": {
+        "sddl": "O:RD",
+        "sddl_sans_domaine": "O:RD",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000002b020000"
+      }
+    },
+    {
+      "id": "sddl-sid-re",
+      "description": "abréviation RE",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000028020000",
+      "attendu": {
+        "sddl": "O:RE",
+        "sddl_sans_domaine": "O:RE",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000028020000"
+      }
+    },
+    {
+      "id": "sddl-sid-rm",
+      "description": "abréviation RM",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000044020000",
+      "attendu": {
+        "sddl": "O:RM",
+        "sddl_sans_domaine": "O:RM",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000044020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ro",
+      "description": "abréviation RO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f2010000",
+      "attendu": {
+        "sddl": "O:RO",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-498",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a1f2010000"
+      }
+    },
+    {
+      "id": "sddl-sid-rs",
+      "description": "abréviation RS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a129020000",
+      "attendu": {
+        "sddl": "O:RS",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-553",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a129020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ru",
+      "description": "abréviation RU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000102000000000005200000002a020000",
+      "attendu": {
+        "sddl": "O:RU",
+        "sddl_sans_domaine": "O:RU",
+        "relu_hex": "01000080140000000000000000000000000000000102000000000005200000002a020000"
+      }
+    },
+    {
+      "id": "sddl-sid-sa",
+      "description": "abréviation SA",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a106020000",
+      "attendu": {
+        "sddl": "O:SA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-518",
+        "relu_hex": "010000801400000000000000000000000000000001050000000000051500000055433741060e1d1e8de403a106020000"
+      }
+    },
+    {
+      "id": "sddl-sid-si",
+      "description": "abréviation SI",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001000400000",
+      "attendu": {
+        "sddl": "O:SI",
+        "sddl_sans_domaine": "O:SI",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001000400000"
+      }
+    },
+    {
+      "id": "sddl-sid-so",
+      "description": "abréviation SO",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010000801400000000000000000000000000000001020000000000052000000025020000",
+      "attendu": {
+        "sddl": "O:SO",
+        "sddl_sans_domaine": "O:SO",
+        "relu_hex": "010000801400000000000000000000000000000001020000000000052000000025020000"
+      }
+    },
+    {
+      "id": "sddl-sid-ss",
+      "description": "abréviation SS",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000001202000000",
+      "attendu": {
+        "sddl": "O:SS",
+        "sddl_sans_domaine": "O:SS",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000001202000000"
+      }
+    },
+    {
+      "id": "sddl-sid-su",
+      "description": "abréviation SU",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000506000000",
+      "attendu": {
+        "sddl": "O:SU",
+        "sddl_sans_domaine": "O:SU",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000506000000"
+      }
+    },
+    {
+      "id": "sddl-sid-sy",
+      "description": "abréviation SY",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000512000000",
+      "attendu": {
+        "sddl": "O:SY",
+        "sddl_sans_domaine": "O:SY",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000512000000"
+      }
+    },
+    {
+      "id": "sddl-sid-ud",
+      "description": "abréviation UD",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000080140000000000000000000000000000000106000000000005540000000000000000000000000000000000000000000000",
+      "attendu": {
+        "sddl": "O:UD",
+        "sddl_sans_domaine": "O:UD",
+        "relu_hex": "01000080140000000000000000000000000000000106000000000005540000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "id": "sddl-sid-wd",
+      "description": "abréviation WD",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000100000000",
+      "attendu": {
+        "sddl": "O:WD",
+        "sddl_sans_domaine": "O:WD",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-sid-wr",
+      "description": "abréviation WR",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100008014000000000000000000000000000000010100000000000521000000",
+      "attendu": {
+        "sddl": "O:WR",
+        "sddl_sans_domaine": "O:WR",
+        "relu_hex": "0100008014000000000000000000000000000000010100000000000521000000"
+      }
+    },
+    {
+      "id": "sddl-cas-00",
+      "description": "O:BAG:SYD:",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100048014000000240000000000000030000000010200000000000520000000200200000101000000000005120000000400080000000000",
+      "attendu": {
+        "sddl": "O:BAG:SYD:",
+        "sddl_sans_domaine": "O:BAG:SYD:",
+        "relu_hex": "0100048014000000240000000000000030000000010200000000000520000000200200000101000000000005120000000400080000000000"
+      }
+    },
+    {
+      "id": "sddl-cas-01",
+      "description": "D:P",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000490000000000000000000000000140000000400080000000000",
+      "attendu": {
+        "sddl": "D:P",
+        "sddl_sans_domaine": "D:P",
+        "relu_hex": "01000490000000000000000000000000140000000400080000000000"
+      }
+    },
+    {
+      "id": "sddl-cas-02",
+      "description": "D:PAI",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000494000000000000000000000000140000000400080000000000",
+      "attendu": {
+        "sddl": "D:PAI",
+        "sddl_sans_domaine": "D:PAI",
+        "relu_hex": "01000494000000000000000000000000140000000400080000000000"
+      }
+    },
+    {
+      "id": "sddl-cas-03",
+      "description": "D:ARAI",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000485000000000000000000000000140000000400080000000000",
+      "attendu": {
+        "sddl": "D:ARAI",
+        "sddl_sans_domaine": "D:ARAI",
+        "relu_hex": "01000485000000000000000000000000140000000400080000000000"
+      }
+    },
+    {
+      "id": "sddl-cas-04",
+      "description": "S:PARAI",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010010aa000000000000000014000000000000000400080000000000",
+      "attendu": {
+        "sddl": "S:PARAI",
+        "sddl_sans_domaine": "S:PARAI",
+        "relu_hex": "010010aa000000000000000014000000000000000400080000000000"
+      }
+    },
+    {
+      "id": "sddl-cas-05",
+      "description": "O:DAG:DAD:AI(A;;FA;;;DA)(A;;FR;;;AU)(A;;FW;;;BU)(A;;FX;;;WD)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004841400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10002000001050000000000051500000055433741060e1d1e8de403a10002000004006c000400000000002400ff011f0001050000000000051500000055433741060e1d1e8de403a100020000000014008900120001010000000000050b00000000001800160112000102000000000005200000002102000000001400a0001200010100000000000100000000",
+      "attendu": {
+        "sddl": "O:DAG:DAD:AI(A;;FA;;;DA)(A;;FR;;;AU)(A;;FW;;;BU)(A;;FX;;;WD)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-512G:S-1-5-21-1094140757-505220614-2701386893-512D:AI(A;;FA;;;S-1-5-21-1094140757-505220614-2701386893-512)(A;;FR;;;AU)(A;;FW;;;BU)(A;;FX;;;WD)",
+        "relu_hex": "010004841400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10002000001050000000000051500000055433741060e1d1e8de403a10002000004006c000400000000002400ff011f0001050000000000051500000055433741060e1d1e8de403a100020000000014008900120001010000000000050b00000000001800160112000102000000000005200000002102000000001400a0001200010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-cas-06",
+      "description": "D:(A;;0x1200a9;;;AU)(A;;0x100000;;;WD)(D;;0xffffffff;;;AN)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000300000000001400a900120001010000000000050b000000000014000000100001010000000000010000000001001400ffffffff010100000000000507000000",
+      "attendu": {
+        "sddl": "D:(A;;0x1200a9;;;AU)(A;;0x100000;;;WD)(D;;0xffffffff;;;AN)",
+        "sddl_sans_domaine": "D:(A;;0x1200a9;;;AU)(A;;0x100000;;;WD)(D;;0xffffffff;;;AN)",
+        "relu_hex": "0100048000000000000000000000000014000000040044000300000000001400a900120001010000000000050b000000000014000000100001010000000000010000000001001400ffffffff010100000000000507000000"
+      }
+    },
+    {
+      "id": "sddl-cas-07",
+      "description": "D:(A;;GAGXGWGR;;;WD)(A;;GA;;;CO)(A;;GR;;;BA)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040048000300000000001400000000f00101000000000001000000000000140000000010010100000000000300000000000018000000008001020000000000052000000020020000",
+      "attendu": {
+        "sddl": "D:(A;;GAGXGWGR;;;WD)(A;;GA;;;CO)(A;;GR;;;BA)",
+        "sddl_sans_domaine": "D:(A;;GAGXGWGR;;;WD)(A;;GA;;;CO)(A;;GR;;;BA)",
+        "relu_hex": "0100048000000000000000000000000014000000040048000300000000001400000000f00101000000000001000000000000140000000010010100000000000300000000000018000000008001020000000000052000000020020000"
+      }
+    },
+    {
+      "id": "sddl-cas-08",
+      "description": "D:(A;;;;;WD)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004001c00010000000000140000000000010100000000000100000000",
+      "attendu": {
+        "sddl": "D:(A;;;;;WD)",
+        "sddl_sans_domaine": "D:(A;;;;;WD)",
+        "relu_hex": "010004800000000000000000000000001400000004001c00010000000000140000000000010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-cas-09",
+      "description": "D:(OA;CIIO;CR;00299570-246d-11d0-a768-00aa006e0529;bf967aba-0de6-11d0-a285-00aa003049e2;DU)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400500001000000050a48000001000003000000709529006d24d011a76800aa006e0529ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a101020000",
+      "attendu": {
+        "sddl": "D:(OA;CIIO;CR;00299570-246d-11d0-a768-00aa006e0529;bf967aba-0de6-11d0-a285-00aa003049e2;DU)",
+        "sddl_sans_domaine": "D:(OA;CIIO;CR;00299570-246d-11d0-a768-00aa006e0529;bf967aba-0de6-11d0-a285-00aa003049e2;S-1-5-21-1094140757-505220614-2701386893-513)",
+        "relu_hex": "01000480000000000000000000000000140000000400500001000000050a48000001000003000000709529006d24d011a76800aa006e0529ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a101020000"
+      }
+    },
+    {
+      "id": "sddl-cas-10",
+      "description": "D:(OA;CIIO;RPWP;bf967a0a-0de6-11d0-a285-00aa003049e2;bf967aba-0de6-11d0-a285-00aa003049e2;S-1-5-21-1094140757-505220614-2701386893-1105)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400500001000000050a480030000000030000000a7a96bfe60dd011a28500aa003049e2ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a151040000",
+      "attendu": {
+        "sddl": "D:(OA;CIIO;RPWP;bf967a0a-0de6-11d0-a285-00aa003049e2;bf967aba-0de6-11d0-a285-00aa003049e2;S-1-5-21-1094140757-505220614-2701386893-1105)",
+        "sddl_sans_domaine": "D:(OA;CIIO;RPWP;bf967a0a-0de6-11d0-a285-00aa003049e2;bf967aba-0de6-11d0-a285-00aa003049e2;S-1-5-21-1094140757-505220614-2701386893-1105)",
+        "relu_hex": "01000480000000000000000000000000140000000400500001000000050a480030000000030000000a7a96bfe60dd011a28500aa003049e2ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a151040000"
+      }
+    },
+    {
+      "id": "sddl-cas-11",
+      "description": "D:(OA;CI;CCDC;bf967a86-0de6-11d0-a285-00aa003049e2;;S-1-5-21-1094140757-505220614-2701386893-1105)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400400001000000050238000300000001000000867a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a151040000",
+      "attendu": {
+        "sddl": "D:(OA;CI;CCDC;bf967a86-0de6-11d0-a285-00aa003049e2;;S-1-5-21-1094140757-505220614-2701386893-1105)",
+        "sddl_sans_domaine": "D:(OA;CI;CCDC;bf967a86-0de6-11d0-a285-00aa003049e2;;S-1-5-21-1094140757-505220614-2701386893-1105)",
+        "relu_hex": "01000480000000000000000000000000140000000400400001000000050238000300000001000000867a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a151040000"
+      }
+    },
+    {
+      "id": "sddl-cas-12",
+      "description": "D:(OA;CIIO;CCDCLCSWRPWPDTLOCRSDRCWDWO;;bf967aba-0de6-11d0-a285-00aa003049e2;DA)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400400001000000050a3800ff010f0002000000ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a100020000",
+      "attendu": {
+        "sddl": "D:(OA;CIIO;CCDCLCSWRPWPDTLOCRSDRCWDWO;;bf967aba-0de6-11d0-a285-00aa003049e2;DA)",
+        "sddl_sans_domaine": "D:(OA;CIIO;CCDCLCSWRPWPDTLOCRSDRCWDWO;;bf967aba-0de6-11d0-a285-00aa003049e2;S-1-5-21-1094140757-505220614-2701386893-512)",
+        "relu_hex": "01000480000000000000000000000000140000000400400001000000050a3800ff010f0002000000ba7a96bfe60dd011a28500aa003049e201050000000000051500000055433741060e1d1e8de403a100020000"
+      }
+    },
+    {
+      "id": "sddl-cas-13",
+      "description": "D:(OD;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;PS)(OA;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;WD)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400580002000000060028000001000001000000531a72ab2f1ed011981900aa0040529b01010000000000050a000000050028000001000001000000531a72ab2f1ed011981900aa0040529b010100000000000100000000",
+      "attendu": {
+        "sddl": "D:(OD;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;PS)(OA;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;WD)",
+        "sddl_sans_domaine": "D:(OD;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;PS)(OA;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;WD)",
+        "relu_hex": "01000480000000000000000000000000140000000400580002000000060028000001000001000000531a72ab2f1ed011981900aa0040529b01010000000000050a000000050028000001000001000000531a72ab2f1ed011981900aa0040529b010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-cas-14",
+      "description": "D:(OA;;;;;WD)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400200001000000050018000000000000000000010100000000000100000000",
+      "attendu": {
+        "sddl": "D:(OA;;;;;WD)",
+        "sddl_sans_domaine": "D:(OA;;;;;WD)",
+        "relu_hex": "01000480000000000000000000000000140000000400200001000000050018000000000000000000010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-cas-15",
+      "description": "S:AI(AU;SA;WP;;;WD)(OU;CIIOIDSA;WP;f30e3bbe-9ff0-11d1-b603-0000f80367c1;bf967aa5-0de6-11d0-a285-00aa003049e2;WD)(AU;FA;CR;;;WD)(AL;SAFA;SD;;;WD)(OL;;SD;;;WD)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010010880000000000000000140000000000000004009400050000000240140020000000010100000000000100000000075a38002000000003000000be3b0ef3f09fd111b6030000f80367c1a57a96bfe60dd011a28500aa003049e2010100000000000100000000028014000001000001010000000000010000000003c0140000000100010100000000000100000000080018000000010000000000010100000000000100000000",
+      "attendu": {
+        "sddl": "S:AI(AU;SA;WP;;;WD)(OU;CIIOIDSA;WP;f30e3bbe-9ff0-11d1-b603-0000f80367c1;bf967aa5-0de6-11d0-a285-00aa003049e2;WD)(AU;FA;CR;;;WD)(AL;SAFA;SD;;;WD)(OL;;SD;;;WD)",
+        "sddl_sans_domaine": "S:AI(AU;SA;WP;;;WD)(OU;CIIOIDSA;WP;f30e3bbe-9ff0-11d1-b603-0000f80367c1;bf967aa5-0de6-11d0-a285-00aa003049e2;WD)(AU;FA;CR;;;WD)(AL;SAFA;SD;;;WD)(OL;;SD;;;WD)",
+        "relu_hex": "010010880000000000000000140000000000000004009400050000000240140020000000010100000000000100000000075a38002000000003000000be3b0ef3f09fd111b6030000f80367c1a57a96bfe60dd011a28500aa003049e2010100000000000100000000028014000001000001010000000000010000000003c0140000000100010100000000000100000000080018000000010000000000010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-cas-16",
+      "description": "O:S-1-5-21-1-2-3-512G:S-1-5-21-1-2-3-513D:(A;;RP;;;S-1-5-21-1-2-3-500)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004801400000030000000000000004c000000010500000000000515000000010000000200000003000000000200000105000000000005150000000100000002000000030000000102000004002c00010000000000240010000000010500000000000515000000010000000200000003000000f4010000",
+      "attendu": {
+        "sddl": "O:S-1-5-21-1-2-3-512G:S-1-5-21-1-2-3-513D:(A;;RP;;;S-1-5-21-1-2-3-500)",
+        "sddl_sans_domaine": "O:S-1-5-21-1-2-3-512G:S-1-5-21-1-2-3-513D:(A;;RP;;;S-1-5-21-1-2-3-500)",
+        "relu_hex": "010004801400000030000000000000004c000000010500000000000515000000010000000200000003000000000200000105000000000005150000000100000002000000030000000102000004002c00010000000000240010000000010500000000000515000000010000000200000003000000f4010000"
+      }
+    },
+    {
+      "id": "sddl-cas-17",
+      "description": "O:S-1-5-80-0G:S-1-5-32-999D:(A;OICINPIOID;CC;;;S-1-0-0)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004801400000024000000000000003400000001020000000000055000000000000000010200000000000520000000e703000004001c0001000000001f140001000000010100000000000000000000",
+      "attendu": {
+        "sddl": "O:S-1-5-80-0G:S-1-5-32-999D:(A;OICINPIOID;CC;;;S-1-0-0)",
+        "sddl_sans_domaine": "O:S-1-5-80-0G:S-1-5-32-999D:(A;OICINPIOID;CC;;;S-1-0-0)",
+        "relu_hex": "010004801400000024000000000000003400000001020000000000055000000000000000010200000000000520000000e703000004001c0001000000001f140001000000010100000000000000000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-00",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002dbc1400000020000000000000002c00000001010000000000100021000001010000000000030100000004007c0003000000080438009400020003000000524472fd58b2e1c3c699100fec48d03857f434856edc6389b302395c7aacd446010100000000001000200000021a2400ff010f0001050000000000051500000055433741060e1d1e8de403a1f50100000506180017000a000000000001010000000000050a000000",
+      "attendu": {
+        "sddl": "O:MPG:CGD:PAI(OL;NP;LCRPLORC;fd724452-b258-c3e1-c699-100fec48d038;8534f457-dc6e-8963-b302-395c7aacd446;ME)(AU;CIIOID;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;LG)(OA;CINP;CCDCLCRPRCWO;;;PS)",
+        "sddl_sans_domaine": "O:MPG:CGD:PAI(OL;NP;LCRPLORC;fd724452-b258-c3e1-c699-100fec48d038;8534f457-dc6e-8963-b302-395c7aacd446;ME)(AU;CIIOID;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;S-1-5-21-1094140757-505220614-2701386893-501)(OA;CINP;CCDCLCRPRCWO;;;PS)",
+        "relu_hex": "010004941400000020000000000000002c00000001010000000000100021000001010000000000030100000004007c0003000000080438009400020003000000524472fd58b2e1c3c699100fec48d03857f434856edc6389b302395c7aacd446010100000000001000200000021a2400ff010f0001050000000000051500000055433741060e1d1e8de403a1f50100000506180017000a000000000001010000000000050a000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-01",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000498140000002000000000000000300000000101000000000005020000000102000000000005200000003f020000020070000400000003051400f6010100010100000000001000210000005d1800f8010e0001020000000000052000000041020000034d24008d01060001050000000000051500000055433741060e1d1e8de403a10602000002471800ff010f0001020000000000052000000021020000",
+      "attendu": {
+        "sddl": "O:NUG:RAD:P(AL;OINP;DCLCRPWPDTLOCRSD;;;MP)(A;OINPIOIDSA;SWRPWPDTLOCRRCWDWO;;;MS)(AL;OINPIOSA;CCLCSWLOCRRCWD;;;SA)(AU;OICINPSA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BU)",
+        "sddl_sans_domaine": "O:NUG:RAD:P(AL;OINP;DCLCRPWPDTLOCRSD;;;MP)(A;OINPIOIDSA;SWRPWPDTLOCRRCWDWO;;;MS)(AL;OINPIOSA;CCLCSWLOCRRCWD;;;S-1-5-21-1094140757-505220614-2701386893-518)(AU;OICINPSA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BU)",
+        "relu_hex": "01000490140000002000000000000000300000000101000000000005020000000102000000000005200000003f020000040070000400000003051400f6010100010100000000001000210000005d1800f8010e0001020000000000052000000041020000034d24008d01060001050000000000051500000055433741060e1d1e8de403a10602000002471800ff010f0001020000000000052000000021020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-02",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001b8b14000000240000003400000000000000010200000000000520000000250200000102000000000005200000002f020000040088000400000008562c00ff011f0001000000b838dde9b438e233b69c90a20755f6a10102000000000005200000002202000008082c007a010b000200000070c1fb8e6bcdde32c13181e77723d3520102000000000005200000002c020000011a140089d90847010100000000000504000000010a1400ff010f00010100000000001201000000",
+      "attendu": {
+        "sddl": "O:SOG:LUS:ARAI(OL;CINPIDSA;FA;e9dd38b8-38b4-33e2-b69c-90a20755f6a1;;BG)(OL;IO;DCSWRPWPDTCRSDRCWO;;8efbc170-cd6b-32de-c131-81e77723d352;NO)(D;CIIOID;0x4708d989;;;IU)(D;CIIO;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AS)",
+        "sddl_sans_domaine": "O:SOG:LUS:ARAI(OL;CINPIDSA;FA;e9dd38b8-38b4-33e2-b69c-90a20755f6a1;;BG)(OL;IO;DCSWRPWPDTCRSDRCWO;;8efbc170-cd6b-32de-c131-81e77723d352;NO)(D;CIIOID;0x4708d989;;;IU)(D;CIIO;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AS)",
+        "relu_hex": "0100108a14000000240000003400000000000000010200000000000520000000250200000102000000000005200000002f020000040088000400000008562c00ff011f0001000000b838dde9b438e233b69c90a20755f6a10102000000000005200000002202000008082c007a010b000200000070c1fb8e6bcdde32c13181e77723d3520102000000000005200000002c020000011a140089d90847010100000000000504000000010a1400ff010f00010100000000001201000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-03",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100299b1400000024000000000000000000000001020000000000052000000021020000010100000000001000100000",
+      "attendu": {
+        "sddl": "O:BUG:LW",
+        "sddl_sans_domaine": "O:BUG:LW",
+        "relu_hex": "010000801400000024000000000000000000000001020000000000052000000021020000010100000000001000100000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-04",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010020bc140000002400000000000000000000000102000000000005200000002c020000010100000000000507000000",
+      "attendu": {
+        "sddl": "O:NOG:AN",
+        "sddl_sans_domaine": "O:NOG:AN",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000002c020000010100000000000507000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-05",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002392140000002000000000000000000000000101000000000010001000000102000000000005200000002c020000",
+      "attendu": {
+        "sddl": "O:LWG:NO",
+        "sddl_sans_domaine": "O:LWG:NO",
+        "relu_hex": "01000080140000002000000000000000000000000101000000000010001000000102000000000005200000002c020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-06",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000cb71400000030000000000000004000000001050000000000051500000055433741060e1d1e8de403a104020000010200000000000520000000280200000400900004000000018914009400020001010000000000100020000002481400df000200010100000000000514000000000b1800d20105000102000000000005200000002602000005124800d700030003000000cf093a35ad15161d05e0300f0ef1ec0f3037260e50fdb3bc8df92d2b82f8749801050000000000051500000055433741060e1d1e8de403a1f2010000",
+      "attendu": {
+        "sddl": "O:DDG:RED:PARAI(D;OIIOFA;LCRPLORC;;;ME)(AU;IOSA;CCDCLCSWRPDTLORC;;;NS)(A;OICIIO;DCRPDTLOCRSDWD;;;PO)(OA;CIID;CCDCLCRPDTLOSDRC;353a09cf-15ad-1d16-05e0-300f0ef1ec0f;0e263730-fd50-bcb3-8df9-2d2b82f87498;RO)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-516G:RED:PARAI(D;OIIOFA;LCRPLORC;;;ME)(AU;IOSA;CCDCLCSWRPDTLORC;;;NS)(A;OICIIO;DCRPDTLOCRSDWD;;;PO)(OA;CIID;CCDCLCRPDTLOSDRC;353a09cf-15ad-1d16-05e0-300f0ef1ec0f;0e263730-fd50-bcb3-8df9-2d2b82f87498;S-1-5-21-1094140757-505220614-2701386893-498)",
+        "relu_hex": "010004951400000030000000000000004000000001050000000000051500000055433741060e1d1e8de403a104020000010200000000000520000000280200000400900004000000018914009400020001010000000000100020000002481400df000200010100000000000514000000000b1800d20105000102000000000005200000002602000005124800d700030003000000cf093a35ad15161d05e0300f0ef1ec0f3037260e50fdb3bc8df92d2b82f8749801050000000000051500000055433741060e1d1e8de403a1f2010000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-07",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004ad1400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a1040200000101000000000012010000000400d0000400000008123800b5010000030000006f607c87e4fafb4a943d17c6283735ffb046c968340ed0a6421dd7fc3355443301010000000000030000000008062800fb0007000000000001050000000000051500000055433741060e1d1e8de403a10d020000070e2c006b00060001000000c2c40d30fe3c1a08bb1d6c0979f11f410102000000000005200000004202000005873c00ff011f000300000077effd42389146245b1f34534946200d3d3f1ae4129593edaa2a8450d065ba9001020000000000052000000044020000",
+      "attendu": {
+        "sddl": "O:DDG:ASD:ARAI(OL;CIID;CCLCRPWPLOCR;877c606f-fae4-4afb-943d-17c6283735ff;68c946b0-0e34-a6d0-421d-d7fc33554433;CO)(OL;CINP;CCDCSWRPWPDTLOSDRCWD;;;AP)(OU;CINPIO;CCDCSWWPDTRCWD;300dc4c2-3cfe-081a-bb1d-6c0979f11f41;;HA)(OA;OICINPFA;FA;42fdef77-9138-2446-5b1f-34534946200d;e41a3f3d-9512-ed93-aa2a-8450d065ba90;RM)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-516G:ASD:ARAI(OL;CIID;CCLCRPWPLOCR;877c606f-fae4-4afb-943d-17c6283735ff;68c946b0-0e34-a6d0-421d-d7fc33554433;CO)(OL;CINP;CCDCSWRPWPDTLOSDRCWD;;;S-1-5-21-1094140757-505220614-2701386893-525)(OU;CINPIO;CCDCSWWPDTRCWD;300dc4c2-3cfe-081a-bb1d-6c0979f11f41;;HA)(OA;OICINPFA;FA;42fdef77-9138-2446-5b1f-34534946200d;e41a3f3d-9512-ed93-aa2a-8450d065ba90;RM)",
+        "relu_hex": "010004851400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a1040200000101000000000012010000000400d0000400000008123800b5010000030000006f607c87e4fafb4a943d17c6283735ffb046c968340ed0a6421dd7fc3355443301010000000000030000000008062800fb0007000000000001050000000000051500000055433741060e1d1e8de403a10d020000070e2c006b00060001000000c2c40d30fe3c1a08bb1d6c0979f11f410102000000000005200000004202000005873c00ff011f000300000077effd42389146245b1f34534946200d3d3f1ae4129593edaa2a8450d065ba9001020000000000052000000044020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-08",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002a9d140000002400000000000000000000000102000000000005200000002b020000010100000000001201000000",
+      "attendu": {
+        "sddl": "O:RDG:AS",
+        "sddl_sans_domaine": "O:RDG:AS",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000002b020000010100000000001201000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-09",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010009be140000002400000000000000000000000102000000000005200000003f02000001050000000000051500000055433741060e1d1e8de403a105020000",
+      "attendu": {
+        "sddl": "O:RAG:CA",
+        "sddl_sans_domaine": "O:RAG:S-1-5-21-1094140757-505220614-2701386893-517",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000003f02000001050000000000051500000055433741060e1d1e8de403a105020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-10",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001bae140000002400000040000000000000000102000000000005200000004002000001050000000000051500000055433741060e1d1e8de403a101020000040080000200000005553c005e7b7aa403000000c868846bea922c8768d619375d879ca73b5f28cd84109baf1a2d15cd133faf440102000000000005200000002e020000065d3c00db9a0a1303000000b67fbba0e11b19ab8e41f630d83b670b3d9911652be122e6a18d9a9ed88aac200102000000000005200000002f020000",
+      "attendu": {
+        "sddl": "O:ESG:DUS:PARAI(OA;OINPIDSA;0xa47a7b5e;6b8468c8-92ea-872c-68d6-19375d879ca7;cd285f3b-1084-af9b-1a2d-15cd133faf44;MU)(OD;OINPIOIDSA;0x130a9adb;a0bb7fb6-1be1-ab19-8e41-f630d83b670b;6511993d-e12b-e622-a18d-9a9ed88aac20;LU)",
+        "sddl_sans_domaine": "O:ESG:S-1-5-21-1094140757-505220614-2701386893-513S:PARAI(OA;OINPIDSA;0xa47a7b5e;6b8468c8-92ea-872c-68d6-19375d879ca7;cd285f3b-1084-af9b-1a2d-15cd133faf44;MU)(OD;OINPIOIDSA;0x130a9adb;a0bb7fb6-1be1-ab19-8e41-f630d83b670b;6511993d-e12b-e622-a18d-9a9ed88aac20;LU)",
+        "relu_hex": "010010aa140000002400000040000000000000000102000000000005200000004002000001050000000000051500000055433741060e1d1e8de403a101020000040080000200000005553c005e7b7aa403000000c868846bea922c8768d619375d879ca73b5f28cd84109baf1a2d15cd133faf440102000000000005200000002e020000065d3c00db9a0a1303000000b67fbba0e11b19ab8e41f630d83b670b3d9911652be122e6a18d9a9ed88aac200102000000000005200000002f020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-11",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000e841400000020000000000000003000000001010000000000051300000001020000000000052000000020020000040024000100000008521c002c646fed000000000102000000000005200000003f020000",
+      "attendu": {
+        "sddl": "O:LSG:BAD:AI(OL;CIIDSA;0xed6f642c;;;RA)",
+        "sddl_sans_domaine": "O:LSG:BAD:AI(OL;CIIDSA;0xed6f642c;;;RA)",
+        "relu_hex": "010004841400000020000000000000003000000001010000000000051300000001020000000000052000000020020000040024000100000008521c002c646fed000000000102000000000005200000003f020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-12",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000a8c140000002400000000000000000000000102000000000005200000004302000001020000000000052000000042020000",
+      "attendu": {
+        "sddl": "O:AAG:HA",
+        "sddl_sans_domaine": "O:AAG:HA",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000004302000001020000000000052000000042020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-13",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001fac1400000030000000400000008c00000001050000000000051500000055433741060e1d1e8de403a102020000010200000000000f020000000100000004004c0002000000061a28000001000001000000a1fe9134cc3992c9fe5200fad5cba84f01010000000000100040000007471c00ec326a66000000000102000000000005200000003e0200000400b8000400000005433c0046b470c803000000caf8ea3818acf48cd0acab0de9f8f2e0e30772f3f99ba03310607229143be6ab01020000000000052000000023020000069a38001ee3b47801000000d1b8c10618a23814193ac008938007b201050000000000051500000001000000020000000300000000020000018f2400e616ae9b01050000000000051500000055433741060e1d1e8de403a100020000000b1800f56de285010200000000000f0200000001000000",
+      "attendu": {
+        "sddl": "O:DGG:ACD:AI(OA;OICISA;0xc870b446;38eaf8ca-ac18-8cf4-d0ac-ab0de9f8f2e0;f37207e3-9bf9-33a0-1060-7229143be6ab;PU)(OD;CIIOIDFA;0x78b4e31e;06c1b8d1-a218-1438-193a-c008938007b2;;S-1-5-21-1-2-3-512)(D;OICINPIOFA;0x9bae16e6;;;DA)(A;OICIIO;0x85e26df5;;;AC)S:PAI(OD;CIIOID;CR;3491fea1-39cc-c992-fe52-00fad5cba84f;;SI)(OU;OICINPSA;0x666a32ec;;;CD)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-514G:ACD:AI(OA;OICISA;0xc870b446;38eaf8ca-ac18-8cf4-d0ac-ab0de9f8f2e0;f37207e3-9bf9-33a0-1060-7229143be6ab;PU)(OD;CIIOIDFA;0x78b4e31e;06c1b8d1-a218-1438-193a-c008938007b2;;S-1-5-21-1-2-3-512)(D;OICINPIOFA;0x9bae16e6;;;S-1-5-21-1094140757-505220614-2701386893-512)(A;OICIIO;0x85e26df5;;;AC)S:PAI(OD;CIIOID;CR;3491fea1-39cc-c992-fe52-00fad5cba84f;;SI)(OU;OICINPSA;0x666a32ec;;;CD)",
+        "relu_hex": "010014ac1400000030000000400000008c00000001050000000000051500000055433741060e1d1e8de403a102020000010200000000000f020000000100000004004c0002000000061a28000001000001000000a1fe9134cc3992c9fe5200fad5cba84f01010000000000100040000007471c00ec326a66000000000102000000000005200000003e0200000400b8000400000005433c0046b470c803000000caf8ea3818acf48cd0acab0de9f8f2e0e30772f3f99ba03310607229143be6ab01020000000000052000000023020000069a38001ee3b47801000000d1b8c10618a23814193ac008938007b201050000000000051500000001000000020000000300000000020000018f2400e616ae9b01050000000000051500000055433741060e1d1e8de403a100020000000b1800f56de285010200000000000f0200000001000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-14",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000c9d14000000240000000000000030000000010200000000000520000000260200000101000000000005210000000400940003000000079b2c009a8721110200000006e4634df81304eea30f21d6e99e8a7a0102000000000005200000003d02000007833800ff011f000200000022fb38267b189953b382877e41411ddc01050000000000051500000055433741060e1d1e8de403a107020000068828006dc13f010000000001050000000000051500000055433741060e1d1e8de403a101020000",
+      "attendu": {
+        "sddl": "O:POG:WRD:PARAI(OU;OICIIOIDFA;0x1121879a;;4d63e406-13f8-ee04-a30f-21d6e99e8a7a;ER)(OU;OICIFA;FA;;2638fb22-187b-5399-b382-877e41411ddc;EA)(OD;IOFA;0x13fc16d;;;DU)",
+        "sddl_sans_domaine": "O:POG:WRD:PARAI(OU;OICIIOIDFA;0x1121879a;;4d63e406-13f8-ee04-a30f-21d6e99e8a7a;ER)(OU;OICIFA;FA;;2638fb22-187b-5399-b382-877e41411ddc;S-1-5-21-1094140757-505220614-2701386893-519)(OD;IOFA;0x13fc16d;;;S-1-5-21-1094140757-505220614-2701386893-513)",
+        "relu_hex": "0100049514000000240000000000000030000000010200000000000520000000260200000101000000000005210000000400940003000000079b2c009a8721110200000006e4634df81304eea30f21d6e99e8a7a0102000000000005200000003d02000007833800ff011f000200000022fb38267b189953b382877e41411ddc01050000000000051500000055433741060e1d1e8de403a107020000068828006dc13f010000000001050000000000051500000055433741060e1d1e8de403a101020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-15",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002aa51400000024000000000000000000000001020000000000052000000041020000010100000000000300000000",
+      "attendu": {
+        "sddl": "O:MSG:CO",
+        "sddl_sans_domaine": "O:MSG:CO",
+        "relu_hex": "010000801400000024000000000000000000000001020000000000052000000041020000010100000000000300000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-16",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100018b1400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000010100000000000512000000",
+      "attendu": {
+        "sddl": "O:CNG:SY",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-522G:SY",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000010100000000000512000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-17",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010005891400000020000000000000000000000001010000000000050600000001050000000000051500000001000000020000000300000000020000",
+      "attendu": {
+        "sddl": "O:SUG:S-1-5-21-1-2-3-512",
+        "sddl_sans_domaine": "O:SUG:S-1-5-21-1-2-3-512",
+        "relu_hex": "010000801400000020000000000000000000000001010000000000050600000001050000000000051500000001000000020000000300000000020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-18",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000d851400000030000000000000004000000001050000000000051500000055433741060e1d1e8de403a10e0200000102000000000005200000002802000004006c000200000006072c00b1726fa0020000002b208c0d5d7a0a9c84e75ae885a13250010200000000000520000000430200000899380063010d00030000009e18d5702589ed9c44d1119e40342b716a684d6431ca0224f6296f40940463c5010100000000000100000000",
+      "attendu": {
+        "sddl": "O:KAG:RED:ARAI(OD;OICINP;0xa06f72b1;;0d8c202b-7a5d-9c0a-84e7-5ae885a13250;AA)(OL;OIIOIDFA;CCDCWPDTCRSDWDWO;70d5189e-8925-9ced-44d1-119e40342b71;644d686a-ca31-2402-f629-6f40940463c5;WD)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-526G:RED:ARAI(OD;OICINP;0xa06f72b1;;0d8c202b-7a5d-9c0a-84e7-5ae885a13250;AA)(OL;OIIOIDFA;CCDCWPDTCRSDWDWO;70d5189e-8925-9ced-44d1-119e40342b71;644d686a-ca31-2402-f629-6f40940463c5;WD)",
+        "relu_hex": "010004851400000030000000000000004000000001050000000000051500000055433741060e1d1e8de403a10e0200000102000000000005200000002802000004006c000200000006072c00b1726fa0020000002b208c0d5d7a0a9c84e75ae885a13250010200000000000520000000430200000899380063010d00030000009e18d5702589ed9c44d1119e40342b716a684d6431ca0224f6296f40940463c5010100000000000100000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-19",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001a981400000024000000300000000000000001020000000000052000000026020000010100000000000502000000040040000100000007823800000100000100000033cae3e63da484f0a89d3a5f30848e3201050000000000051500000055433741060e1d1e8de403a107020000",
+      "attendu": {
+        "sddl": "O:POG:NUS:AI(OU;CIFA;CR;e6e3ca33-a43d-f084-a89d-3a5f30848e32;;EA)",
+        "sddl_sans_domaine": "O:POG:NUS:AI(OU;CIFA;CR;e6e3ca33-a43d-f084-a89d-3a5f30848e32;;S-1-5-21-1094140757-505220614-2701386893-519)",
+        "relu_hex": "010010881400000024000000300000000000000001020000000000052000000026020000010100000000000502000000040040000100000007823800000100000100000033cae3e63da484f0a89d3a5f30848e3201050000000000051500000055433741060e1d1e8de403a107020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-20",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010033931400000020000000000000000000000001010000000000030400000001050000000000051500000055433741060e1d1e8de403a105020000",
+      "attendu": {
+        "sddl": "O:OWG:CA",
+        "sddl_sans_domaine": "O:OWG:S-1-5-21-1094140757-505220614-2701386893-517",
+        "relu_hex": "010000801400000020000000000000000000000001010000000000030400000001050000000000051500000055433741060e1d1e8de403a105020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-21",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000da71400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a10702000001010000000000051400000004006c000200000006452800b9a0909a02000000735d0bf3f38029c1da106cd45a94b51601010000000000050700000006193c00000100000200000049c8e8926d9a15fe69f91af09698af130106000000000005540000000000000000000000000000000000000000000000",
+      "attendu": {
+        "sddl": "O:EAG:NSD:ARAI(OD;OINPSA;0x9a90a0b9;;f30b5d73-80f3-c129-da10-6cd45a94b516;AN)(OD;OIIOID;CR;;92e8c849-9a6d-fe15-69f9-1af09698af13;UD)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-519G:NSD:ARAI(OD;OINPSA;0x9a90a0b9;;f30b5d73-80f3-c129-da10-6cd45a94b516;AN)(OD;OIIOID;CR;;92e8c849-9a6d-fe15-69f9-1af09698af13;UD)",
+        "relu_hex": "010004851400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a10702000001010000000000051400000004006c000200000006452800b9a0909a02000000735d0bf3f38029c1da106cd45a94b51601010000000000050700000006193c00000100000200000049c8e8926d9a15fe69f91af09698af130106000000000005540000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-22",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001f8214000000300000004c000000d400000001050000000000051500000055433741060e1d1e8de403a10a02000001050000000000051500000055433741060e1d1e8de403a1070200000400880003000000075f2c009400020001000000eb90132fb8bcbae52d674a8af38d6275010200000000000f0200000001000000064c18003001020000000000010100000000000521000000089f3c00a9df929a0300000083036217e3a06cc150e5054203a3c37b1894df38fc07d3a32f6ba1ed0e86127a010200000000000520000000410200000200580003000000039318005b000e000102000000000005200000002b020000035c1400b4f6464f01010000000000050a00000003572400e601080001050000000000051500000055433741060e1d1e8de403a106020000",
+      "attendu": {
+        "sddl": "O:CNG:EAD:(AL;OICIIDFA;CCDCSWRPDTRCWDWO;;;RD)(AL;NPIOIDSA;0x4f46f6b4;;;PS)(AL;OICINPIDSA;DCLCWPDTLOCRWO;;;SA)S:AR(OU;OICINPIOIDSA;LCRPLORC;2f1390eb-bcb8-e5ba-2d67-4a8af38d6275;;AC)(OD;NPIOSA;RPWPCRRC;;;WR)(OL;OICINPIOIDFA;0x9a92dfa9;17620383-a0e3-c16c-50e5-054203a3c37b;38df9418-07fc-a3d3-2f6b-a1ed0e86127a;MS)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-522G:S-1-5-21-1094140757-505220614-2701386893-519D:(AL;OICIIDFA;CCDCSWRPDTRCWDWO;;;RD)(AL;NPIOIDSA;0x4f46f6b4;;;PS)(AL;OICINPIDSA;DCLCWPDTLOCRWO;;;S-1-5-21-1094140757-505220614-2701386893-518)S:AR(OU;OICINPIOIDSA;LCRPLORC;2f1390eb-bcb8-e5ba-2d67-4a8af38d6275;;AC)(OD;NPIOSA;RPWPCRRC;;;WR)(OL;OICINPIOIDFA;0x9a92dfa9;17620383-a0e3-c16c-50e5-054203a3c37b;38df9418-07fc-a3d3-2f6b-a1ed0e86127a;MS)",
+        "relu_hex": "0100148214000000300000004c000000d400000001050000000000051500000055433741060e1d1e8de403a10a02000001050000000000051500000055433741060e1d1e8de403a1070200000400880003000000075f2c009400020001000000eb90132fb8bcbae52d674a8af38d6275010200000000000f0200000001000000064c18003001020000000000010100000000000521000000089f3c00a9df929a0300000083036217e3a06cc150e5054203a3c37b1894df38fc07d3a32f6ba1ed0e86127a010200000000000520000000410200000400580003000000039318005b000e000102000000000005200000002b020000035c1400b4f6464f01010000000000050a00000003572400e601080001050000000000051500000055433741060e1d1e8de403a106020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-23",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01003fa4140000002400000040000000d80000000102000000000005200000002202000001050000000000051500000055433741060e1d1e8de403a104020000040098000400000005801c00ff010f00000000000102000000000005200000004002000006023800890012000200000086c73126abd5b9a75dce3a6af270def301050000000000051500000055433741060e1d1e8de403a107020000029c18005467598f01020000000000052000000026020000009724009400020001050000000000051500000055433741060e1d1e8de403a10402000002001c0001000000010914007450cf2901010000000000050c000000",
+      "attendu": {
+        "sddl": "O:BGG:DDD:AI(D;OIIO;0x29cf5074;;;RC)S:P(OA;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;ES)(OD;CI;FR;;2631c786-d5ab-a7b9-5dce-3a6af270def3;EA)(AU;NPIOIDFA;0x8f596754;;;PO)(A;OICINPIDFA;LCRPLORC;;;DD)",
+        "sddl_sans_domaine": "O:BGG:S-1-5-21-1094140757-505220614-2701386893-516D:AI(D;OIIO;0x29cf5074;;;RC)S:P(OA;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;ES)(OD;CI;FR;;2631c786-d5ab-a7b9-5dce-3a6af270def3;S-1-5-21-1094140757-505220614-2701386893-519)(AU;NPIOIDFA;0x8f596754;;;PO)(A;OICINPIDFA;LCRPLORC;;;S-1-5-21-1094140757-505220614-2701386893-516)",
+        "relu_hex": "010014a4140000002400000040000000d80000000102000000000005200000002202000001050000000000051500000055433741060e1d1e8de403a104020000040098000400000005801c00ff010f00000000000102000000000005200000004002000006023800890012000200000086c73126abd5b9a75dce3a6af270def301050000000000051500000055433741060e1d1e8de403a107020000029c18005467598f01020000000000052000000026020000009724009400020001050000000000051500000055433741060e1d1e8de403a10402000004001c0001000000010914007450cf2901010000000000050c000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-24",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000db71400000020000000000000002c0000000101000000000010002100000101000000000005060000000400740004000000010c14008900120001010000000000052100000007911800f00006000000000001010000000000051400000007412800a65952470100000079bfc8f505521aca20190b27fc48f81501010000000000050700000002831800d28b653b01020000000000052000000038020000",
+      "attendu": {
+        "sddl": "O:MPG:SUD:PARAI(D;NPIO;FR;;;WR)(OU;OIIDFA;RPWPDTLORCWD;;;NS)(OU;OISA;0x475259a6;f5c8bf79-5205-ca1a-2019-0b27fc48f815;;AN)(AU;OICIFA;0x3b658bd2;;;IS)",
+        "sddl_sans_domaine": "O:MPG:SUD:PARAI(D;NPIO;FR;;;WR)(OU;OIIDFA;RPWPDTLORCWD;;;NS)(OU;OISA;0x475259a6;f5c8bf79-5205-ca1a-2019-0b27fc48f815;;AN)(AU;OICIFA;0x3b658bd2;;;IS)",
+        "relu_hex": "010004951400000020000000000000002c0000000101000000000010002100000101000000000005060000000400740004000000010c14008900120001010000000000052100000007911800f00006000000000001010000000000051400000007412800a65952470100000079bfc8f505521aca20190b27fc48f81501010000000000050700000002831800d28b653b01020000000000052000000038020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-25",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100338d14000000240000003000000000000000010200000000000f020000000100000001010000000000050600000004008c0004000000025c18002a71dab401020000000000052000000023020000061b2800548254960000000001050000000000051500000055433741060e1d1e8de403a10f02000008532c007d010a000200000068e6f2bc9da187099f9619d2f256c7a10102000000000005200000002802000003881800169275a901020000000000052000000041020000",
+      "attendu": {
+        "sddl": "O:ACG:SUS:AI(AU;NPIOIDSA;0xb4da712a;;;PU)(OD;OICIIOID;0x96548254;;;EK)(OL;OICIIDSA;CCLCSWRPWPDTCRRCWO;;bcf2e668-a19d-0987-9f96-19d2f256c7a1;RE)(AL;IOFA;0xa9759216;;;MS)",
+        "sddl_sans_domaine": "O:ACG:SUS:AI(AU;NPIOIDSA;0xb4da712a;;;PU)(OD;OICIIOID;0x96548254;;;S-1-5-21-1094140757-505220614-2701386893-527)(OL;OICIIDSA;CCLCSWRPWPDTCRRCWO;;bcf2e668-a19d-0987-9f96-19d2f256c7a1;RE)(AL;IOFA;0xa9759216;;;MS)",
+        "relu_hex": "0100108814000000240000003000000000000000010200000000000f020000000100000001010000000000050600000004008c0004000000025c18002a71dab401020000000000052000000023020000061b2800548254960000000001050000000000051500000055433741060e1d1e8de403a10f02000008532c007d010a000200000068e6f2bc9da187099f9619d2f256c7a10102000000000005200000002802000003881800169275a901020000000000052000000041020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-26",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000a8814000000200000000000000000000000010100000000000506000000010100000000000502000000",
+      "attendu": {
+        "sddl": "O:SUG:NU",
+        "sddl_sans_domaine": "O:SUG:NU",
+        "relu_hex": "0100008014000000200000000000000000000000010100000000000506000000010100000000000502000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-27",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002c8e14000000240000000000000030000000010200000000000520000000210200000101000000000005040000000400540002000000019524008900120001050000000000051500000001000000020000000300000000020000085f2800eec1582d01000000e591e584ff4faf8b4aa7c0d352300e99010100000000001201000000",
+      "attendu": {
+        "sddl": "O:BUG:IUD:AI(D;OINPIDFA;FR;;;S-1-5-21-1-2-3-512)(OL;OICINPIOIDSA;0x2d58c1ee;84e591e5-4fff-8baf-4aa7-c0d352300e99;;AS)",
+        "sddl_sans_domaine": "O:BUG:IUD:AI(D;OINPIDFA;FR;;;S-1-5-21-1-2-3-512)(OL;OICINPIOIDSA;0x2d58c1ee;84e591e5-4fff-8baf-4aa7-c0d352300e99;;AS)",
+        "relu_hex": "0100048414000000240000000000000030000000010200000000000520000000210200000101000000000005040000000400540002000000019524008900120001050000000000051500000001000000020000000300000000020000085f2800eec1582d01000000e591e584ff4faf8b4aa7c0d352300e99010100000000001201000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-28",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010004b61400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10e02000001050000000000051500000055433741060e1d1e8de403a10d0200000200200001000000018a1800019d5bb201020000000000052000000041020000",
+      "attendu": {
+        "sddl": "O:KAG:APD:PAI(D;CIIOFA;0xb25b9d01;;;MS)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-526G:S-1-5-21-1094140757-505220614-2701386893-525D:PAI(D;CIIOFA;0xb25b9d01;;;MS)",
+        "relu_hex": "010004941400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10e02000001050000000000051500000055433741060e1d1e8de403a10d0200000400200001000000018a1800019d5bb201020000000000052000000041020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-29",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100259d14000000200000000000000000000000010100000000000100000000010100000000000521000000",
+      "attendu": {
+        "sddl": "O:WDG:WR",
+        "sddl_sans_domaine": "O:WDG:WR",
+        "relu_hex": "0100008014000000200000000000000000000000010100000000000100000000010100000000000521000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-30",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000d92140000002000000000000000300000000101000000000010003000000102000000000005200000002f0200000400940004000000009c1400b38fb002010100000000000506000000024614008900120001010000000000100021000007942c000e00020001000000983192f901175d10bed408c1d586b8820102000000000005200000002802000005913800ff011f0001000000b03ac42c0829f73690119804ef2c867a01050000000000051500000055433741060e1d1e8de403a129020000",
+      "attendu": {
+        "sddl": "O:HIG:LUD:P(A;NPIOIDFA;0x2b08fb3;;;SU)(AU;CINPSA;FR;;;MP)(OU;NPIDFA;DCLCSWRC;f9923198-1701-105d-bed4-08c1d586b882;;RE)(OA;OIIDFA;FA;2cc43ab0-2908-36f7-9011-9804ef2c867a;;RS)",
+        "sddl_sans_domaine": "O:HIG:LUD:P(A;NPIOIDFA;0x2b08fb3;;;SU)(AU;CINPSA;FR;;;MP)(OU;NPIDFA;DCLCSWRC;f9923198-1701-105d-bed4-08c1d586b882;;RE)(OA;OIIDFA;FA;2cc43ab0-2908-36f7-9011-9804ef2c867a;;S-1-5-21-1094140757-505220614-2701386893-553)",
+        "relu_hex": "01000490140000002000000000000000300000000101000000000010003000000102000000000005200000002f0200000400940004000000009c1400b38fb002010100000000000506000000024614008900120001010000000000100021000007942c000e00020001000000983192f901175d10bed408c1d586b8820102000000000005200000002802000005913800ff011f0001000000b03ac42c0829f73690119804ef2c867a01050000000000051500000055433741060e1d1e8de403a129020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-31",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010012a31400000030000000400000000000000001050000000000051500000055433741060e1d1e8de403a1290200000102000000000005200000002f0200000400700002000000079e3c00a10ad96803000000a0efbf9e4d65cd355e718841f1a2964792c1d8829a762c161e7fb3079b872d670102000000000005200000002c02000005532c009e010a0002000000a68f1ec2132a1250ccc3341670576bef01020000000000052000000039020000",
+      "attendu": {
+        "sddl": "O:RSG:LUS:PAR(OU;CINPIOIDFA;0x68d90aa1;9ebfefa0-654d-35cd-5e71-8841f1a29647;82d8c192-769a-162c-1e7f-b3079b872d67;NO)(OA;OICIIDSA;DCLCSWRPLOCRRCWO;;c21e8fa6-2a13-5012-ccc3-341670576bef;CY)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-553G:LUS:PAR(OU;CINPIOIDFA;0x68d90aa1;9ebfefa0-654d-35cd-5e71-8841f1a29647;82d8c192-769a-162c-1e7f-b3079b872d67;NO)(OA;OICIIDSA;DCLCSWRPLOCRRCWO;;c21e8fa6-2a13-5012-ccc3-341670576bef;CY)",
+        "relu_hex": "010010a21400000030000000400000000000000001050000000000051500000055433741060e1d1e8de403a1290200000102000000000005200000002f0200000400700002000000079e3c00a10ad96803000000a0efbf9e4d65cd355e718841f1a2964792c1d8829a762c161e7fb3079b872d670102000000000005200000002c02000005532c009e010a0002000000a68f1ec2132a1250ccc3341670576bef01020000000000052000000039020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-32",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010001bc1400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10102000001050000000000051500000055433741060e1d1e8de403a105020000",
+      "attendu": {
+        "sddl": "O:DUG:CA",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-513G:S-1-5-21-1094140757-505220614-2701386893-517",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10102000001050000000000051500000055433741060e1d1e8de403a105020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-33",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010036b31400000024000000400000006c0000000102000000000005200000004202000001050000000000051500000055433741060e1d1e8de403a1f401000002002c0001000000014324000001000001050000000000051500000055433741060e1d1e8de403a104020000040030000100000008182800950000000200000035d884fde1f7273429b89d2aaa6bf017010100000000001000400000",
+      "attendu": {
+        "sddl": "O:HAG:LAD:PAR(OL;IOID;CCLCRPLO;;fd84d835-f7e1-3427-29b8-9d2aaa6bf017;SI)S:PAR(D;OICISA;CR;;;DD)",
+        "sddl_sans_domaine": "O:HAG:S-1-5-21-1094140757-505220614-2701386893-500D:PAR(OL;IOID;CCLCRPLO;;fd84d835-f7e1-3427-29b8-9d2aaa6bf017;SI)S:PAR(D;OICISA;CR;;;S-1-5-21-1094140757-505220614-2701386893-516)",
+        "relu_hex": "010014b31400000024000000400000006c0000000102000000000005200000004202000001050000000000051500000055433741060e1d1e8de403a1f401000004002c0001000000014324000001000001050000000000051500000055433741060e1d1e8de403a104020000040030000100000008182800950000000200000035d884fde1f7273429b89d2aaa6bf017010100000000001000400000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-34",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010032a8140000002400000000000000000000000102000000000005200000002702000001050000000000051500000055433741060e1d1e8de403a107020000",
+      "attendu": {
+        "sddl": "O:BOG:EA",
+        "sddl_sans_domaine": "O:BOG:S-1-5-21-1094140757-505220614-2701386893-519",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000002702000001050000000000051500000055433741060e1d1e8de403a107020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-35",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000481140000002000000000000000300000000101000000000005090000000102000000000005200000004002000002004400020000000052180071000b000102000000000005200000002602000002052400ff010f0001050000000000051500000055433741060e1d1e8de403a102020000",
+      "attendu": {
+        "sddl": "O:EDG:ESD:AR(A;CIIDSA;CCRPWPDTSDRCWO;;;PO)(AU;OINP;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;DG)",
+        "sddl_sans_domaine": "O:EDG:ESD:AR(A;CIIDSA;CCRPWPDTSDRCWO;;;PO)(AU;OINP;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;S-1-5-21-1094140757-505220614-2701386893-514)",
+        "relu_hex": "01000481140000002000000000000000300000000101000000000005090000000102000000000005200000004002000004004400020000000052180071000b000102000000000005200000002602000002052400ff010f0001050000000000051500000055433741060e1d1e8de403a102020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-36",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010022af140000002400000000000000000000000102000000000005200000002002000001050000000000051500000055433741060e1d1e8de403a1f5010000",
+      "attendu": {
+        "sddl": "O:BAG:LG",
+        "sddl_sans_domaine": "O:BAG:S-1-5-21-1094140757-505220614-2701386893-501",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000002002000001050000000000051500000055433741060e1d1e8de403a1f5010000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-37",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01000eb41400000034000000000000004000000001060000000000055400000000000000000000000000000000000000000000000101000000000003010000000200200001000000024c1800260107000102000000000005200000002c020000",
+      "attendu": {
+        "sddl": "O:UDG:CGD:PAI(AU;NPIOSA;DCLCWPCRSDRCWD;;;NO)",
+        "sddl_sans_domaine": "O:UDG:CGD:PAI(AU;NPIOSA;DCLCWPCRSDRCWD;;;NO)",
+        "relu_hex": "010004941400000034000000000000004000000001060000000000055400000000000000000000000000000000000000000000000101000000000003010000000400200001000000024c1800260107000102000000000005200000002c020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-38",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100389c1400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a1290200000102000000000005200000002b020000",
+      "attendu": {
+        "sddl": "O:RSG:RD",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-553G:RD",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a1290200000102000000000005200000002b020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-39",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002e821400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a10d02000001010000000000050900000004005000010000000647480000010000030000009546ea9f5c466fadb13b155809b639620a181a5d4a631b8948c644b5f08da31c01050000000000051500000055433741060e1d1e8de403a10f020000",
+      "attendu": {
+        "sddl": "O:APG:EDD:(OD;OICINPSA;CR;9fea4695-465c-ad6f-b13b-155809b63962;5d1a180a-634a-891b-48c6-44b5f08da31c;EK)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-525G:EDD:(OD;OICINPSA;CR;9fea4695-465c-ad6f-b13b-155809b63962;5d1a180a-634a-891b-48c6-44b5f08da31c;S-1-5-21-1094140757-505220614-2701386893-527)",
+        "relu_hex": "010004801400000030000000000000003c00000001050000000000051500000055433741060e1d1e8de403a10d02000001010000000000050900000004005000010000000647480000010000030000009546ea9f5c466fadb13b155809b639620a181a5d4a631b8948c644b5f08da31c01050000000000051500000055433741060e1d1e8de403a10f020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-40",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010001b11400000020000000000000000000000001010000000000100030000001050000000000051500000055433741060e1d1e8de403a10f020000",
+      "attendu": {
+        "sddl": "O:HIG:EK",
+        "sddl_sans_domaine": "O:HIG:S-1-5-21-1094140757-505220614-2701386893-527",
+        "relu_hex": "010000801400000020000000000000000000000001010000000000100030000001050000000000051500000055433741060e1d1e8de403a10f020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-41",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010038be14000000200000002c00000000000000010100000000000304000000010100000000000509000000040074000400000003001800890012000102000000000005200000002c020000081e1800ce2fe5cc0000000001010000000000050c000000025f24003700050001050000000000051500000055433741060e1d1e8de403a108020000008e1800ff010f0001020000000000052000000044020000",
+      "attendu": {
+        "sddl": "O:OWG:EDS:PARAI(AL;;FR;;;NO)(OL;CINPIOID;0xcce52fce;;;RC)(AU;OICINPIOIDSA;CCDCLCRPWPSDWD;;;PA)(A;CINPIOFA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;RM)",
+        "sddl_sans_domaine": "O:OWG:EDS:PARAI(AL;;FR;;;NO)(OL;CINPIOID;0xcce52fce;;;RC)(AU;OICINPIOIDSA;CCDCLCRPWPSDWD;;;S-1-5-21-1094140757-505220614-2701386893-520)(A;CINPIOFA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;RM)",
+        "relu_hex": "010010aa14000000200000002c00000000000000010100000000000304000000010100000000000509000000040074000400000003001800890012000102000000000005200000002c020000081e1800ce2fe5cc0000000001010000000000050c000000025f24003700050001050000000000051500000055433741060e1d1e8de403a108020000008e1800ff010f0001020000000000052000000044020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-42",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010023b61400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000010100000000000514000000",
+      "attendu": {
+        "sddl": "O:CNG:NS",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-522G:NS",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10a020000010100000000000514000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-43",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100278b1400000020000000000000003000000001010000000000050b0000000102000000000005200000002102000004006c0003000000029f1400ca01020001010000000000050400000006132c0073fcda0501000000dc173a3bdd64e1cc92c1d595dd40642301020000000000052000000023020000000424007700030001050000000000051500000055433741060e1d1e8de403a129020000",
+      "attendu": {
+        "sddl": "O:AUG:BUD:AR(AU;OICINPIOIDFA;DCSWDTLOCRRC;;;IU)(OD;OICIID;0x5dafc73;3b3a17dc-64dd-cce1-92c1-d595dd406423;;PU)(A;NP;CCDCLCRPWPDTSDRC;;;RS)",
+        "sddl_sans_domaine": "O:AUG:BUD:AR(AU;OICINPIOIDFA;DCSWDTLOCRRC;;;IU)(OD;OICIID;0x5dafc73;3b3a17dc-64dd-cce1-92c1-d595dd406423;;PU)(A;NP;CCDCLCRPWPDTSDRC;;;S-1-5-21-1094140757-505220614-2701386893-553)",
+        "relu_hex": "010004811400000020000000000000003000000001010000000000050b0000000102000000000005200000002102000004006c0003000000029f1400ca01020001010000000000050400000006132c0073fcda0501000000dc173a3bdd64e1cc92c1d595dd40642301020000000000052000000023020000000424007700030001050000000000051500000055433741060e1d1e8de403a129020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-44",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002dbd140000002400000000000000300000000102000000000005200000002e02000001010000000000050a0000000400300001000000069d2800dbd9cba801000000c89ec99861a7c7559fc311f7f8ada189010100000000000304000000",
+      "attendu": {
+        "sddl": "O:MUG:PSD:PARAI(OD;OINPIOIDFA;0xa8cbd9db;98c99ec8-a761-55c7-9fc3-11f7f8ada189;;OW)",
+        "sddl_sans_domaine": "O:MUG:PSD:PARAI(OD;OINPIOIDFA;0xa8cbd9db;98c99ec8-a761-55c7-9fc3-11f7f8ada189;;OW)",
+        "relu_hex": "01000495140000002400000000000000300000000102000000000005200000002e02000001010000000000050a0000000400300001000000069d2800dbd9cba801000000c89ec99861a7c7559fc311f7f8ada189010100000000000304000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-45",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010039881400000030000000400000000000000001050000000000051500000055433741060e1d1e8de403a104020000010200000000000520000000260200000400940004000000034f1800fb92ed120102000000000005200000003d02000002841400a470cd9801010000000000050b000000061b3800dfca0b0c02000000fcb10f2da0b25d43e0fffa9f3cbca90e01050000000000051500000055433741060e1d1e8de403a104020000054f280094000200020000000d1ee2b0f059eac021caaaf52958fc0f010100000000001000100000",
+      "attendu": {
+        "sddl": "O:DDG:POS:AI(AL;OICINPIOSA;0x12ed92fb;;;ER)(AU;NPFA;0x98cd70a4;;;AU)(OD;OICIIOID;0xc0bcadf;;2d0fb1fc-b2a0-435d-e0ff-fa9f3cbca90e;DD)(OA;OICINPIOSA;LCRPLORC;;b0e21e0d-59f0-c0ea-21ca-aaf52958fc0f;LW)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-516G:POS:AI(AL;OICINPIOSA;0x12ed92fb;;;ER)(AU;NPFA;0x98cd70a4;;;AU)(OD;OICIIOID;0xc0bcadf;;2d0fb1fc-b2a0-435d-e0ff-fa9f3cbca90e;S-1-5-21-1094140757-505220614-2701386893-516)(OA;OICINPIOSA;LCRPLORC;;b0e21e0d-59f0-c0ea-21ca-aaf52958fc0f;LW)",
+        "relu_hex": "010010881400000030000000400000000000000001050000000000051500000055433741060e1d1e8de403a104020000010200000000000520000000260200000400940004000000034f1800fb92ed120102000000000005200000003d02000002841400a470cd9801010000000000050b000000061b3800dfca0b0c02000000fcb10f2da0b25d43e0fffa9f3cbca90e01050000000000051500000055433741060e1d1e8de403a104020000054f280094000200020000000d1ee2b0f059eac021caaaf52958fc0f010100000000001000100000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-46",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010017a314000000300000003c0000006800000001050000000000051500000055433741060e1d1e8de403a10002000001010000000000100010000002002c000100000003962400814ea3ff01050000000000051500000055433741060e1d1e8de403a10502000002005c00030000000040180027000d000102000000000005200000002602000001462400f0010c0001050000000000051500000055433741060e1d1e8de403a1f20100000009180049608ef40102000000000005200000003d020000",
+      "attendu": {
+        "sddl": "O:DAG:LWD:AR(A;SA;CCDCLCWPSDWDWO;;;PO)(D;CINPSA;RPWPDTLOCRWDWO;;;RO)(A;OIIO;0xf48e6049;;;ER)S:PAR(AL;CINPIDFA;0xffa34e81;;;CA)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-512G:LWD:AR(A;SA;CCDCLCWPSDWDWO;;;PO)(D;CINPSA;RPWPDTLOCRWDWO;;;S-1-5-21-1094140757-505220614-2701386893-498)(A;OIIO;0xf48e6049;;;ER)S:PAR(AL;CINPIDFA;0xffa34e81;;;S-1-5-21-1094140757-505220614-2701386893-517)",
+        "relu_hex": "010014a314000000300000003c0000006800000001050000000000051500000055433741060e1d1e8de403a10002000001010000000000100010000004002c000100000003962400814ea3ff01050000000000051500000055433741060e1d1e8de403a10502000004005c00030000000040180027000d000102000000000005200000002602000001462400f0010c0001050000000000051500000055433741060e1d1e8de403a1f20100000009180049608ef40102000000000005200000003d020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-47",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100368214000000240000003000000008010000010200000000000520000000430200000101000000000010002000000400d8000400000000052400868d958b01050000000000051500000055433741060e1d1e8de403a1f201000005523800c87a1127010000000b7b5089eb43fe743c38613fc8b14dfc0105000000000005150000000100000002000000030000000002000008452c007829859402000000aab7d68e3d45f69160d88af7cd2fa23101020000000000052000000024020000059e480020000b0003000000e8c62c557cb87529d32dd54d332c16299819f750377a2df5c0fdd64c5c9ca7d901050000000000051500000055433741060e1d1e8de403a1060200000400940004000000070238009900050002000000496d3633401db882bc863eb1df3f9e8c01050000000000051500000055433741060e1d1e8de403a101020000001624009400020001050000000000051500000055433741060e1d1e8de403a100020000019e18000d0005000102000000000005200000002f020000029218000001000001020000000000052000000027020000",
+      "attendu": {
+        "sddl": "O:AAG:MED:(OU;CI;CCSWRPLOSDWD;;33366d49-1d40-82b8-bc86-3eb1df3f9e8c;DU)(A;CINPID;LCRPLORC;;;DA)(D;CINPIOIDFA;CCLCSWSDWD;;;LU)(AU;CIIDFA;CR;;;BO)S:AR(A;OINP;0x8b958d86;;;RO)(OA;CIIDSA;0x27117ac8;89507b0b-43eb-74fe-3c38-613fc8b14dfc;;S-1-5-21-1-2-3-512)(OL;OINPSA;0x94852978;;8ed6b7aa-453d-91f6-60d8-8af7cd2fa231;AO)(OA;CINPIOIDFA;WPSDRCWO;552cc6e8-b87c-2975-d32d-d54d332c1629;50f71998-7a37-f52d-c0fd-d64c5c9ca7d9;SA)",
+        "sddl_sans_domaine": "O:AAG:MED:(OU;CI;CCSWRPLOSDWD;;33366d49-1d40-82b8-bc86-3eb1df3f9e8c;S-1-5-21-1094140757-505220614-2701386893-513)(A;CINPID;LCRPLORC;;;S-1-5-21-1094140757-505220614-2701386893-512)(D;CINPIOIDFA;CCLCSWSDWD;;;LU)(AU;CIIDFA;CR;;;BO)S:AR(A;OINP;0x8b958d86;;;S-1-5-21-1094140757-505220614-2701386893-498)(OA;CIIDSA;0x27117ac8;89507b0b-43eb-74fe-3c38-613fc8b14dfc;;S-1-5-21-1-2-3-512)(OL;OINPSA;0x94852978;;8ed6b7aa-453d-91f6-60d8-8af7cd2fa231;AO)(OA;CINPIOIDFA;WPSDRCWO;552cc6e8-b87c-2975-d32d-d54d332c1629;50f71998-7a37-f52d-c0fd-d64c5c9ca7d9;S-1-5-21-1094140757-505220614-2701386893-518)",
+        "relu_hex": "0100148214000000240000003000000008010000010200000000000520000000430200000101000000000010002000000400d8000400000000052400868d958b01050000000000051500000055433741060e1d1e8de403a1f201000005523800c87a1127010000000b7b5089eb43fe743c38613fc8b14dfc0105000000000005150000000100000002000000030000000002000008452c007829859402000000aab7d68e3d45f69160d88af7cd2fa23101020000000000052000000024020000059e480020000b0003000000e8c62c557cb87529d32dd54d332c16299819f750377a2df5c0fdd64c5c9ca7d901050000000000051500000055433741060e1d1e8de403a1060200000400940004000000070238009900050002000000496d3633401db882bc863eb1df3f9e8c01050000000000051500000055433741060e1d1e8de403a101020000001624009400020001050000000000051500000055433741060e1d1e8de403a100020000019e18000d0005000102000000000005200000002f020000029218000001000001020000000000052000000027020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-48",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002b9014000000240000000000000000000000010200000000000520000000400200000103000000000005500000000100000002000000",
+      "attendu": {
+        "sddl": "O:ESG:S-1-5-80-1-2",
+        "sddl_sans_domaine": "O:ESG:S-1-5-80-1-2",
+        "relu_hex": "0100008014000000240000000000000000000000010200000000000520000000400200000103000000000005500000000100000002000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-49",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010026bb1400000020000000000000002c0000000101000000000010002000000101000000000005130000000200400002000000020a1400213929cc010100000000000514000000034524008900120001050000000000051500000055433741060e1d1e8de403a10d020000",
+      "attendu": {
+        "sddl": "O:MEG:LSD:PAR(AU;CIIO;0xcc293921;;;NS)(AL;OINPSA;FR;;;AP)",
+        "sddl_sans_domaine": "O:MEG:LSD:PAR(AU;CIIO;0xcc293921;;;NS)(AL;OINPSA;FR;;;S-1-5-21-1094140757-505220614-2701386893-525)",
+        "relu_hex": "010004911400000020000000000000002c0000000101000000000010002000000101000000000005130000000400400002000000020a1400213929cc010100000000000514000000034524008900120001050000000000051500000055433741060e1d1e8de403a10d020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-50",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010026851400000024000000000000000000000001020000000000052000000043020000010100000000001201000000",
+      "attendu": {
+        "sddl": "O:AAG:AS",
+        "sddl_sans_domaine": "O:AAG:AS",
+        "relu_hex": "010000801400000024000000000000000000000001020000000000052000000043020000010100000000001201000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-51",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "010010a014000000300000003c0000000000000001050000000000051500000055433741060e1d1e8de403a1070200000101000000000010003000000400440001000000069e3c0066000300030000006a906fbb9578ac6ee3b3674af3fbfe814da5cb16e2a3fc5728166cca03252c0b0102000000000005200000002a020000",
+      "attendu": {
+        "sddl": "O:EAG:HIS:P(OD;CINPIOIDFA;DCLCWPDTSDRC;bb6f906a-7895-6eac-e3b3-674af3fbfe81;16cba54d-a3e2-57fc-2816-6cca03252c0b;RU)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-519G:HIS:P(OD;CINPIOIDFA;DCLCWPDTSDRC;bb6f906a-7895-6eac-e3b3-674af3fbfe81;16cba54d-a3e2-57fc-2816-6cca03252c0b;RU)",
+        "relu_hex": "010010a014000000300000003c0000000000000001050000000000051500000055433741060e1d1e8de403a1070200000101000000000010003000000400440001000000069e3c0066000300030000006a906fbb9578ac6ee3b3674af3fbfe814da5cb16e2a3fc5728166cca03252c0b0102000000000005200000002a020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-52",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001b98140000002000000030000000000000000101000000000005090000000102000000000005200000002002000002004c0003000000000c1400df010b00010100000000001201000000035f18004601050001020000000000052000000039020000004b18009400020001020000000000052000000042020000",
+      "attendu": {
+        "sddl": "O:EDG:BAS:AI(A;NPIO;CCDCLCSWRPDTLOCRSDRCWO;;;AS)(AL;OICINPIOIDSA;DCLCDTCRSDWD;;;CY)(A;OICIIOSA;LCRPLORC;;;HA)",
+        "sddl_sans_domaine": "O:EDG:BAS:AI(A;NPIO;CCDCLCSWRPDTLOCRSDRCWO;;;AS)(AL;OICINPIOIDSA;DCLCDTCRSDWD;;;CY)(A;OICIIOSA;LCRPLORC;;;HA)",
+        "relu_hex": "01001088140000002000000030000000000000000101000000000005090000000102000000000005200000002002000004004c0003000000000c1400df010b00010100000000001201000000035f18004601050001020000000000052000000039020000004b18009400020001020000000000052000000042020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-53",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002bbd1400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10802000001050000000000051500000055433741060e1d1e8de403a129020000",
+      "attendu": {
+        "sddl": "O:PAG:RS",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-520G:S-1-5-21-1094140757-505220614-2701386893-553",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10802000001050000000000051500000055433741060e1d1e8de403a129020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-54",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100018d1400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10502000001010000000000050c000000",
+      "attendu": {
+        "sddl": "O:CAG:RC",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-517G:RC",
+        "relu_hex": "010000801400000030000000000000000000000001050000000000051500000055433741060e1d1e8de403a10502000001010000000000050c000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-55",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001da814000000300000004c000000bc00000001050000000000051500000055433741060e1d1e8de403a10502000001050000000000051500000055433741060e1d1e8de403a106020000040070000400000001561400b0000b0001010000000000050a0000000392140094000200010100000000001000100000018a1400ff011f0001010000000000050900000008872c004e0006000100000020651888de8d2dd88afc89aaa750b91f0102000000000005200000002a020000040070000300000003181800ff010f0001020000000000052000000039020000024e180099820ac201020000000000052000000028020000068c380072010c0003000000c012e7e91a9670baf771581aea1153cc9bc2baebcd7e3a571afd90e18cba256001010000000000050c000000",
+      "attendu": {
+        "sddl": "O:CAG:SAD:(AL;IOID;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;CY)(AU;CINPIOSA;0xc20a8299;;;RE)(OD;NPIOFA;DCRPWPDTCRWDWO;e9e712c0-961a-ba70-f771-581aea1153cc;ebbac29b-7ecd-573a-1afd-90e18cba2560;RC)S:PAI(D;CINPIDSA;RPWPLOSDRCWO;;;PS)(AL;CIIDFA;LCRPLORC;;;LW)(D;CIIOFA;FA;;;ED)(OL;OICINPFA;DCLCSWDTRCWD;88186520-8dde-d82d-8afc-89aaa750b91f;;RU)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-517G:S-1-5-21-1094140757-505220614-2701386893-518D:(AL;IOID;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;CY)(AU;CINPIOSA;0xc20a8299;;;RE)(OD;NPIOFA;DCRPWPDTCRWDWO;e9e712c0-961a-ba70-f771-581aea1153cc;ebbac29b-7ecd-573a-1afd-90e18cba2560;RC)S:PAI(D;CINPIDSA;RPWPLOSDRCWO;;;PS)(AL;CIIDFA;LCRPLORC;;;LW)(D;CIIOFA;FA;;;ED)(OL;OICINPFA;DCLCSWDTRCWD;88186520-8dde-d82d-8afc-89aaa750b91f;;RU)",
+        "relu_hex": "010014a814000000300000004c000000bc00000001050000000000051500000055433741060e1d1e8de403a10502000001050000000000051500000055433741060e1d1e8de403a106020000040070000400000001561400b0000b0001010000000000050a0000000392140094000200010100000000001000100000018a1400ff011f0001010000000000050900000008872c004e0006000100000020651888de8d2dd88afc89aaa750b91f0102000000000005200000002a020000040070000300000003181800ff010f0001020000000000052000000039020000024e180099820ac201020000000000052000000028020000068c380072010c0003000000c012e7e91a9670baf771581aea1153cc9bc2baebcd7e3a571afd90e18cba256001010000000000050c000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-56",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01001abe14000000240000004000000000000000010200000000000f020000000100000001050000000000051500000055433741060e1d1e8de403a1290200000400780002000000089c38009a63753201000000fa39225cdbc91e2712c0dd4330ec8f8a01050000000000051500000055433741060e1d1e8de403a10302000008983800fa5751f803000000f572966202aedabd8029297ae7950b591ca92e9f1e9d2182e9afc2d1b1a373c1010100000000000512000000",
+      "attendu": {
+        "sddl": "O:ACG:RSS:PARAI(OL;NPIOIDFA;0x3275639a;5c2239fa-c9db-271e-12c0-dd4330ec8f8a;;DC)(OL;IOIDFA;0xf85157fa;629672f5-ae02-bdda-8029-297ae7950b59;9f2ea91c-9d1e-8221-e9af-c2d1b1a373c1;SY)",
+        "sddl_sans_domaine": "O:ACG:S-1-5-21-1094140757-505220614-2701386893-553S:PARAI(OL;NPIOIDFA;0x3275639a;5c2239fa-c9db-271e-12c0-dd4330ec8f8a;;S-1-5-21-1094140757-505220614-2701386893-515)(OL;IOIDFA;0xf85157fa;629672f5-ae02-bdda-8029-297ae7950b59;9f2ea91c-9d1e-8221-e9af-c2d1b1a373c1;SY)",
+        "relu_hex": "010010aa14000000240000004000000000000000010200000000000f020000000100000001050000000000051500000055433741060e1d1e8de403a1290200000400780002000000089c38009a63753201000000fa39225cdbc91e2712c0dd4330ec8f8a01050000000000051500000055433741060e1d1e8de403a10302000008983800fa5751f803000000f572966202aedabd8029297ae7950b591ca92e9f1e9d2182e9afc2d1b1a373c1010100000000000512000000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-57",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002eb21400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10d02000001050000000000051500000055433741060e1d1e8de403a1290200000400380002000000029c1400cd000d00010100000000000507000000089e1c008e56094e0000000001020000000000052000000039020000",
+      "attendu": {
+        "sddl": "O:APG:RSD:P(AU;NPIOIDFA;CCLCSWDTLOSDWDWO;;;AN)(OL;CINPIOIDFA;0x4e09568e;;;CY)",
+        "sddl_sans_domaine": "O:S-1-5-21-1094140757-505220614-2701386893-525G:S-1-5-21-1094140757-505220614-2701386893-553D:P(AU;NPIOIDFA;CCLCSWDTLOSDWDWO;;;AN)(OL;CINPIOIDFA;0x4e09568e;;;CY)",
+        "relu_hex": "010004901400000030000000000000004c00000001050000000000051500000055433741060e1d1e8de403a10d02000001050000000000051500000055433741060e1d1e8de403a1290200000400380002000000029c1400cd000d00010100000000000507000000089e1c008e56094e0000000001020000000000052000000039020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-58",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "0100058014000000240000000000000030000000010200000000000520000000380200000101000000000005020000000400340001000000065a2c0053f5089301000000d87153cba351730e055f06ab9bee3b1001020000000000052000000038020000",
+      "attendu": {
+        "sddl": "O:ISG:NUD:(OD;CIIOIDSA;0x9308f553;cb5371d8-51a3-0e73-055f-06ab9bee3b10;;IS)",
+        "sddl_sans_domaine": "O:ISG:NUD:(OD;CIIOIDSA;0x9308f553;cb5371d8-51a3-0e73-055f-06ab9bee3b10;;IS)",
+        "relu_hex": "0100048014000000240000000000000030000000010200000000000520000000380200000101000000000005020000000400340001000000065a2c0053f5089301000000d87153cba351730e055f06ab9bee3b1001020000000000052000000038020000"
+      }
+    },
+    {
+      "id": "sddl-aleatoire-59",
+      "description": "construit au hasard",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.as_sddl(domaine) ; from_sddl(sddl, domaine)"
+      },
+      "hex": "01002389140000002400000000000000000000000102000000000005200000002a02000001050000000000051500000055433741060e1d1e8de403a10a020000",
+      "attendu": {
+        "sddl": "O:RUG:CN",
+        "sddl_sans_domaine": "O:RUG:S-1-5-21-1094140757-505220614-2701386893-522",
+        "relu_hex": "01000080140000002400000000000000000000000102000000000005200000002a02000001050000000000051500000055433741060e1d1e8de403a10a020000"
+      }
+    }
+  ]
+}

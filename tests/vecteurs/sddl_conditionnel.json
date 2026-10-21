@@ -1,0 +1,753 @@
+{
+  "format": 1,
+  "famille": "sddl_conditionnel",
+  "description": "ACE conditionnelles (XA, XD, ZA, XU) et d'attribut de ressource (RA) : descripteur construit par Samba depuis le SDDL de « description » (SID de domaine S-1-5-21-1-2-3), et son écriture par Samba (as_sddl avec ce domaine)",
+  "source": {
+    "dc": "dc1.lab.test",
+    "domaine": "lab.test",
+    "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+  },
+  "vecteurs": [
+    {
+      "id": "cond-01",
+      "description": "D:(XA;;FX;;;S-1-1-0;(Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008900",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Member_of {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-02",
+      "description": "D:(XA;;FX;;;WD;(Member_of_any {SID(BA), SID(S-1-5-21-1-2-3-1105)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004005c000100000009005400a0001200010100000000000100000000617274785036000000511000000001020000000000052000000020020000511c000000010500000000000515000000010000000200000003000000510400008b",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Member_of_any {SID(BA), SID(S-1-5-21-1-2-3-1105)}))"
+      }
+    },
+    {
+      "id": "cond-03",
+      "description": "D:(XA;;FX;;;WD;(Not_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009000",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Not_Member_of {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-04",
+      "description": "D:(XA;;FX;;;WD;(Not_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009200",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Not_Member_of_Any {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-05",
+      "description": "D:(XA;;FX;;;WD;(Device_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008a00",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Device_Member_of {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-06",
+      "description": "D:(XA;;FX;;;WD;(Device_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200008c00",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Device_Member_of_Any {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-07",
+      "description": "D:(XA;;FX;;;WD;(Not_Device_Member_of {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009100",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Not_Device_Member_of {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-08",
+      "description": "D:(XA;;FX;;;WD;(Not_Device_Member_of_any {SID(BA)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c000100000009003400a00012000101000000000001000000006172747850150000005110000000010200000000000520000000200200009300",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Not_Device_Member_of_Any {SID(BA)}))"
+      }
+    },
+    {
+      "id": "cond-09",
+      "description": "D:(XA;;0x1200a9;;;WD;(@User.Department == \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730080000000",
+      "attendu": {
+        "sddl": "D:(XA;;0x1200a9;;;WD;(@USER.Department == \"Sales\"))"
+      }
+    },
+    {
+      "id": "cond-10",
+      "description": "D:(XA;;0x1200a9;;;WD;(@User.Department != \"Sales\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004004c000100000009004400a900120001010000000000010000000061727478f9140000004400650070006100720074006d0065006e007400100a000000530061006c006500730081000000",
+      "attendu": {
+        "sddl": "D:(XA;;0x1200a9;;;WD;(@USER.Department != \"Sales\"))"
+      }
+    },
+    {
+      "id": "cond-11",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance < 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028200",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance < 5))"
+      }
+    },
+    {
+      "id": "cond-12",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance <= 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028300",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance <= 5))"
+      }
+    },
+    {
+      "id": "cond-13",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance > 5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000003028400",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance > 5))"
+      }
+    },
+    {
+      "id": "cond-14",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance >= -5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004fbffffffffffffff02028500",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance >= -5))"
+      }
+    },
+    {
+      "id": "cond-15",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance >= +5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e006300650004050000000000000001028500",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance >= +5))"
+      }
+    },
+    {
+      "id": "cond-16",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance == 0x1F))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500041f0000000000000003038000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance == 0x1f))"
+      }
+    },
+    {
+      "id": "cond-17",
+      "description": "D:(XA;;FR;;;WD;(@User.clearance == 017))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040044000100000009003c008900120001010000000000010000000061727478f91200000063006c0065006100720061006e0063006500040f0000000000000003018000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.clearance == 017))"
+      }
+    },
+    {
+      "id": "cond-18",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Contains {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008600",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.Project Contains {\"A\", \"B\"}))"
+      }
+    },
+    {
+      "id": "cond-19",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008800",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.Project Any_of {\"A\", \"B\"}))"
+      }
+    },
+    {
+      "id": "cond-20",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Not_Contains \"A\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c0001000000090034008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400100200000041008e00",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.Project Not_Contains \"A\"))"
+      }
+    },
+    {
+      "id": "cond-21",
+      "description": "D:(XA;;FR;;;WD;(@User.Project Not_Any_of {\"A\", \"B\"}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400480001000000090040008900120001010000000000010000000061727478f90e000000500072006f006a00650063007400500e00000010020000004100100200000042008f00",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.Project Not_Any_of {\"A\", \"B\"}))"
+      }
+    },
+    {
+      "id": "cond-22",
+      "description": "D:(XA;;FR;;;WD;(Exists @User.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f90e000000500072006f006a0065006300740087",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(Exists @USER.Project))"
+      }
+    },
+    {
+      "id": "cond-23",
+      "description": "D:(XA;;FR;;;WD;(Not_Exists @User.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f90e000000500072006f006a006500630074008d",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(Not_Exists @USER.Project))"
+      }
+    },
+    {
+      "id": "cond-24",
+      "description": "D:(XA;;FR;;;WD;(@Resource.Project == @User.Project))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400480001000000090040008900120001010000000000010000000061727478fa0e000000500072006f006a00650063007400f90e000000500072006f006a006500630074008000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@RESOURCE.Project == @USER.Project))"
+      }
+    },
+    {
+      "id": "cond-25",
+      "description": "D:(XA;;FR;;;WD;(@Device.os == \"W\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478fb040000006f0073001002000000570080000000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@DEVICE.os == \"W\"))"
+      }
+    },
+    {
+      "id": "cond-26",
+      "description": "D:(XA;;FR;;;WD;(Title == \"VP\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004003c0001000000090034008900120001010000000000010000000061727478f80a0000005400690074006c00650010040000005600500080000000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(Title == \"VP\"))"
+      }
+    },
+    {
+      "id": "cond-27",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) && (@User.b == 2)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400480001000000090040008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;((@USER.a == 1) && (@USER.b == 2)))"
+      }
+    },
+    {
+      "id": "cond-28",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) || (@User.b == 2) || (@User.c == 3)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280a1f9020000006300040300000000000000030280a100",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(((@USER.a == 1) || (@USER.b == 2)) || (@USER.c == 3)))"
+      }
+    },
+    {
+      "id": "cond-29",
+      "description": "D:(XA;;FR;;;WD;(!(@User.a == 1)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f9020000006100040100000000000000030280a2",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(!(@USER.a == 1)))"
+      }
+    },
+    {
+      "id": "cond-30",
+      "description": "D:(XA;;FR;;;WD;((@User.a == 1) && ((@User.b == 2) || !(@User.c == 3))))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004005c0001000000090054008900120001010000000000010000000061727478f9020000006100040100000000000000030280f9020000006200040200000000000000030280f9020000006300040300000000000000030280a2a1a0",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;((@USER.a == 1) && ((@USER.b == 2) || (!(@USER.c == 3)))))"
+      }
+    },
+    {
+      "id": "cond-31",
+      "description": "D:(XA;;FR;;;WD;(@User.a == #0102ff))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400300001000000090028008900120001010000000000010000000061727478f902000000610018030000000102ff80",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == #0102FF))"
+      }
+    },
+    {
+      "id": "cond-32",
+      "description": "D:(XA;;FR;;;WD;(@User.a == {1, 2, 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400500001000000090048008900120001010000000000010000000061727478f90200000061005021000000040100000000000000030204020000000000000003020403000000000000000302800000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == {1, 2, 3}))"
+      }
+    },
+    {
+      "id": "cond-33",
+      "description": "D:(XA;;FR;;;WD;(@User.a == {}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400300001000000090028008900120001010000000000010000000061727478f9020000006100500000000080000000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == {}))"
+      }
+    },
+    {
+      "id": "cond-34",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"é\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400300001000000090028008900120001010000000000010000000061727478f90200000061001002000000e9008000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == \"é\"))"
+      }
+    },
+    {
+      "id": "cond-35",
+      "description": "D:(XA;;FR;;;WD;(@User.objectSid == SID(BA)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400500001000000090048008900120001010000000000010000000061727478f9120000006f0062006a0065006300740053006900640051100000000102000000000005200000002002000080000000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.objectSid == SID(BA)))"
+      }
+    },
+    {
+      "id": "cond-36",
+      "description": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@Device.Bitlocker >= 1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004005800010000000b0050000001000001000000709529006d24d011a76800aa006e052901010000000000010000000061727478fb120000004200690074006c006f0063006b006500720004010000000000000003028500",
+      "attendu": {
+        "sddl": "D:(ZA;;CR;00299570-246d-11d0-a768-00aa006e0529;;WD;(@DEVICE.Bitlocker >= 1))"
+      }
+    },
+    {
+      "id": "cond-37",
+      "description": "D:(XA;OICI;FA;;;WD;(Member_of {SID(BA)}))(A;;FA;;;SY)",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040050000200000009033400ff011f00010100000000000100000000617274785015000000511000000001020000000000052000000020020000890000001400ff011f00010100000000000512000000",
+      "attendu": {
+        "sddl": "D:(XA;OICI;FA;;;WD;(Member_of {SID(BA)}))(A;;FA;;;SY)"
+      }
+    },
+    {
+      "id": "cond-38",
+      "description": "S:(RA;;;;;WD;(\"Project\",TS,0x0,\"Alpha\",\"Beta\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004005c00010000001200540000000000010100000000000100000000180000000300000000000000020000002800000034000000500072006f006a00650063007400000041006c007000680061000000420065007400610000000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Project\",TS,0x0,\"Alpha\",\"Beta\"))"
+      }
+    },
+    {
+      "id": "cond-39",
+      "description": "S:(RA;;;;;WD;(\"Level\",TI,0x0,-5,7))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01001080000000000000000014000000000000000400500001000000120048000000000001010000000000010000000018000000010000000000000002000000240000002c0000004c006500760065006c000000fbffffffffffffff0700000000000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Level\",TI,0x0,-5,7))"
+      }
+    },
+    {
+      "id": "cond-40",
+      "description": "S:(RA;;;;;WD;(\"Count\",TU,0x0,5))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100108000000000000000001400000000000000040044000100000012003c0000000000010100000000000100000000140000000200000000000000010000002000000043006f0075006e00740000000500000000000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Count\",TU,0x0,+5))"
+      }
+    },
+    {
+      "id": "cond-41",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1,0))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004c00010000001200440000000000010100000000000100000000180000000200000000000000020000001e000000260000004f006b000000010000000000000000000000000000000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,+1,+0))"
+      }
+    },
+    {
+      "id": "cond-42",
+      "description": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00ff10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100108000000000000000001400000000000000040044000100000012003c0000000000010100000000000100000000140000001000000000000000010000001e00000042006c006f00620000000300000000ff10000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Blob\",TX,0x0,00FF10))"
+      }
+    },
+    {
+      "id": "cond-43",
+      "description": "S:(RA;CI;;;;WD;(\"Project\",TS,0x10,\"Alpha\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004c000100000012024400000000000101000000000001000000001400000003000000100000000100000024000000500072006f006a00650063007400000041006c007000680061000000",
+      "attendu": {
+        "sddl": "S:(RA;CI;;;;WD;(\"Project\",TS,0x10,\"Alpha\"))"
+      }
+    },
+    {
+      "id": "cond-44",
+      "description": "D:(XA;;FX;;;WD;(Member_of {SID(BA), SID(S-1-5-21-1-2-3-513)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004005c000100000009005400a0001200010100000000000100000000617274785036000000511000000001020000000000052000000020020000511c0000000105000000000005150000000100000002000000030000000102000089",
+      "attendu": {
+        "sddl": "D:(XA;;FX;;;WD;(Member_of {SID(BA), SID(S-1-5-21-1-2-3-513)}))"
+      }
+    },
+    {
+      "id": "cond-45",
+      "description": "D:(XD;;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004004800010000000a004000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000010000000200000003000000000200008900",
+      "attendu": {
+        "sddl": "D:(XD;;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))"
+      }
+    },
+    {
+      "id": "cond-46",
+      "description": "S:(XU;SA;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004800010000000d404000ff011f0001010000000000050b000000617274785021000000511c000000010500000000000515000000010000000200000003000000000200008900",
+      "attendu": {
+        "sddl": "S:(XU;SA;FA;;;AU;(Member_of {SID(S-1-5-21-1-2-3-512)}))"
+      }
+    },
+    {
+      "id": "cond-47",
+      "description": "D:(XD;;FA;;;AU;(!(Member_of_any {SID(S-1-5-21-1-2-3-512), SID(BA)})))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004006000010000000a005800ff011f0001010000000000050b000000617274785036000000511c000000010500000000000515000000010000000200000003000000000200005110000000010200000000000520000000200200008ba2000000",
+      "attendu": {
+        "sddl": "D:(XD;;FA;;;AU;(!(Member_of_any {SID(S-1-5-21-1-2-3-512), SID(BA)})))"
+      }
+    },
+    {
+      "id": "cond-48",
+      "description": "D:(XA;;FR;;;WD;(@User.a == -0x10))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f902000000610004f0ffffffffffffff02038000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == -0x10))"
+      }
+    },
+    {
+      "id": "cond-49",
+      "description": "D:(XA;;FR;;;WD;(@User.a == -9223372036854775808))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f902000000610004000000000000008002028000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == -9223372036854775808))"
+      }
+    },
+    {
+      "id": "cond-50",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"a b\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040034000100000009002c008900120001010000000000010000000061727478f902000000610010060000006100200062008000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == \"a b\"))"
+      }
+    },
+    {
+      "id": "cond-51",
+      "description": "D:(XA;;FR;;;WD;(@User.a == \"\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "01000480000000000000000000000000140000000400300001000000090028008900120001010000000000010000000061727478f9020000006100100000000080000000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a == \"\"))"
+      }
+    },
+    {
+      "id": "cond-52",
+      "description": "D:(XA;;FR;;;WD;(@User.a Contains {SID(BA), \"x\", 3}))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "0100048000000000000000000000000014000000040054000100000009004c008900120001010000000000010000000061727478f9020000006100502700000051100000000102000000000005200000002002000010020000007800040300000000000000030286",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(@USER.a Contains {SID(BA), \"x\", 3}))"
+      }
+    },
+    {
+      "id": "cond-53",
+      "description": "S:(RA;;;;;WD;(\"Who\",TD,0x0,S-1-5-32-544))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004800010000001200400000000000010100000000000100000000140000000500000000000000010000001c000000570068006f0000000c000000532d312d352d33322d353434",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))"
+      }
+    },
+    {
+      "id": "cond-54",
+      "description": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004800010000001200400000000000010100000000000100000000140000000500000000000000010000001c000000570068006f0000000c000000532d312d352d33322d353434",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Who\",TD,0x0,BA))"
+      }
+    },
+    {
+      "id": "cond-55",
+      "description": "S:(RA;;;;;WD;(\"Ok\",TB,0x0,1))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004000010000001200380000000000010100000000000100000000140000000200000000000000010000001a0000004f006b00000001000000000000000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Ok\",TU,0x0,+1))"
+      }
+    },
+    {
+      "id": "cond-56",
+      "description": "S:(RA;;;;;WD;(\"Esp\",TS,0x0,\"a b\"))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010010800000000000000000140000000000000004004000010000001200380000000000010100000000000100000000140000000300000000000000010000001c00000045007300700000006100200062000000",
+      "attendu": {
+        "sddl": "S:(RA;;;;;WD;(\"Esp\",TS,0x0,\"a b\"))"
+      }
+    },
+    {
+      "id": "cond-57",
+      "description": "D:(XA;;FR;;;WD;(Member_of {SID(S-1-5-21-1-2-3-1105)}))(XA;;FR;;;WD;(Member_of SID(BA)))",
+      "provenance": {
+        "objet": "(construit)",
+        "attribut": "nTSecurityDescriptor",
+        "commande": "security.descriptor.from_sddl(description, domaine)"
+      },
+      "hex": "010004800000000000000000000000001400000004007800020000000900400089001200010100000000000100000000617274785021000000511c000000010500000000000515000000010000000200000003000000510400008900090030008900120001010000000000010000000061727478511000000001020000000000052000000020020000890000",
+      "attendu": {
+        "sddl": "D:(XA;;FR;;;WD;(Member_of {SID(S-1-5-21-1-2-3-1105)}))(XA;;FR;;;WD;(Member_of SID(BA)))"
+      }
+    }
+  ]
+}

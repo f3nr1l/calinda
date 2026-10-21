@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Calinda
+GenericName=Directory Administration
+Comment=Manage an Active Directory / Samba domain
+Keywords=Active Directory;Samba;LDAP;AD;domain;directory;OU;GPO;
+Exec=calinda
+Icon=io.github.f3nr1l.Calinda
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;System;
+StartupNotify=true
+# Nom et identifiant de l'application jusqu'à la 1.1 (ADR 0022) : Flatpak reprend ses données.

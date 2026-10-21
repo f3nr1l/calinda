@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+  <!-- SPDX-FileCopyrightText: 2026 René Onier -->
+  <!-- Annuaire : carnet d'adresses portant une arborescence -->
+  <!-- dos, tranche des pages, couverture, reliure -->
+  <rect x="16" y="20" width="96" height="98" rx="8" fill="#1a5fb4"/>
+  <rect x="20" y="16" width="90" height="98" rx="6" fill="#f6f5f4"/>
+  <rect x="20" y="110" width="90" height="2" fill="#deddda"/>
+  <rect x="16" y="12" width="96" height="96" rx="8" fill="#3584e4"/>
+  <path d="M24 12h8v96h-8a8 8 0 0 1-8-8V20a8 8 0 0 1 8-8z" fill="#1c71d8"/>
+  <!-- arborescence : nœuds et liaisons -->
+  <g transform="translate(130,114)" fill="#fff">
+    <circle cx="-79.972702" cy="-34.983223" r="4.9833498"/>
+    <circle cx="-60.099739" cy="-34.997658" r="4.9833498"/>
+    <circle cx="-69.778275" cy="-54.843563" r="4.9833498"/>
+    <circle cx="-59.991501" cy="-74.959137" r="4.9833498"/>
+    <circle cx="-39.996784" cy="-35.034634" r="4.9833498"/>
+    <rect width="3.1819806" height="44.370949" x="-22.18223" y="-93.677017" transform="rotate(-26.187731)"/>
+    <rect width="3.1819806" height="44.370949" x="85.448959" y="-40.74453" transform="matrix(-0.89735289,-0.44131371,-0.44131371,0.89735289,0,0)"/>
+    <path d="m -67.94232,-54.102136 a 3.3222332,3.3222332 0 0 1 -2.712891,1.691407 l 8.30664,16.89453 2.855469,-1.404296 z"/>
+  </g>
+</svg>

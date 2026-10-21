@@ -1,0 +1,228 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Éditeur de contenu d'une GPO (J7.3, ui/editeur_gpo.py), ouvert par « Modifier… » dans la
+// fenêtre « Stratégies de groupe ». À gauche l'arbre de la GPMC (configuration ordinateur
+// et utilisateur, stratégies, préférences) ; à droite la page de la section qui possède le
+// nœud choisi (`stack`, pages ajoutées par les sections) ; en bas le brouillon commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireEditeurGpo: Adw.Window {
+  title: _("Edit GPO");
+  default-width: 1100;
+  default-height: 720;
+  width-request: 360;
+  height-request: 294;
+
+  Adw.Breakpoint {
+    condition ("max-width: 700sp")
+
+    setters {
+      split_view.collapsed: true;
+    }
+  }
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.NavigationSplitView split_view {
+      min-sidebar-width: 280;
+      max-sidebar-width: 420;
+
+      sidebar: Adw.NavigationPage {
+        title: _("GPO Contents");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle gpo_title {
+              title: _("Edit GPO");
+            };
+          }
+
+          content: Stack tree_stack {
+            StackPage {
+              name: "arbre";
+
+              child: ScrolledWindow {
+                hscrollbar-policy: never;
+
+                child: ListView tree {
+                  tab-behavior: item;
+
+                  accessibility {
+                    label: _("GPO contents: computer and user configuration");
+                  }
+
+                  styles [
+                    "navigation-sidebar",
+                  ]
+
+                  model: SingleSelection tree_selection {
+                    autoselect: true;
+                    notify::selected-item => $selected();
+                  };
+
+                  factory: BuilderListItemFactory {
+                    template ListItem {
+                      accessible-label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudEditeur>.accessible;
+
+                      child: TreeExpander {
+                        list-row: bind template.item;
+
+                        child: Box {
+                          spacing: 8;
+
+                          Image {
+                            icon-name: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudEditeur>.icone;
+                          }
+
+                          Label {
+                            xalign: 0;
+                            hexpand: true;
+                            ellipsize: end;
+                            label: bind template.item as <TreeListRow>.item as <$AnnuaireNoeudEditeur>.titre;
+                          }
+                        };
+                      };
+                    }
+                  };
+                };
+              };
+            }
+
+            StackPage {
+              name: "chargement";
+
+              child: Spinner {
+                spinning: true;
+                halign: center;
+                valign: center;
+                width-request: 32;
+                height-request: 32;
+              };
+            }
+
+            StackPage {
+              name: "erreur";
+
+              child: Adw.StatusPage error {
+                icon-name: "dialog-warning-symbolic";
+
+                child: Button {
+                  halign: center;
+                  label: _("Try Again");
+                  action-name: "editeur.relire";
+
+                  styles [
+                    "pill",
+                  ]
+                };
+              };
+            }
+          };
+        };
+      };
+
+      content: Adw.NavigationPage content_page {
+        title: _("Contents");
+
+        child: Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle page_title {};
+
+            [end]
+            MenuButton {
+              icon-name: "open-menu-symbolic";
+              menu-model: editor_menu;
+              primary: true;
+              tooltip-text: _("Editor menu");
+            }
+          }
+
+          [top]
+          Adw.Banner banner {}
+
+          content: Stack stack {
+            transition-type: crossfade;
+
+            StackPage {
+              name: "dossier";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup folder_group {
+                  ListBox folder_list {
+                    selection-mode: none;
+                    row-activated => $folder_activated();
+
+                    accessibility {
+                      label: _("Folder contents");
+                    }
+
+                    styles [
+                      "boxed-list",
+                    ]
+                  }
+                }
+              };
+            }
+          };
+
+          [bottom]
+          ActionBar draft_bar {
+            revealed: false;
+
+            [start]
+            Label draft_summary {
+              xalign: 0;
+              ellipsize: end;
+            }
+
+            [end]
+            Button {
+              label: _("Save…");
+              action-name: "editeur.enregistrer";
+              tooltip-text: _("Preview the changes, then write them (Ctrl+S)");
+
+              styles [
+                "suggested-action",
+              ]
+            }
+
+            [end]
+            Button {
+              label: _("Discard");
+              action-name: "editeur.abandonner";
+            }
+          }
+        };
+      };
+    };
+  };
+}
+
+menu editor_menu {
+  section {
+    item {
+      label: _("Save…");
+      action: "editeur.enregistrer";
+    }
+
+    item {
+      label: _("Discard Changes");
+      action: "editeur.abandonner";
+    }
+
+    item {
+      label: _("Undo the Last Write");
+      action: "editeur.annuler";
+    }
+  }
+
+  section {
+    item {
+      label: _("Reload the GPO");
+      action: "editeur.relire";
+    }
+  }
+}

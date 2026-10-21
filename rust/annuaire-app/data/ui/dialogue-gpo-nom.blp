@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Nom d'une GPO (J5.4) : création d'une GPO vide. « Continuer » mène à l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueGpoNom: Adw.Dialog {
+  focus-widget: name_entry;
+  title: _("New GPO");
+  content-width: 520;
+  default-widget: continue_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup group {
+        description: _("An empty GPO, as the GPMC creates it: the directory object, its folder in the SYSVOL of the PDC emulator (Machine, User, GPT.INI) and their permissions. It is not linked anywhere.");
+
+        Adw.EntryRow name_entry {
+          title: _("GPO name");
+          activates-default: true;
+          changed => $name_changed();
+        }
+      }
+    };
+  };
+}

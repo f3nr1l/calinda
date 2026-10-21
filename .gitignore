@@ -1,0 +1,24 @@
+# Construction
+/build/
+/_build/
+/builddir/
+
+# Python (outils d'essai et du labo)
+__pycache__/
+*.py[cod]
+
+# Artefacts générés
+*.ui
+*.gresource
+*.mo
+
+# Sous-projets meson récupérés (on garde les .wrap)
+/subprojects/*/
+!/subprojects/packagefiles/
+
+# Rust : construction de cargo
+/rust/target/
+target/
+
+# Crates copiées par « meson dist » (build-aux/vendre-crates.sh)
+/rust/vendor-cargo/
