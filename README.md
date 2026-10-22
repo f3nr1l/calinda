@@ -88,6 +88,23 @@ paquet utilise le blueprint-compiler de Fedora ; le sous-projet meson ne sert 
 construction de développement. La CI (job `rpm`) refait ces étapes dans `fedora:44`, installe
 le RPM, le lance jusqu'à l'affichage de son aide et publie le SRPM et le RPM comme artefacts.
 
+## Construire le paquet Debian
+
+Le paquet `.deb` vise Ubuntu 26.04 et suivantes : Calinda demande GTK 4.18 et libadwaita 1.8,
+et Debian 13 n'a que libadwaita 1.7. Le répertoire `debian/` est dans `packaging/deb/` ; `meson dist` le
+dépose à la racine de l'archive source, avec les crates. Le paquet se construit dans un
+conteneur Ubuntu (podman, ou docker par `CONTENEUR=docker`) :
+
+```sh
+meson setup _dist
+meson dist -C _dist --no-tests --formats xztar
+build-aux/construire-deb.sh _dist/meson-dist/calinda-*.tar.xz
+```
+
+`debian/rules` refait les contrôles du `%check` du RPM et lance `cargo test`. La version de
+`debian/changelog` est tenue à la main ; meson refuse de configurer si elle diffère de celle du
+projet.
+
 ## Construire le Flatpak
 
 Le manifeste `build-aux/io.github.f3nr1l.Calinda.json` s'appuie sur GNOME 51 et sur les extensions

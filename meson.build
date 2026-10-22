@@ -28,6 +28,7 @@ subdir('data')
 subdir('po')
 subdir('rust')
 subdir('packaging/rpm')
+subdir('packaging/deb')
 
 gnome.post_install(
   glib_compile_schemas: true,

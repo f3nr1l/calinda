@@ -1,0 +1,46 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: calinda
+Upstream-Contact: René Onier <f3nr1l@me.com>
+Source: https://github.com/f3nr1l/calinda
+
+Files: *
+Copyright: 2026 René Onier
+License: GPL-3.0-or-later
+
+Files: data/icons/*
+Copyright: 2026 René Onier
+License: CC-BY-SA-4.0
+
+Files: rust/vendor/* rust/vendor-cargo/*
+Copyright: les auteurs de chaque crate
+License: MIT or Apache-2.0
+Comment: Crates Rust liées à l'application, chacune sous sa licence (fichier
+ Cargo.toml et fichiers LICENSE de son répertoire) : MIT, Apache-2.0,
+ Unicode-3.0, ISC, Zlib, Unlicense, 0BSD, selon la crate (relevé du
+ 2026-10-16 : cargo tree -p annuaire-app -e normal --format '{l}').
+
+License: GPL-3.0-or-later
+ On Debian systems, the full text of the GNU General Public License version 3
+ can be found in /usr/share/common-licenses/GPL-3.
+
+License: CC-BY-SA-4.0
+ https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+License: Apache-2.0
+ On Debian systems, the full text of the Apache License version 2.0 can be
+ found in /usr/share/common-licenses/Apache-2.0.

@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 René Onier
+#
+# Pendant du .spec (packaging/rpm) : meson construit, cargo-app.sh prend les crates de
+# l'archive (rust/vendor-cargo) sans réseau. Mêmes réglages de mémoire que le RPM (ADR 0019,
+# Bascule) : LTO « thin ».
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export CARGO_HOME = $(CURDIR)/debian/cargo-home
+export CARGO_PROFILE_RELEASE_LTO = thin
+
+include /usr/share/dpkg/architecture.mk
+builddir := obj-$(DEB_HOST_GNU_TYPE)
+racine := debian/calinda
+appli := $(racine)/usr/share/applications/io.github.f3nr1l.Calinda.desktop
+
+%:
+	dh $@ --buildsystem=meson
+
+# Contrôles du %check du RPM, sur l'arbre installé.
+execute_after_dh_auto_install:
+	desktop-file-validate $(appli)
+	test -x $(racine)/usr/bin/calinda
+	grep -qx 'Exec=calinda' $(appli)
+	appstreamcli validate --no-net --explain \
+	    $(racine)/usr/share/metainfo/io.github.f3nr1l.Calinda.metainfo.xml
+	head -c 4 $(racine)/usr/bin/calinda | grep -q ELF
+	! find $(racine) -name '*.py' | grep -q .
+	test -f $(racine)/usr/share/locale/fr/LC_MESSAGES/calinda.mo
+	test -f $(racine)/usr/share/io.github.f3nr1l.Calinda/calinda.gresource
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	cargo test --manifest-path rust/Cargo.toml --offline --locked --release \
+	    --config "source.crates-io.replace-with='vendored'" \
+	    --config "source.vendored.directory='rust/vendor-cargo'" \
+	    --target-dir $(builddir)/rust/target -p annuaire-app -p annuaire-codecs
+endif
+
+execute_after_dh_auto_clean:
+	rm -rf debian/cargo-home
+
+# dh_clean efface les *.orig : ceux des crates (Cargo.toml.orig) sont dans leurs sommes de
+# contrôle, et cargo refuserait de construire sans eux.
+override_dh_clean:
+	dh_clean -XCargo.toml.orig
+
+# Journal amont, installé sous le nom attendu (changelog.gz).
+override_dh_installchangelogs:
+	dh_installchangelogs CHANGELOG.md
