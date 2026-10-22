@@ -7,8 +7,8 @@
 # « rpmbuild -ta calinda-<version>.tar.xz » le lit (README, « Construire le RPM »).
 # Toutes les dépendances viennent de Fedora. Depuis la bascule (ADR 0019), le paquet installe
 # l'application Rust, construite hors ligne avec les crates que « meson dist » a copiées dans
-# l'archive (rust/vendor-cargo, build-aux/vendre-crates.sh). La version Python, retirée
-# (ADR 0018), reste accessible par l'étiquette v1.0.0.
+# l'archive (rust/vendor-cargo, build-aux/vendre-crates.sh). La version Python est
+# retirée (ADR 0018).
 
 Name:           calinda
 Version:        @VERSION@
