@@ -2,11 +2,9 @@
 
 Échantillons réels lus sur le DC Samba du labo (`dc1.lab.test`) — et, pour `sddlwin.json`,
 sur le DC Windows `wdc1.win.test` —, avec leur valeur décodée par l'oracle Samba. Ils servent
-de référence aux codecs purs de la version Python (`annuaire/core/codecs/`, J1.4, J3, J4, J5,
-J7, étiquette `v1.0.0`) et, tels quels, au port Rust (R1), seul sur `main` depuis la 1.1.0
-(tests de `rust/annuaire-codecs/tests/` et du cœur) : le format est neutre, JSON en UTF-8,
-binaire en hexadécimal. Les extracteurs qui importaient la version Python
-(`labo/comparer_sddl_windows.py`) et `tests/unitaires/test_vecteurs.py` sont sur cette branche.
+de référence aux codecs de la version Python 1.0, puis, tels quels, au port Rust (tests de
+`rust/annuaire-codecs/tests/` et du cœur) : le format est neutre, JSON en UTF-8, binaire en
+hexadécimal.
 
 Un fichier par codec :
 

@@ -15,9 +15,7 @@ gestes restent les mêmes (ADR 0022).
   modification ; SMB 3 reste chiffré dans tous les cas. Sans elle, l'application refuse ces
   contrôleurs et indique l'option à activer
   (ADR 0021).
-- La version Python est retirée : elle n'avait été gardée que pour ces contrôleurs anciens. La
-  version 1.0, écrite en Python, reste accessible par l'étiquette `v1.0.0`
-  (ADR 0018).
+- La version Python est retirée : elle n'avait été gardée que pour ces contrôleurs anciens. (ADR 0018).
 
 ## 1.1.0 — 2026-10-16
 
@@ -49,8 +47,7 @@ historique des modifications) sont reprises telles quelles.
   Samba approche les 30 s sur un domaine de 20 000 comptes.
 - Le RPM dépend désormais de l'architecture (x86_64).
 - Les stratégies de groupe ne sont pas prises en charge sur les contrôleurs Windows Server
-  2008 R2 et antérieurs, qui ne parlent que SMB 2. La version Python 1.0 (étiquette
-  `v1.0.0`) négocie SMB 2 mais exige elle aussi le chiffrement du SYSVOL : en l'état, elle
+  2008 R2 et antérieurs, qui ne parlent que SMB 2. La version Python 1.0 négocie SMB 2 mais exige elle aussi le chiffrement du SYSVOL : en l'état, elle
   ne lit pas davantage les GPO de ces contrôleurs (limites dans l'ADR 0018). Limite levée en
   1.2.0.
 
