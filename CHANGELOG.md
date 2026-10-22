@@ -2,6 +2,12 @@
 
 Ce journal retient ce qui change pour l'utilisateur d'une version à l'autre.
 
+## 1.2.1 — 2026-10-22
+
+- Paquet Debian pour Ubuntu 26.04 : `meson dist` embarque le répertoire `debian/`, et
+  `build-aux/construire-deb.sh` construit le `.deb` dans un conteneur.
+- Aucun changement dans l'application.
+
 ## 1.2.0 — 2026-10-17
 
 Annuaire devient Calinda. Le paquet, la commande, l'identifiant de l'application

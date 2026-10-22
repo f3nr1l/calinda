@@ -1,3 +1,9 @@
+calinda (1.2.1-1) resolute; urgency=medium
+
+  * Nouvelle version amont : empaquetage Debian dans l'archive source.
+
+ -- René Onier <f3nr1l@me.com>  Thu, 22 Oct 2026 00:17:11 -0400
+
 calinda (1.2.0-1) resolute; urgency=medium
 
   * Annuaire devient Calinda : paquet, commande et identifiant

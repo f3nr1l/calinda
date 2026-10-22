@@ -23,6 +23,11 @@
   <!-- translate="no" : notes de version et nom du développeur hors catalogue. Notes en
        anglais, la langue source depuis la bascule (1.1.0). -->
   <releases>
+    <release version="1.2.1" date="2026-10-22">
+      <description translate="no">
+        <p>Packaging only: a Debian package for Ubuntu 26.04. No change in the application.</p>
+      </description>
+    </release>
     <release version="1.2.0" date="2026-10-17">
       <description translate="no">
         <p>Annuaire is now called Calinda.</p>
