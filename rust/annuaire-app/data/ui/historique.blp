@@ -26,6 +26,17 @@ template $AnnuaireDialogueHistorique: Adw.Dialog {
 
       [end]
       Button {
+        icon-name: "drive-harddisk-symbolic";
+        tooltip-text: _("Backups of propagations");
+        clicked => $backups();
+
+        accessibility {
+          label: _("Backups of propagations");
+        }
+      }
+
+      [end]
+      Button {
         icon-name: "view-refresh-symbolic";
         tooltip-text: _("Read the log again");
         clicked => $reload();

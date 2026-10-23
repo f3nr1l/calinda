@@ -1,0 +1,149 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Un partage (ADR 0023 § 3, J8.6), nouveau ou modifié : nom (contrôlé comme Windows le fait),
+// chemin du dossier sur le serveur, commentaire, limite de connexions, mise en cache hors
+// connexion et énumération basée sur l'accès. « Continuer » mène à l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePartage: Adw.Dialog {
+  title: _("Share");
+  content-width: 620;
+  content-height: 680;
+  focus-widget: name_entry;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Share");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Share");
+
+        Adw.EntryRow name_entry {
+          title: _("Share name");
+          changed => $changed();
+        }
+
+        Adw.EntryRow path_entry {
+          title: _("Folder on the server");
+          changed => $changed();
+        }
+
+        Adw.EntryRow remark_entry {
+          title: _("Comment");
+          changed => $changed();
+        }
+
+        Label path_note {
+          label: _("The local path of the folder on the server (C:\\Shares\\Common, or the one Samba gives, C:\\srv\\shares\\Common). The folder must exist: Calinda does not create it.");
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+            "caption",
+          ]
+        }
+      }
+
+      // La description ne dit que Samba garde les options que d'un partage défini dans
+      // smb.conf (J8.7) : celles d'un partage du registre sont écrites.
+      Adw.PreferencesGroup options_group {
+        title: _("Options");
+
+        Adw.SwitchRow limit_switch {
+          title: _("Limit the number of connections");
+          notify::active => $changed();
+        }
+
+        Adw.SpinRow limit_spin {
+          title: _("Simultaneous connections");
+          numeric: true;
+          sensitive: bind limit_switch.active;
+          notify::value => $changed();
+
+          adjustment: Adjustment {
+            lower: 1;
+            upper: 16777216;
+            value: 10;
+            step-increment: 1;
+            page-increment: 10;
+          };
+        }
+
+        Adw.ComboRow caching_row {
+          title: _("Offline availability");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Only the files the user chooses"),
+              _("All the files opened"),
+              _("All the files opened, optimized for performance"),
+              _("No file"),
+            ]
+          };
+        }
+
+        Adw.SwitchRow abe_switch {
+          title: _("Access-based enumeration");
+          subtitle: _("A user sees only the files and folders they may read.");
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup permissions_group {
+        title: _("Permissions of the share");
+
+        Adw.ActionRow permissions_row {
+          subtitle-lines: 0;
+
+          styles [
+            "property",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup problems_group {
+        visible: false;
+
+        Label problems {
+          xalign: 0;
+          wrap: true;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

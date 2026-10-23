@@ -26,6 +26,7 @@ pub mod command {
     pub const CLOSE: u16 = 0x06;
     pub const READ: u16 = 0x08;
     pub const WRITE: u16 = 0x09;
+    pub const IOCTL: u16 = 0x0B;
     pub const QUERY_DIRECTORY: u16 = 0x0E;
     pub const QUERY_INFO: u16 = 0x10;
     pub const SET_INFO: u16 = 0x11;
@@ -490,6 +491,34 @@ pub fn set_info(
     }
 }
 
+/// `FSCTL_PIPE_TRANSCEIVE` (MS-FSCC 2.3.37): writes a message to a pipe and reads its answer.
+pub const FSCTL_PIPE_TRANSCEIVE: u32 = 0x0011_C017;
+/// `SMB2_0_IOCTL_IS_FSCTL`.
+const IOCTL_IS_FSCTL: u32 = 0x0000_0001;
+
+/// IOCTL request (MS-SMB2 2.2.31) carrying `input`, answered with at most `output` bytes.
+pub fn ioctl(file_id: &[u8; 16], ctl_code: u32, input: &[u8], output: u32) -> Request {
+    let mut w = Writer::new();
+    w.u16(57)
+        .u16(0)
+        .u32(ctl_code)
+        .bytes(file_id)
+        .u32(to_u32(HEADER_LEN + 56))
+        .u32(to_u32(input.len()))
+        .u32(0)
+        .u32(0)
+        .u32(0)
+        .u32(output)
+        .u32(IOCTL_IS_FSCTL)
+        .u32(0)
+        .bytes(input);
+    Request {
+        command: command::IOCTL,
+        body: w.buf,
+        payload: input.len().max(output as usize),
+    }
+}
+
 // -- Responses ------------------------------------------------------------------------------
 
 /// A response that does not have the shape its command calls for.
@@ -672,6 +701,19 @@ pub fn parse_output(msg: &[u8], what: &'static str) -> Result<Vec<u8>, Malformed
     let offset = u16_at(msg, b + 2).ok_or(Malformed(what))? as usize;
     let len = u32_at(msg, b + 4).ok_or(Malformed(what))? as usize;
     buffer(msg, offset, len, what)
+}
+
+/// Output of an IOCTL response (MS-SMB2 2.2.32); also read when the status is
+/// `STATUS_BUFFER_OVERFLOW` (the rest of the message follows by READ).
+pub fn parse_ioctl(msg: &[u8]) -> Result<Vec<u8>, Malformed> {
+    let m = Malformed("IOCTL");
+    let b = HEADER_LEN;
+    if u16_at(msg, b) != Some(49) {
+        return Err(m);
+    }
+    let offset = u32_at(msg, b + 32).ok_or(m.clone())? as usize;
+    let len = u32_at(msg, b + 36).ok_or(m)? as usize;
+    buffer(msg, offset, len, "IOCTL")
 }
 
 /// The body of a response without data (CLOSE, SET_INFO, TREE_DISCONNECT…) is not read.

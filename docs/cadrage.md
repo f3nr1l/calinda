@@ -80,8 +80,8 @@ Hors périmètre : sites et services, réplication, FSMO (`samba-tool` suffit).
 
 ## Environnement de test
 
-Jamais contre un domaine client. Un contrôleur Samba de laboratoire (conteneur LXC ou VM sur
-pve-bureau, domaine `LAB.TEST`), peuplé par un script reproductible (OU, quelques centaines de
+Jamais contre un domaine client. Un contrôleur Samba de laboratoire (conteneur LXC ou machine
+virtuelle, domaine `LAB.TEST`), peuplé par un script reproductible (OU, quelques centaines de
 comptes, zones DNS, GPO). Tests unitaires des codecs sans réseau ; tests d'intégration contre le
 labo, marqués à part.
 

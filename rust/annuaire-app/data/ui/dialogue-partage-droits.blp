@@ -1,0 +1,144 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Autorisations d'un partage (ADR 0023 § 3, J8.3), comme l'onglet « Partage » de Windows : les
+// groupes et comptes, chacun avec ce qui lui est autorisé et refusé (Lecture, Modifier,
+// Contrôle total) ; ajout par recherche dans l'annuaire ou d'une identité bien connue,
+// retrait. Lignes construites par shares.rs ; « Continuer » mène à l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialoguePartageDroits: Adw.Dialog {
+  title: _("Share Permissions");
+  content-width: 680;
+  content-height: 720;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Share Permissions");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Groups and accounts");
+        description: _("A permission denied wins over one allowed. The NTFS permissions of the folder apply too: the access granted is the most restrictive of both.");
+
+        ListBox principals_list {
+          selection-mode: none;
+
+          accessibility {
+            label: _("Groups and accounts of the share");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label nobody_label {
+          label: _("Nobody: the share refuses every access.");
+          xalign: 0;
+          wrap: true;
+          visible: false;
+
+          styles [
+            "warning",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Add");
+
+        Box {
+          spacing: 6;
+
+          Button {
+            label: _("Everyone");
+            clicked => $add_everyone();
+          }
+
+          Button {
+            label: _("Authenticated Users");
+            clicked => $add_authenticated();
+          }
+
+          Button {
+            label: _("Administrators");
+            clicked => $add_administrators();
+          }
+        }
+
+        SearchEntry principal_entry {
+          placeholder-text: _("Name or logon name of the group or account to add");
+          margin-top: 12;
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the group or account to add");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup problems_group {
+        visible: false;
+
+        Label problems {
+          xalign: 0;
+          wrap: true;
+
+          styles [
+            "error",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

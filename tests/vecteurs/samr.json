@@ -1,0 +1,1196 @@
+{
+ "format": 1,
+ "famille": "samr",
+ "description": "Stubs NDR de SamrConnect5, SamrEnumerateDomainsInSamServer, SamrLookupDomainInSamServer, SamrOpenDomain, SamrGetAliasMembership et SamrCloseHandle rendus par Samba (serveur membre fs1, avec deux alias locaux d'essai J85-Essai-A, qui contient LAB\\Domain Admins, et J85-Essai-B, qui contient J85-Essai-A ; DC dc1) et Windows Server 2025 (DC wdc1) ; attendu lu par un décodeur Python du laboratoire, non publié",
+ "source": {
+  "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1",
+  "windows": "Windows Server 2025 Standard Evaluation 26100"
+ },
+ "vecteurs": [
+  {
+   "id": "samr-fs1-64-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 64,
+    "operation": "SamrConnect5",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "040002000f000000000000000f0000005c005c006600730031002e006c00610062002e007400650073007400000000003100000001000000010000000300000000000000",
+   "hex": "0100000001000000030000000000000000000000e9c64dd20eb0ce44a3f8e9c4f29eae2200000000",
+   "attendu": {
+    "revision": 3,
+    "poignee": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae22",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-6-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 6,
+    "operation": "SamrEnumerateDomainsInSamServer",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae2200000000ffffffff",
+   "hex": "0000000000000200020000000400020002000000000000000600060008000200010000000e000e000c00020003000000000000000300000046005300310000000700000000000000070000004200750069006c00740069006e0000000200000000000000",
+   "attendu": {
+    "contexte": 0,
+    "domaines": [
+     "FS1",
+     "Builtin"
+    ],
+    "rendus": 2,
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-5-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 5,
+    "operation": "SamrLookupDomainInSamServer",
+    "domaine": "FS1",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae220600060004000200030000000000000003000000460053003100",
+   "hex": "040002000400000001040000000000051500000068fdf81197b64e1d7e0d553f00000000",
+   "attendu": {
+    "sid": "S-1-5-21-301530472-491697815-1062538622",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-7-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-32",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae228002000001000000010100000000000520000000",
+   "hex": "0100000051ce56936f5e4546b3b53c3c70a33d2500000000",
+   "attendu": {
+    "poignee": "0100000051ce56936f5e4546b3b53c3c70a33d25",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500",
+     "S-1-5-21-1094140757-505220614-2701386893-512",
+     "S-1-5-21-1094140757-505220614-2701386893-513",
+     "S-1-1-0",
+     "S-1-5-11",
+     "S-1-5-21-301530472-491697815-1062538622-1000"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25060000000400020006000000080002000c0002001000020014000200180002001c0002000500000001050000000000051500000055433741060e1d1e8de403a1f40100000500000001050000000000051500000055433741060e1d1e8de403a1000200000500000001050000000000051500000055433741060e1d1e8de403a101020000010000000101000000000001000000000100000001010000000000050b0000000500000001050000000000051500000068fdf81197b64e1d7e0d553fe8030000",
+   "hex": "020000001c00020002000000200200002102000000000000",
+   "attendu": {
+    "rids": [
+     544,
+     545
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a1f4010000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-512"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a100020000",
+   "hex": "0100000008000200010000002002000000000000",
+   "attendu": {
+    "rids": [
+     544
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-4",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-513"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a101020000",
+   "hex": "0100000008000200010000002102000000000000",
+   "attendu": {
+    "rids": [
+     545
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-5",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d250100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-6",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-7",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-301530472-491697815-1062538622-1000"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25010000000400020001000000080002000500000001050000000000051500000068fdf81197b64e1d7e0d553fe8030000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-1-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "0100000051ce56936f5e4546b3b53c3c70a33d25",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-7-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-21-301530472-491697815-1062538622",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae22800200000400000001040000000000051500000068fdf81197b64e1d7e0d553f",
+   "hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a00000000",
+   "attendu": {
+    "poignee": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-8",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500",
+     "S-1-5-21-1094140757-505220614-2701386893-512",
+     "S-1-5-21-1094140757-505220614-2701386893-513",
+     "S-1-1-0",
+     "S-1-5-11",
+     "S-1-5-21-301530472-491697815-1062538622-1000"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a060000000400020006000000080002000c0002001000020014000200180002001c0002000500000001050000000000051500000055433741060e1d1e8de403a1f40100000500000001050000000000051500000055433741060e1d1e8de403a1000200000500000001050000000000051500000055433741060e1d1e8de403a101020000010000000101000000000001000000000100000001010000000000050b0000000500000001050000000000051500000068fdf81197b64e1d7e0d553fe8030000",
+   "hex": "020000001c00020002000000e8030000e903000000000000",
+   "attendu": {
+    "rids": [
+     1000,
+     1001
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-9",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a1f4010000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-10",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-512"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a100020000",
+   "hex": "010000000800020001000000e803000000000000",
+   "attendu": {
+    "rids": [
+     1000
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-11",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-513"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a101020000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-12",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a0100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-13",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-16-14",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-301530472-491697815-1062538622",
+    "sids": [
+     "S-1-5-21-301530472-491697815-1062538622-1000"
+    ],
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a010000000400020001000000080002000500000001050000000000051500000068fdf81197b64e1d7e0d553fe8030000",
+   "hex": "010000000800020001000000e903000000000000",
+   "attendu": {
+    "rids": [
+     1001
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-1-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000f5ed2b0d13e6ad449e1ceb0278d34f5a",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-fs1-1-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- fs1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000e9c64dd20eb0ce44a3f8e9c4f29eae22",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-64-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 64,
+    "operation": "SamrConnect5",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "040002000f000000000000000f0000005c005c006400630031002e006c00610062002e007400650073007400000000003100000001000000010000000300000000000000",
+   "hex": "0100000001000000030000000000000000000000ceefb25f0519c2439185914b3fc3d1ee00000000",
+   "attendu": {
+    "revision": 3,
+    "poignee": "00000000ceefb25f0519c2439185914b3fc3d1ee",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-6-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 6,
+    "operation": "SamrEnumerateDomainsInSamServer",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000ceefb25f0519c2439185914b3fc3d1ee00000000ffffffff",
+   "hex": "0200000000000200020000000400020002000000000000000600060008000200010000000e000e000c0002000300000000000000030000004c004100420000000700000000000000070000004200550049004c00540049004e0000000200000000000000",
+   "attendu": {
+    "contexte": 2,
+    "domaines": [
+     "LAB",
+     "BUILTIN"
+    ],
+    "rendus": 2,
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-5-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 5,
+    "operation": "SamrLookupDomainInSamServer",
+    "domaine": "LAB",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000ceefb25f0519c2439185914b3fc3d1ee06000600040002000300000000000000030000004c0041004200",
+   "hex": "040002000400000001040000000000051500000055433741060e1d1e8de403a100000000",
+   "attendu": {
+    "sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-7-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-32",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000ceefb25f0519c2439185914b3fc3d1ee8002000001000000010100000000000520000000",
+   "hex": "010000003c558e6d20eeab48b7435de8451a671b00000000",
+   "attendu": {
+    "poignee": "010000003c558e6d20eeab48b7435de8451a671b",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500",
+     "S-1-5-21-1094140757-505220614-2701386893-512",
+     "S-1-5-21-1094140757-505220614-2701386893-513",
+     "S-1-1-0",
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b050000000400020005000000080002000c0002001000020014000200180002000500000001050000000000051500000055433741060e1d1e8de403a1f40100000500000001050000000000051500000055433741060e1d1e8de403a1000200000500000001050000000000051500000055433741060e1d1e8de403a101020000010000000101000000000001000000000100000001010000000000050b000000",
+   "hex": "03000000180002000300000020020000210200002a02000000000000",
+   "attendu": {
+    "rids": [
+     544,
+     545,
+     554
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-2",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a1f4010000",
+   "hex": "0100000008000200010000002002000000000000",
+   "attendu": {
+    "rids": [
+     544
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-3",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-512"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a100020000",
+   "hex": "0100000008000200010000002002000000000000",
+   "attendu": {
+    "rids": [
+     544
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-4",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-513"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a101020000",
+   "hex": "0100000008000200010000002102000000000000",
+   "attendu": {
+    "rids": [
+     545
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-5",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b0100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-6",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "020000000800020002000000210200002a02000000000000",
+   "attendu": {
+    "rids": [
+     545,
+     554
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-1-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "010000003c558e6d20eeab48b7435de8451a671b",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-7-2",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000ceefb25f0519c2439185914b3fc3d1ee800200000400000001040000000000051500000055433741060e1d1e8de403a1",
+   "hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf00000000",
+   "attendu": {
+    "poignee": "01000000fcfe0ad36e24ec4da7118647b9cec6bf",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-7",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500",
+     "S-1-5-21-1094140757-505220614-2701386893-512",
+     "S-1-5-21-1094140757-505220614-2701386893-513",
+     "S-1-1-0",
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf050000000400020005000000080002000c0002001000020014000200180002000500000001050000000000051500000055433741060e1d1e8de403a1f40100000500000001050000000000051500000055433741060e1d1e8de403a1000200000500000001050000000000051500000055433741060e1d1e8de403a101020000010000000101000000000001000000000100000001010000000000050b000000",
+   "hex": "0100000018000200010000003c02000000000000",
+   "attendu": {
+    "rids": [
+     572
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-8",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-500"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a1f4010000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-9",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-512"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a100020000",
+   "hex": "0100000008000200010000003c02000000000000",
+   "attendu": {
+    "rids": [
+     572
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-10",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-5-21-1094140757-505220614-2701386893-513"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf010000000400020001000000080002000500000001050000000000051500000055433741060e1d1e8de403a101020000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-11",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf0100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-16-12",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-1094140757-505220614-2701386893",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "00000000080002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-1-2",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "01000000fcfe0ad36e24ec4da7118647b9cec6bf",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-dc1-1-3",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- dc1.lab.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000ceefb25f0519c2439185914b3fc3d1ee",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-64-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 64,
+    "operation": "SamrConnect5",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "040002001000000000000000100000005c005c0077006400630031002e00770069006e002e00740065007300740000003100000001000000010000000300000000000000",
+   "hex": "010000000100000003000000700000000000000033b284ad3aa86c46b88ed9e3275464e500000000",
+   "attendu": {
+    "revision": 3,
+    "poignee": "0000000033b284ad3aa86c46b88ed9e3275464e5",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-6-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 6,
+    "operation": "SamrEnumerateDomainsInSamServer",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "0000000033b284ad3aa86c46b88ed9e3275464e500000000ffffffff",
+   "hex": "0400000000000200020000000400020002000000000000000600080008000200000000000e0010000c000200040000000000000003000000570049004e0000000800000000000000070000004200750069006c00740069006e0000000200000000000000",
+   "attendu": {
+    "contexte": 4,
+    "domaines": [
+     "WIN",
+     "Builtin"
+    ],
+    "rendus": 2,
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-5-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 5,
+    "operation": "SamrLookupDomainInSamServer",
+    "domaine": "WIN",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "0000000033b284ad3aa86c46b88ed9e3275464e50600060004000200030000000000000003000000570049004e00",
+   "hex": "0000020004000000010400000000000515000000aa3d97cba5782bbd2ac14bed00000000",
+   "attendu": {
+    "sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-7-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-32",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "0000000033b284ad3aa86c46b88ed9e3275464e58002000001000000010100000000000520000000",
+   "hex": "00000000c8e40397ac419e40b01974f8f6e7296800000000",
+   "attendu": {
+    "poignee": "00000000c8e40397ac419e40b01974f8f6e72968",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-500",
+     "S-1-5-21-3415686570-3173742757-3981164842-512",
+     "S-1-5-21-3415686570-3173742757-3981164842-513",
+     "S-1-1-0",
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e72968050000000400020005000000080002000c00020010000200140002001800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bedf401000005000000010500000000000515000000aa3d97cba5782bbd2ac14bed0002000005000000010500000000000515000000aa3d97cba5782bbd2ac14bed01020000010000000101000000000001000000000100000001010000000000050b000000",
+   "hex": "04000000000002000400000020020000210200003e0200002a02000000000000",
+   "attendu": {
+    "rids": [
+     544,
+     545,
+     574,
+     554
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-2",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-500"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e729680100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bedf4010000",
+   "hex": "0100000000000200010000002002000000000000",
+   "attendu": {
+    "rids": [
+     544
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-3",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-512"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e729680100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bed00020000",
+   "hex": "0100000000000200010000002002000000000000",
+   "attendu": {
+    "rids": [
+     544
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-4",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-513"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e729680100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bed01020000",
+   "hex": "0100000000000200010000002102000000000000",
+   "attendu": {
+    "rids": [
+     545
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-5",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e729680100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000000002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-6",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-32",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e72968010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "030000000000020003000000210200003e0200002a02000000000000",
+   "attendu": {
+    "rids": [
+     545,
+     574,
+     554
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-1-1",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000c8e40397ac419e40b01974f8f6e72968",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-7-2",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 7,
+    "operation": "SamrOpenDomain",
+    "sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "0000000033b284ad3aa86c46b88ed9e3275464e58002000004000000010400000000000515000000aa3d97cba5782bbd2ac14bed",
+   "hex": "00000000dcdd93d8726fc74185ee4f70303cb61600000000",
+   "attendu": {
+    "poignee": "00000000dcdd93d8726fc74185ee4f70303cb616",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-7",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-500",
+     "S-1-5-21-3415686570-3173742757-3981164842-512",
+     "S-1-5-21-3415686570-3173742757-3981164842-513",
+     "S-1-1-0",
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb616050000000400020005000000080002000c00020010000200140002001800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bedf401000005000000010500000000000515000000aa3d97cba5782bbd2ac14bed0002000005000000010500000000000515000000aa3d97cba5782bbd2ac14bed01020000010000000101000000000001000000000100000001010000000000050b000000",
+   "hex": "0100000000000200010000003c02000000000000",
+   "attendu": {
+    "rids": [
+     572
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-8",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-500"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb6160100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bedf4010000",
+   "hex": "00000000000002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-9",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-512"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb6160100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bed00020000",
+   "hex": "0100000000000200010000003c02000000000000",
+   "attendu": {
+    "rids": [
+     572
+    ],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-10",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-5-21-3415686570-3173742757-3981164842-513"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb6160100000004000200010000000800020005000000010500000000000515000000aa3d97cba5782bbd2ac14bed01020000",
+   "hex": "00000000000002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-11",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-1-0"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb6160100000004000200010000000800020001000000010100000000000100000000",
+   "hex": "00000000000002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-16-12",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 16,
+    "operation": "SamrGetAliasMembership",
+    "domaine_sid": "S-1-5-21-3415686570-3173742757-3981164842",
+    "sids": [
+     "S-1-5-11"
+    ],
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb616010000000400020001000000080002000100000001010000000000050b000000",
+   "hex": "00000000000002000000000000000000",
+   "attendu": {
+    "rids": [],
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-1-2",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "00000000dcdd93d8726fc74185ee4f70303cb616",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  },
+  {
+   "id": "samr-wdc1-1-3",
+   "provenance": {
+    "serveur": "wdc1.win.test",
+    "opnum": 1,
+    "operation": "SamrCloseHandle",
+    "commande": "cargo run --example samr_probe -- wdc1.win.test <SID>… --vectors"
+   },
+   "requete_hex": "0000000033b284ad3aa86c46b88ed9e3275464e5",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "statut": 0
+   }
+  }
+ ]
+}

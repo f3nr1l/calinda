@@ -1,0 +1,149 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Accès effectif d'un compte ou d'un groupe à un dossier ou un fichier d'un partage (ADR 0023
+// § 6, J8.5), comme l'onglet « Accès effectif » de Windows : le compte cherché dans
+// l'annuaire, puis chaque droit, accordé ou non, avec ce qui le limite (partage, droits NTFS)
+// et l'entrée qui en décide. Lecture seule. Lignes construites par access.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueAccesEffectif: Adw.Dialog {
+  title: _("Effective Access");
+  content-width: 760;
+  content-height: 780;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Effective Access");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Account or Group");
+        description: _("The access is computed as the server would: the share permissions, the NTFS permissions, the groups of the directory and the local groups of the server.");
+
+        Adw.ActionRow principal_row {
+          title: _("No account or group chosen");
+          subtitle-lines: 0;
+
+          styles [
+            "property",
+          ]
+        }
+
+        SearchEntry principal_entry {
+          placeholder-text: _("Name or logon name of the account or group");
+          margin-top: 12;
+          margin-bottom: 6;
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the account or group");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+
+          accessibility {
+            label: _("Accounts and groups found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup state_group {
+        visible: false;
+
+        Box {
+          spacing: 12;
+          halign: center;
+
+          Spinner spinner {
+            spinning: true;
+          }
+
+          Label state_label {
+            wrap: true;
+          }
+        }
+      }
+
+      Adw.PreferencesGroup result_group {
+        title: _("Effective Access");
+        visible: false;
+
+        Adw.ActionRow summary_row {
+          title-lines: 0;
+          subtitle-lines: 0;
+
+          styles [
+            "property",
+          ]
+        }
+
+        ListBox rights_list {
+          selection-mode: none;
+          margin-top: 12;
+
+          accessibility {
+            label: _("Rights of the account");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label notes_label {
+          xalign: 0;
+          wrap: true;
+          margin-top: 12;
+
+          styles [
+            "dim-label",
+          ]
+        }
+
+        Expander identities_expander {
+          label: _("Identities taken into account");
+          margin-top: 12;
+
+          child: Label identities_label {
+            xalign: 0;
+            wrap: true;
+            selectable: true;
+            margin-top: 6;
+          };
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [end]
+      Button {
+        label: _("Close");
+        clicked => $close();
+      }
+    }
+  };
+}

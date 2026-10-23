@@ -107,6 +107,12 @@ cargo test --manifest-path rust/Cargo.toml --offline --locked --release \
 %{_datadir}/icons/hicolor/symbolic/apps/io.github.f3nr1l.Calinda-symbolic.svg
 
 %changelog
+* Fri Oct 23 2026 René Onier <f3nr1l@me.com> - 1.3.0-1
+- Partages des serveurs de fichiers et droits NTFS : onglets Partage, Sécurité, Audit et
+  Accès effectif ; propagation de l'héritage sauvegardée, prise de possession.
+- Partages Samba de la configuration en registre écrits par winreg.
+- Listage complet des grands dossiers sous Windows, SYSVOL compris.
+
 * Thu Oct 22 2026 René Onier <f3nr1l@me.com> - 1.2.1-1
 - Paquet Debian pour Ubuntu 26.04 ; aucun changement dans l'application.
 

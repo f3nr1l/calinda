@@ -68,6 +68,15 @@ pub fn action(op: &Operation) -> String {
         Operation::Rename { parent: None, .. } => tr("Rename"),
         Operation::Rename { dn, rdn, .. } if same_rdn(dn, rdn) => tr("Move"),
         Operation::Rename { .. } => tr("Rename and move"),
+        Operation::AddShare { .. } => tr("Share creation"),
+        Operation::ChangeShare { .. } => tr("Share modification"),
+        Operation::DeleteShare { .. } => tr("Share deletion"),
+        Operation::SetFileDescriptor { .. } => tr("Permissions"),
+        Operation::PropagateInheritance {
+            direction: annuaire_core::changes::Direction::Compute,
+            ..
+        } => tr("Propagation of inheritance"),
+        Operation::PropagateInheritance { .. } => tr("Permissions saved before a propagation"),
     }
 }
 
@@ -167,6 +176,209 @@ fn descriptor_details(
         lines.push((attribute.to_owned(), tr("(unchanged)"), tr("(unchanged)")));
     }
     lines
+}
+
+/// The permissions removed and added, each in a sentence of `sentence` (shares, files).
+fn ace_diff(
+    attribute: &str,
+    before: Option<&[u8]>,
+    after: Option<&[u8]>,
+    sentence: &dyn Fn(&Ace) -> String,
+) -> Vec<Detail> {
+    let aces = |b: Option<&[u8]>| -> Vec<Ace> {
+        b.and_then(|b| SecurityDescriptor::decode(b).ok())
+            .and_then(|d| d.dacl)
+            .map(|a| a.aces)
+            .unwrap_or_default()
+    };
+    let (old, mut new) = (aces(before), aces(after));
+    let mut lines = Vec::new();
+    for ace in old {
+        if let Some(position) = new.iter().position(|a| *a == ace) {
+            new.remove(position);
+        } else {
+            lines.push((
+                attribute.to_owned(),
+                format!("− {}", sentence(&ace)),
+                String::new(),
+            ));
+        }
+    }
+    lines.extend(new.iter().map(|a| {
+        (
+            attribute.to_owned(),
+            String::new(),
+            format!("+ {}", sentence(a)),
+        )
+    }));
+    let owners = |b: Option<&[u8]>| {
+        b.and_then(|b| SecurityDescriptor::decode(b).ok())
+            .map(|d| (d.owner, d.group))
+    };
+    if before.is_some() && after.is_some() && owners(before) != owners(after) {
+        lines.push((attribute.to_owned(), tr("owner or group"), tr("modified")));
+    }
+    if lines.is_empty() && before != after {
+        lines.push((
+            attribute.to_owned(),
+            crate::share_views::share_permissions_summary(before, None),
+            crate::share_views::share_permissions_summary(after, None),
+        ));
+    }
+    lines
+}
+
+fn share_details(op: &Operation, names: &Names) -> Vec<Detail> {
+    use crate::share_views as shv;
+    use annuaire_core::changes::ShareSpec;
+    let share_sentence = |a: &Ace| shv::share_ace_sentence(a, Some(names));
+    let fields = |s: &ShareSpec| -> Vec<(String, String)> {
+        vec![
+            (tr("path"), s.path.clone()),
+            (tr("comment"), s.remark.clone()),
+            (tr("connections"), shv::max_uses_text(s.max_uses)),
+            (tr("options"), shv::flags_text(s.flags)),
+        ]
+    };
+    let permissions = tr("share permissions");
+    match op {
+        Operation::AddShare { share, .. } => {
+            let mut lines: Vec<Detail> = fields(share)
+                .into_iter()
+                .map(|(k, v)| (k, String::new(), v))
+                .collect();
+            if share.descriptor.is_none() {
+                lines.push((
+                    permissions,
+                    String::new(),
+                    shv::share_permissions_summary(None, None),
+                ));
+            } else {
+                lines.extend(ace_diff(
+                    &permissions,
+                    None,
+                    share.descriptor.as_deref(),
+                    &share_sentence,
+                ));
+            }
+            lines
+        }
+        Operation::DeleteShare { share, .. } => vec![
+            (tr("share"), share.name.clone(), tr("(deleted)")),
+            (tr("folder"), share.path.clone(), tr("(kept)")),
+        ],
+        Operation::ChangeShare { before, after, .. } => {
+            let mut lines: Vec<Detail> = fields(before)
+                .into_iter()
+                .zip(fields(after))
+                .filter(|((_, a), (_, b))| a != b)
+                .map(|((k, a), (_, b))| (k, a, b))
+                .collect();
+            if before.descriptor != after.descriptor {
+                // No descriptor: Everyone, Full control, as the server applies it.
+                let open = annuaire_core::share_write::open_descriptor();
+                lines.extend(ace_diff(
+                    &permissions,
+                    Some(before.descriptor.as_deref().unwrap_or(&open)),
+                    Some(after.descriptor.as_deref().unwrap_or(&open)),
+                    &share_sentence,
+                ));
+            }
+            lines
+        }
+        Operation::SetFileDescriptor {
+            path,
+            before,
+            after,
+            ..
+        } => {
+            let folder = path.is_empty()
+                || [before, after].iter().any(|d| {
+                    SecurityDescriptor::decode(d)
+                        .ok()
+                        .and_then(|d| d.dacl)
+                        .is_some_and(|a| {
+                            a.aces.iter().any(|x| {
+                                x.flags
+                                    & (annuaire_codecs::sd::OBJECT_INHERIT_ACE
+                                        | annuaire_codecs::sd::CONTAINER_INHERIT_ACE)
+                                    != 0
+                            })
+                        })
+                });
+            let sentence = |a: &Ace| shv::file_ace_sentence(a, folder, Some(names));
+            let mut lines = ace_diff(&tr("permissions"), Some(before), Some(after), &sentence);
+            let protected =
+                |b: &[u8]| SecurityDescriptor::decode(b).is_ok_and(|d| d.is_protected());
+            if protected(before) != protected(after) {
+                lines.push((
+                    tr("inheritance"),
+                    if protected(before) {
+                        tr("disabled")
+                    } else {
+                        tr("enabled")
+                    },
+                    if protected(after) {
+                        tr("disabled")
+                    } else {
+                        tr("enabled")
+                    },
+                ));
+            }
+            lines
+        }
+        Operation::PropagateInheritance {
+            replace,
+            backup,
+            direction,
+            count,
+            ..
+        } => {
+            use annuaire_core::changes::Direction;
+            let file = annuaire_core::propagation::backup_path(backup, None)
+                .display()
+                .to_string();
+            let mut lines = Vec::new();
+            match direction {
+                Direction::Compute => {
+                    lines.push((
+                        tr("descendants"),
+                        String::new(),
+                        fill(
+                            &tr_n(
+                                "{n} element examined",
+                                "{n} elements examined",
+                                *count as u64,
+                            ),
+                            &[("n", &count.to_string())],
+                        ),
+                    ));
+                    lines.push((
+                        tr("inherited permissions"),
+                        String::new(),
+                        if *replace {
+                            tr("replaced on every descendant")
+                        } else {
+                            tr("recomputed where inheritance is on")
+                        },
+                    ));
+                }
+                Direction::Undo => lines.push((
+                    tr("descendants"),
+                    tr("as the propagation left them"),
+                    tr("as saved before it"),
+                )),
+                Direction::Redo => lines.push((
+                    tr("descendants"),
+                    tr("as saved before the propagation"),
+                    tr("as the propagation left them"),
+                )),
+            }
+            lines.push((tr("backup"), String::new(), file));
+            lines
+        }
+        _ => Vec::new(),
+    }
 }
 
 fn registry_details(old: Option<&[u8]>, new: Option<&[u8]>) -> Option<Vec<Detail>> {
@@ -384,6 +596,7 @@ fn details(op: &Operation, names: &Names) -> Vec<Detail> {
             lines
         }
         Operation::Delete { dn, .. } => vec![(tr("object"), dn.clone(), tr("(deleted)"))],
+        share if share.is_file_share() => share_details(share, names),
         _ => sysvol_details(op, names),
     }
 }
@@ -398,7 +611,17 @@ fn descriptors(op: &Operation) -> Vec<&[u8]> {
             descriptor: Some(d),
             ..
         } => vec![d],
-        Operation::SetDescriptor { before, after, .. } => vec![before, after],
+        Operation::SetDescriptor { before, after, .. }
+        | Operation::SetFileDescriptor { before, after, .. } => vec![before, after],
+        Operation::AddShare { share, .. } | Operation::DeleteShare { share, .. } => {
+            share.descriptor.as_deref().into_iter().collect()
+        }
+        Operation::ChangeShare { before, after, .. } => before
+            .descriptor
+            .as_deref()
+            .into_iter()
+            .chain(after.descriptor.as_deref())
+            .collect(),
         Operation::Add { attributes, .. } => attributes
             .iter()
             .filter(|(a, _)| a.eq_ignore_ascii_case("ntsecuritydescriptor"))

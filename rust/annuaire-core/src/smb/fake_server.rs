@@ -55,6 +55,9 @@ pub struct Node {
     pub directory: bool,
     pub content: Vec<u8>,
     pub descriptor: Vec<u8>,
+    /// An open that asks to write its descriptor (`WRITE_DAC`, `WRITE_OWNER`) is refused,
+    /// as an element whose DACL gives the account nothing.
+    pub locked: bool,
 }
 
 /// The file system, by lower-case path.
@@ -82,6 +85,7 @@ impl Fs {
                 directory: content.is_none(),
                 content: content.unwrap_or_default().to_vec(),
                 descriptor: DEFAULT_SD.to_vec(),
+                locked: false,
             },
         );
     }
@@ -115,6 +119,8 @@ pub struct Seen {
     pub signed: Vec<bool>,
     /// The dialects the client offered.
     pub dialects: Vec<u16>,
+    /// Each CREATE: path, access asked, create options.
+    pub creates: Vec<(String, u32, u32)>,
 }
 
 /// What the server speaks.
@@ -125,6 +131,12 @@ pub struct Config {
     pub dialect: u16,
     /// The responses after the session setup go unsigned.
     pub unsigned: bool,
+    /// The account does not hold `SeSecurityPrivilege`: an open that asks
+    /// `ACCESS_SYSTEM_SECURITY` gets `STATUS_PRIVILEGE_NOT_HELD`.
+    pub no_security_privilege: bool,
+    /// Names given by a QUERY_DIRECTORY at most, the buffer far from full: Windows answers so
+    /// (J8.7).
+    pub directory_entries: Option<usize>,
 }
 
 impl Default for Config {
@@ -132,6 +144,8 @@ impl Default for Config {
         Self {
             dialect: dialect::SMB311,
             unsigned: false,
+            no_security_privilege: false,
+            directory_entries: None,
         }
     }
 }
@@ -534,10 +548,24 @@ impl Server {
             }
             command::TREE_DISCONNECT | command::LOGOFF => (status::SUCCESS, vec![4, 0, 0, 0]),
             command::CREATE => {
+                let access = u32_at(bytes, B + 24).unwrap();
                 let disposition = u32_at(bytes, B + 36).unwrap();
                 let options = u32_at(bytes, B + 40).unwrap();
                 let name_len = u16_at(bytes, B + 46).unwrap() as usize;
                 let path = from_utf16(&bytes[B + 56..B + 56 + name_len]).unwrap();
+                self.seen
+                    .lock()
+                    .unwrap()
+                    .creates
+                    .push((path.clone(), access, options));
+                // ACCESS_SYSTEM_SECURITY
+                if access & 0x0100_0000 != 0 && self.config.no_security_privilege {
+                    return (0xC000_0061, error_body());
+                }
+                // WRITE_DAC, WRITE_OWNER
+                if access & 0x000C_0000 != 0 && fs.get(&path).is_some_and(|n| n.locked) {
+                    return (status::ACCESS_DENIED, error_body());
+                }
                 let contexts = u32_at(bytes, B + 48).unwrap() as usize;
                 let descriptor = (contexts != 0).then(|| {
                     let data = u16_at(bytes, contexts + 10).unwrap() as usize;
@@ -671,10 +699,15 @@ impl Server {
                 }
                 let mut buf: Vec<u8> = Vec::new();
                 let mut last = 0;
+                let mut given = 0;
                 while let Some(e) = all.get(open.listed) {
                     if !buf.is_empty() && buf.len() + e.len() > output {
                         break;
                     }
+                    if self.config.directory_entries.is_some_and(|n| given >= n) {
+                        break;
+                    }
+                    given += 1;
                     let start = buf.len();
                     if start > 0 {
                         let next = (start - last) as u32;
@@ -713,11 +746,44 @@ impl Server {
                     }
                     self.opens.get_mut(&id).unwrap().delete = buffer.first() == Some(&1);
                 } else {
-                    fs.nodes.get_mut(&path.to_lowercase()).unwrap().descriptor = buffer;
+                    // The parts named by AdditionalInformation replace those of the
+                    // descriptor kept, as a server does; bytes that are not a descriptor
+                    // replace it whole.
+                    let info = u32_at(bytes, B + 12).unwrap();
+                    let node = fs.nodes.get_mut(&path.to_lowercase()).unwrap();
+                    node.descriptor = merged(&node.descriptor, &buffer, info);
                 }
                 (status::SUCCESS, vec![2, 0])
             }
             _ => (0xC000_0002, error_body()),
         }
     }
+}
+
+/// The descriptor `old` with the parts `info` of `new` (owner 1, group 2, DACL 4, SACL 8).
+fn merged(old: &[u8], new: &[u8], info: u32) -> Vec<u8> {
+    use annuaire_codecs::sd::{self, SecurityDescriptor};
+    let (Ok(mut kept), Ok(given)) = (
+        SecurityDescriptor::decode(old),
+        SecurityDescriptor::decode(new),
+    ) else {
+        return new.to_vec();
+    };
+    if info & 1 != 0 {
+        kept.owner = given.owner;
+    }
+    if info & 2 != 0 {
+        kept.group = given.group;
+    }
+    let dacl_bits = sd::SE_DACL_PRESENT | sd::SE_DACL_PROTECTED | sd::SE_DACL_AUTO_INHERITED;
+    if info & 4 != 0 {
+        kept.dacl = given.dacl;
+        kept.control = (kept.control & !dacl_bits) | (given.control & dacl_bits);
+    }
+    let sacl_bits = sd::SE_SACL_PRESENT | sd::SE_SACL_PROTECTED | sd::SE_SACL_AUTO_INHERITED;
+    if info & 8 != 0 {
+        kept.sacl = given.sacl;
+        kept.control = (kept.control & !sacl_bits) | (given.control & sacl_bits);
+    }
+    kept.encode().unwrap_or_else(|_| new.to_vec())
 }

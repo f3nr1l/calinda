@@ -21,6 +21,7 @@ use serde_json::{Map, Value, json};
 
 use crate::dn::{self, Component, DnError};
 use crate::messages::{Catalog, Msg};
+pub use crate::propagation::Direction;
 use crate::search::{FilterError, verify_attribute};
 
 pub const JOURNAL_VERSION: i64 = 1;
@@ -244,7 +245,29 @@ impl Change {
     }
 }
 
-/// An operation of a changeset: four on LDAP, five on the SYSVOL (ADR 0012).
+/// A share of a file server as a changeset writes it (ADR 0023 § 3): `SHARE_INFO_502` and
+/// the flags of `SHARE_INFO_1005`.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct ShareSpec {
+    pub name: String,
+    /// Local path on the server, as the server gives it (`C:\Partages\Commun`).
+    pub path: String,
+    pub remark: String,
+    /// Maximum connections; `u32::MAX` for no limit.
+    pub max_uses: u32,
+    /// Self-relative descriptor of the share; absent: the default of the server.
+    pub descriptor: Option<Vec<u8>>,
+    pub flags: u32,
+    /// The values of the key of the share in the registry configuration of Samba
+    /// (`HKLM\Software\Samba\smbconf\<share>`, ADR 0023 § 9), as read before the operation,
+    /// in their order; `None` for a share that has no key (Windows, smb.conf). The fields above
+    /// say what the parameters Calinda changes become; the others are only put back by the
+    /// undo of a deletion.
+    pub registry: Option<Vec<(String, String)>>,
+}
+
+/// An operation of a changeset: four on LDAP, five on the SYSVOL (ADR 0012), four on the
+/// shares of a file server (ADR 0023).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operation {
     Add {
@@ -296,9 +319,180 @@ pub enum Operation {
         before: Vec<u8>,
         after: Vec<u8>,
     },
+    /// `unc`: `\\server\share`, what the preview and the journal name.
+    AddShare {
+        unc: String,
+        server: String,
+        share: ShareSpec,
+    },
+    ChangeShare {
+        unc: String,
+        server: String,
+        before: ShareSpec,
+        after: ShareSpec,
+    },
+    DeleteShare {
+        unc: String,
+        server: String,
+        share: ShareSpec,
+    },
+    /// NTFS descriptor of a file or folder of a share; `path` relative to the share, empty for
+    /// its root. `unc`: `\\server\share\path`.
+    SetFileDescriptor {
+        unc: String,
+        server: String,
+        share: String,
+        path: String,
+        before: Vec<u8>,
+        after: Vec<u8>,
+    },
+    /// Inheritance propagated under the folder `path` of a share (ADR 0023 § 5): its
+    /// descendants recomputed (`Compute`), or their descriptors written back from the backup
+    /// `backup` (`Undo`, `Redo`). One operation for the whole tree: what each element had and
+    /// got is in the backup, not in the journal. `count`: elements counted under the folder
+    /// before the confirmation. `parts`: the DACL recomputed, the owner replaced (J8.7).
+    PropagateInheritance {
+        unc: String,
+        server: String,
+        share: String,
+        path: String,
+        replace: bool,
+        parts: crate::propagation::Parts,
+        backup: String,
+        direction: Direction,
+        count: usize,
+    },
+}
+
+/// `\\server\share`, then the path in the share if any.
+pub fn unc(server: &str, share: &str, path: &str) -> String {
+    let mut text = format!("\\\\{server}\\{share}");
+    if !path.is_empty() {
+        text.push('\\');
+        text.push_str(path);
+    }
+    text
 }
 
 impl Operation {
+    pub fn add_share(server: &str, share: ShareSpec) -> Self {
+        Self::AddShare {
+            unc: unc(server, &share.name, ""),
+            server: server.into(),
+            share,
+        }
+    }
+
+    /// `after` keeps the registry values read with `before`: they are what the change starts
+    /// from, and what its undo goes back to.
+    pub fn change_share(server: &str, before: ShareSpec, mut after: ShareSpec) -> Self {
+        after.registry.clone_from(&before.registry);
+        Self::ChangeShare {
+            unc: unc(server, &after.name, ""),
+            server: server.into(),
+            before,
+            after,
+        }
+    }
+
+    pub fn delete_share(server: &str, share: ShareSpec) -> Self {
+        Self::DeleteShare {
+            unc: unc(server, &share.name, ""),
+            server: server.into(),
+            share,
+        }
+    }
+
+    pub fn set_file_descriptor(
+        server: &str,
+        share: &str,
+        path: &str,
+        before: Vec<u8>,
+        after: Vec<u8>,
+    ) -> Self {
+        Self::SetFileDescriptor {
+            unc: unc(server, share, path),
+            server: server.into(),
+            share: share.into(),
+            path: path.into(),
+            before,
+            after,
+        }
+    }
+
+    /// Inheritance propagated under `path` (`Direction::Compute`), saved in the backup
+    /// `backup` (`propagation::backup_path`).
+    pub fn propagate_inheritance(
+        server: &str,
+        share: &str,
+        path: &str,
+        replace: bool,
+        backup: &str,
+        count: usize,
+    ) -> Self {
+        Self::propagate_parts(
+            server,
+            share,
+            path,
+            replace,
+            crate::propagation::Parts::default(),
+            backup,
+            count,
+        )
+    }
+
+    /// A propagation of `parts` under `path` (J8.7: the owner, with or without the DACL).
+    pub fn propagate_parts(
+        server: &str,
+        share: &str,
+        path: &str,
+        replace: bool,
+        parts: crate::propagation::Parts,
+        backup: &str,
+        count: usize,
+    ) -> Self {
+        Self::PropagateInheritance {
+            unc: unc(server, share, path),
+            server: server.into(),
+            share: share.into(),
+            path: path.into(),
+            replace,
+            parts,
+            backup: backup.into(),
+            direction: Direction::Compute,
+            count,
+        }
+    }
+
+    /// An operation on a file server, not on the domain (ADR 0023).
+    pub fn is_file_share(&self) -> bool {
+        matches!(
+            self,
+            Self::AddShare { .. }
+                | Self::ChangeShare { .. }
+                | Self::DeleteShare { .. }
+                | Self::SetFileDescriptor { .. }
+                | Self::PropagateInheritance { .. }
+        )
+    }
+
+    /// An operation on the directory: neither the SYSVOL nor a file server.
+    pub fn is_ldap(&self) -> bool {
+        !self.is_sysvol() && !self.is_file_share()
+    }
+
+    /// The file server of an operation on shares.
+    pub fn server(&self) -> Option<&str> {
+        match self {
+            Self::AddShare { server, .. }
+            | Self::ChangeShare { server, .. }
+            | Self::DeleteShare { server, .. }
+            | Self::SetFileDescriptor { server, .. }
+            | Self::PropagateInheritance { server, .. } => Some(server),
+            _ => None,
+        }
+    }
+
     pub fn add(dn: &str, attributes: AttributeMap) -> Result<Self, ChangeError> {
         check_dn(dn)?;
         if attributes.is_empty() {
@@ -374,6 +568,12 @@ impl Operation {
             | Self::WriteFile { dn, .. }
             | Self::DeleteFile { dn, .. }
             | Self::SetDescriptor { dn, .. } => dn,
+            // Not a DN: what names the share or the file, as the preview shows it.
+            Self::AddShare { unc, .. }
+            | Self::ChangeShare { unc, .. }
+            | Self::DeleteShare { unc, .. }
+            | Self::SetFileDescriptor { unc, .. }
+            | Self::PropagateInheritance { unc, .. } => unc,
         }
     }
 
@@ -451,6 +651,10 @@ pub struct Changeset {
 impl Changeset {
     pub fn touches_sysvol(&self) -> bool {
         self.operations.iter().any(Operation::is_sysvol)
+    }
+
+    pub fn touches_shares(&self) -> bool {
+        self.operations.iter().any(Operation::is_file_share)
     }
 }
 
@@ -755,12 +959,121 @@ fn sysvol_lines(
     })
 }
 
+fn share_spec_lines(share: &ShareSpec, catalog: &dyn Catalog) -> Result<Vec<String>, ChangeError> {
+    let mut lines = vec![
+        catalog.text(&Msg::SharePath {
+            path: share.path.clone(),
+        }),
+        catalog.text(&Msg::ShareRemark {
+            remark: share.remark.clone(),
+        }),
+    ];
+    if share.max_uses != u32::MAX {
+        lines.push(catalog.text(&Msg::ShareMaxUses { n: share.max_uses }));
+    }
+    if share.flags != 0 {
+        lines.push(catalog.text(&Msg::ShareFlags { flags: share.flags }));
+    }
+    if let Some(d) = &share.descriptor {
+        lines.push(descriptor_text(d, catalog)?);
+    }
+    Ok(lines)
+}
+
+fn share_lines(
+    op: &Operation,
+    catalog: &dyn Catalog,
+) -> Result<(String, Vec<String>), ChangeError> {
+    let target = op.dn().to_owned();
+    Ok(match op {
+        Operation::AddShare { share, .. } => (
+            catalog.text(&Msg::AddShare { unc: target }),
+            share_spec_lines(share, catalog)?,
+        ),
+        Operation::DeleteShare { share, .. } => {
+            let mut details = vec![catalog.text(&Msg::DeleteShareKeepsFolder)];
+            details.extend(share_spec_lines(share, catalog)?);
+            (catalog.text(&Msg::DeleteShare { unc: target }), details)
+        }
+        Operation::ChangeShare { before, after, .. } => {
+            let old = share_spec_lines(before, catalog)?;
+            let new = share_spec_lines(after, catalog)?;
+            let mut details: Vec<String> = old
+                .iter()
+                .filter(|l| !new.contains(l))
+                .map(|l| format!("− {l}"))
+                .collect();
+            details.extend(
+                new.iter()
+                    .filter(|l| !old.contains(l))
+                    .map(|l| format!("+ {l}")),
+            );
+            (catalog.text(&Msg::ChangeShare { unc: target }), details)
+        }
+        Operation::SetFileDescriptor { before, after, .. } => (
+            catalog.text(&Msg::SetPermissions { path: target }),
+            vec![
+                format!("− {}", descriptor_text(before, catalog)?),
+                format!("+ {}", descriptor_text(after, catalog)?),
+            ],
+        ),
+        Operation::PropagateInheritance {
+            replace,
+            parts,
+            backup,
+            direction,
+            count,
+            ..
+        } => {
+            let file = crate::propagation::backup_path(backup, None)
+                .display()
+                .to_string();
+            match direction {
+                Direction::Compute => {
+                    let mut details = vec![catalog.text(&Msg::PropagationCount { n: *count })];
+                    if let Some(owner) = &parts.owner {
+                        details.push(catalog.text(&Msg::PropagationOwner {
+                            owner: owner.to_string(),
+                        }));
+                    }
+                    if *replace && parts.dacl {
+                        details.push(catalog.text(&Msg::PropagationReplace));
+                    }
+                    if let Some(replace) = parts.sacl {
+                        details.push(catalog.text(&Msg::PropagationAudit { replace }));
+                    }
+                    details.push(catalog.text(&Msg::PropagationBackup { file }));
+                    let title = if parts.dacl {
+                        Msg::Propagate { path: target }
+                    } else if parts.sacl.is_some() {
+                        Msg::PropagateAudit { path: target }
+                    } else {
+                        Msg::PropagateOwner { path: target }
+                    };
+                    (catalog.text(&title), details)
+                }
+                Direction::Undo | Direction::Redo => (
+                    catalog.text(&Msg::PropagationRewrite {
+                        path: target,
+                        undo: *direction == Direction::Undo,
+                    }),
+                    vec![catalog.text(&Msg::PropagationBackup { file })],
+                ),
+            }
+        }
+        _ => unreachable!("only operations on shares"),
+    })
+}
+
 fn operation_lines(
     op: &Operation,
     catalog: &dyn Catalog,
 ) -> Result<(String, Vec<String>), ChangeError> {
     if op.is_sysvol() {
         return sysvol_lines(op, catalog);
+    }
+    if op.is_file_share() {
+        return share_lines(op, catalog);
     }
     let no_check = || -> Vec<String> {
         if op.read().is_none() {
@@ -931,7 +1244,7 @@ impl Report {
 fn versions_left(applied: &[&Applied]) -> Result<HashMap<String, Option<Read>>, ChangeError> {
     let mut versions = HashMap::new();
     for a in applied {
-        if a.operation.is_sysvol() {
+        if !a.operation.is_ldap() {
             continue;
         }
         let version = if matches!(a.operation, Operation::Delete { .. }) {
@@ -1012,6 +1325,55 @@ pub fn inverse_sysvol(op: &Operation) -> Operation {
             path,
             before: after,
             after: before,
+        },
+        Operation::AddShare { unc, server, share } => Operation::DeleteShare { unc, server, share },
+        Operation::DeleteShare { unc, server, share } => Operation::AddShare { unc, server, share },
+        Operation::ChangeShare {
+            unc,
+            server,
+            before,
+            after,
+        } => Operation::ChangeShare {
+            unc,
+            server,
+            before: after,
+            after: before,
+        },
+        Operation::SetFileDescriptor {
+            unc,
+            server,
+            share,
+            path,
+            before,
+            after,
+        } => Operation::SetFileDescriptor {
+            unc,
+            server,
+            share,
+            path,
+            before: after,
+            after: before,
+        },
+        Operation::PropagateInheritance {
+            unc,
+            server,
+            share,
+            path,
+            replace,
+            parts,
+            backup,
+            direction,
+            count,
+        } => Operation::PropagateInheritance {
+            unc,
+            server,
+            share,
+            path,
+            replace,
+            parts,
+            backup,
+            direction: direction.inverse(),
+            count,
         },
         other => other,
     }
@@ -1197,7 +1559,7 @@ pub fn invert(
     let mut last: HashMap<String, Option<Read>> = known.cloned().unwrap_or_default();
     for &(index, a) in applied.iter().rev() {
         let op = &a.operation;
-        let inverses = if op.is_sysvol() {
+        let inverses = if !op.is_ldap() {
             vec![inverse_sysvol(op)]
         } else if let Operation::Delete { dn, guards, .. } = op {
             last.insert(dn_key(dn)?, None); // recreated: no version to check
@@ -1263,7 +1625,7 @@ struct Follow {
 
 impl Follow {
     fn targets(&self, op: &Operation) -> Result<bool, ChangeError> {
-        Ok(!op.is_sysvol() && dn_key(op.dn())? == dn_key(&self.dn)?)
+        Ok(op.is_ldap() && dn_key(op.dn())? == dn_key(&self.dn)?)
     }
 }
 
@@ -1326,7 +1688,7 @@ pub fn versions_returned(
         let Some(a) = report.applied.get(i) else {
             continue;
         };
-        if !a.operation.is_sysvol() && !matches!(a.operation, Operation::Delete { .. }) {
+        if a.operation.is_ldap() && !matches!(a.operation, Operation::Delete { .. }) {
             let key = dn_key(&a.operation.dn_after()?)?;
             follows.insert(
                 key.clone(),
@@ -1391,6 +1753,38 @@ pub fn continuation(report: &Report) -> Result<Changeset, ChangeError> {
         operations,
         remarks: report.changeset.remarks.clone(),
     })
+}
+
+/// The propagation cut by a stop of the application in `interrupted` (its doubtful
+/// operation), if `settled` (the same report, ascertained) found it applied, as after « Stop »
+/// (ADR 0023 § 8).
+pub fn cut_propagation<'a>(interrupted: &'a Report, settled: &Report) -> Option<&'a Operation> {
+    let cut = interrupted.doubtful.as_ref()?;
+    let done = settled.doubtful.is_none() && settled.applied.len() == interrupted.applied.len() + 1;
+    (done && matches!(cut.operation, Operation::PropagateInheritance { .. }))
+        .then_some(&cut.operation)
+}
+
+/// What completes an application cut by a stop (`settled`, ascertained from `interrupted`):
+/// the propagation that was under way started again, then the operations not done
+/// (`continuation`). A computation starts again with a backup of its own and writes only what
+/// is not yet as it must be; a rewrite starts again from the same backup and passes what it
+/// already wrote.
+pub fn completion(interrupted: &Report, settled: &Report) -> Result<Changeset, ChangeError> {
+    let mut rest = continuation(settled)?;
+    if let Some(cut) = cut_propagation(interrupted, settled) {
+        let mut again = cut.clone();
+        if let Operation::PropagateInheritance {
+            backup,
+            direction: Direction::Compute,
+            ..
+        } = &mut again
+        {
+            *backup = crate::propagation::new_id();
+        }
+        rest.operations.insert(0, again);
+    }
+    Ok(rest)
 }
 
 // ---------------------------------------------------------------------------
@@ -1621,9 +2015,169 @@ pub fn operation_to_json(op: &Operation) -> Result<Value, ChangeError> {
                 );
             }
         }
+        other if other.is_file_share() => return Ok(share_to_json(other)),
         sysvol => return Ok(sysvol_to_json(sysvol)),
     }
     Ok(Value::Object(d))
+}
+
+fn share_spec_to_json(share: &ShareSpec) -> Value {
+    let mut value = json!({
+        "nom": share.name,
+        "chemin": share.path,
+        "commentaire": share.remark,
+        "max": share.max_uses,
+        "descripteur": bytes_to_json(share.descriptor.as_deref()),
+        "drapeaux": share.flags,
+    });
+    // J8.7: absent for a share without a registry key, as before.
+    if let (Some(values), Value::Object(d)) = (&share.registry, &mut value) {
+        d.insert(
+            "registre".into(),
+            Value::Array(values.iter().map(|(n, v)| json!([n, v])).collect()),
+        );
+    }
+    value
+}
+
+fn registry_from_json(value: Option<&Value>) -> Result<Option<Vec<(String, String)>>, ChangeError> {
+    let Some(value) = value else {
+        return Ok(None);
+    };
+    let bad = || ChangeError::Journal("share: registry".into());
+    let mut values = Vec::new();
+    for pair in value.as_array().ok_or_else(bad)? {
+        match pair.as_array().map(Vec::as_slice) {
+            Some([Value::String(n), Value::String(v)]) => values.push((n.clone(), v.clone())),
+            _ => return Err(bad()),
+        }
+    }
+    Ok(Some(values))
+}
+
+fn share_spec_from_json(value: Option<&Value>) -> Result<ShareSpec, ChangeError> {
+    let Some(Value::Object(d)) = value else {
+        return Err(ChangeError::Journal("share: object expected".into()));
+    };
+    let number = |key: &str| -> Result<u32, ChangeError> {
+        field(d, key)?
+            .as_u64()
+            .and_then(|n| u32::try_from(n).ok())
+            .ok_or_else(|| ChangeError::Journal(format!("share: {key} is not a number")))
+    };
+    Ok(ShareSpec {
+        name: text_of(field(d, "nom")?),
+        path: text_of(field(d, "chemin")?),
+        remark: text_of(field(d, "commentaire")?),
+        max_uses: number("max")?,
+        descriptor: bytes_from_json(d.get("descripteur"))?,
+        flags: number("drapeaux")?,
+        registry: registry_from_json(d.get("registre"))?,
+    })
+}
+
+/// Journaled form of an operation on shares; descriptors in base64.
+pub fn share_to_json(op: &Operation) -> Value {
+    let mut d = Map::new();
+    d.insert("dn".into(), op.dn().to_owned().into());
+    d.insert("serveur".into(), op.server().unwrap_or_default().into());
+    match op {
+        Operation::AddShare { share, .. } => {
+            d.insert("type".into(), "creer_partage".into());
+            d.insert("partage".into(), share_spec_to_json(share));
+        }
+        Operation::DeleteShare { share, .. } => {
+            d.insert("type".into(), "supprimer_partage".into());
+            d.insert("partage".into(), share_spec_to_json(share));
+        }
+        Operation::ChangeShare { before, after, .. } => {
+            d.insert("type".into(), "modifier_partage".into());
+            d.insert("avant".into(), share_spec_to_json(before));
+            d.insert("apres".into(), share_spec_to_json(after));
+        }
+        Operation::SetFileDescriptor {
+            share,
+            path,
+            before,
+            after,
+            ..
+        } => {
+            d.insert("type".into(), "poser_descripteur_fichier".into());
+            d.insert("partage".into(), share.clone().into());
+            d.insert("chemin".into(), path.clone().into());
+            d.insert("avant".into(), bytes_to_json(Some(before)));
+            d.insert("apres".into(), bytes_to_json(Some(after)));
+        }
+        Operation::PropagateInheritance {
+            share,
+            path,
+            replace,
+            parts,
+            backup,
+            direction,
+            count,
+            ..
+        } => {
+            d.insert("type".into(), "propager_heritage".into());
+            d.insert("partage".into(), share.clone().into());
+            d.insert("chemin".into(), path.clone().into());
+            d.insert("remplacer".into(), (*replace).into());
+            parts.to_json(&mut d);
+            d.insert("sauvegarde".into(), backup.clone().into());
+            d.insert("sens".into(), direction.name().into());
+            d.insert("elements".into(), (*count).into());
+        }
+        _ => {}
+    }
+    Value::Object(d)
+}
+
+fn share_from_json(d: &Map<String, Value>, kind: &str) -> Result<Operation, ChangeError> {
+    let server = text_of(field(d, "serveur")?);
+    Ok(match kind {
+        "creer_partage" => Operation::add_share(&server, share_spec_from_json(d.get("partage"))?),
+        "supprimer_partage" => {
+            Operation::delete_share(&server, share_spec_from_json(d.get("partage"))?)
+        }
+        "modifier_partage" => Operation::change_share(
+            &server,
+            share_spec_from_json(d.get("avant"))?,
+            share_spec_from_json(d.get("apres"))?,
+        ),
+        "propager_heritage" => {
+            let backup = text_of(field(d, "sauvegarde")?);
+            if !crate::propagation::valid_id(&backup) {
+                return Err(ChangeError::Journal(format!("backup: {backup:?}")));
+            }
+            let direction = crate::propagation::Direction::of_name(&text_of(field(d, "sens")?))
+                .ok_or_else(|| ChangeError::Journal("propagation: direction".into()))?;
+            let share = text_of(field(d, "partage")?);
+            let path = text_of(field(d, "chemin")?);
+            let parts = crate::propagation::Parts::from_json(&Value::Object(d.clone()))
+                .ok_or_else(|| ChangeError::Journal("propagation: owner".into()))?;
+            Operation::PropagateInheritance {
+                unc: unc(&server, &share, &path),
+                server,
+                share,
+                path,
+                replace: field(d, "remplacer")?.as_bool().unwrap_or(false),
+                parts,
+                backup,
+                direction,
+                count: field(d, "elements")?
+                    .as_u64()
+                    .and_then(|n| usize::try_from(n).ok())
+                    .unwrap_or(0),
+            }
+        }
+        _ => Operation::set_file_descriptor(
+            &server,
+            &text_of(field(d, "partage")?),
+            &text_of(field(d, "chemin")?),
+            required_bytes(d.get("avant"))?,
+            required_bytes(d.get("apres"))?,
+        ),
+    })
 }
 
 /// Journaled form of a SYSVOL operation; contents and descriptors in base64.
@@ -1772,6 +2326,11 @@ pub fn operation_from_json(value: &Value) -> Result<Operation, ChangeError> {
             };
             Operation::delete(&dn, read, guards)
         }
+        "creer_partage"
+        | "supprimer_partage"
+        | "modifier_partage"
+        | "poser_descripteur_fichier"
+        | "propager_heritage" => share_from_json(d, &kind),
         _ => sysvol_from_json(d),
     }
 }
@@ -2104,6 +2663,249 @@ mod tests {
             panic!()
         };
         assert_eq!(changes[1].added, vec![MASKED_VALUE.as_bytes().to_vec()]);
+    }
+
+    #[test]
+    fn propagation_cut_by_a_stop_is_completed() {
+        let descriptor = Operation::set_file_descriptor(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            b"avant".to_vec(),
+            b"apres".to_vec(),
+        );
+        let propagation = Operation::propagate_inheritance(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            false,
+            "20261023080000-0a1b2c3d",
+            40,
+        );
+        let applied = |op: &Operation| Applied {
+            operation: op.clone(),
+            after: None,
+            before: None,
+        };
+        let interrupted = Report {
+            id: "a1".into(),
+            timestamp: String::new(),
+            domain: "lab.test".into(),
+            dc: "dc1".into(),
+            user: String::new(),
+            changeset: Changeset {
+                operations: vec![descriptor.clone(), propagation.clone()],
+                remarks: Vec::new(),
+            },
+            applied: vec![applied(&descriptor)],
+            issue: Issue::Interrupted,
+            error: None,
+            rollback: None,
+            origins: Vec::new(),
+            rollback_applied: Vec::new(),
+            rollback_error: None,
+            doubtful: Some(applied(&propagation)),
+            doubtful_rollback: None,
+            resumes: None,
+            resumed_by: None,
+        };
+        // Still doubtful: nothing to complete.
+        assert!(completion(&interrupted, &interrupted).is_err());
+        assert!(cut_propagation(&interrupted, &interrupted).is_none());
+        // Its backup found: applied, and started again with a backup of its own.
+        let mut settled = interrupted.clone();
+        settled.applied.push(applied(&propagation));
+        settled.doubtful = None;
+        assert_eq!(cut_propagation(&interrupted, &settled), Some(&propagation));
+        let again = completion(&interrupted, &settled).unwrap();
+        let [
+            Operation::PropagateInheritance {
+                backup, direction, ..
+            },
+        ] = again.operations.as_slice()
+        else {
+            panic!("{again:?}")
+        };
+        assert_eq!(*direction, Direction::Compute);
+        assert_ne!(backup, "20261023080000-0a1b2c3d");
+        assert!(crate::propagation::valid_id(backup));
+        // No backup: not applied, the continuation proposes it as it was.
+        let mut not_started = interrupted.clone();
+        not_started.doubtful = None;
+        assert!(cut_propagation(&interrupted, &not_started).is_none());
+        assert_eq!(
+            completion(&interrupted, &not_started).unwrap().operations,
+            vec![propagation.clone()]
+        );
+        // A rewrite starts again from its own backup.
+        let undo = inverse_sysvol(&propagation);
+        let mut rewriting = interrupted.clone();
+        rewriting.changeset.operations = vec![undo.clone()];
+        rewriting.applied.clear();
+        rewriting.doubtful = Some(applied(&undo));
+        let mut settled = rewriting.clone();
+        settled.applied.push(applied(&undo));
+        settled.doubtful = None;
+        assert_eq!(
+            completion(&rewriting, &settled).unwrap().operations,
+            vec![undo]
+        );
+    }
+
+    #[test]
+    fn share_journaled_with_its_registry_values() {
+        let before = ShareSpec {
+            name: "Essai".into(),
+            path: "C:\\srv\\essai".into(),
+            remark: "x".into(),
+            max_uses: u32::MAX,
+            descriptor: None,
+            flags: 0,
+            registry: Some(vec![
+                ("path".into(), "/srv/essai".into()),
+                ("vfs objects".into(), "acl_xattr".into()),
+            ]),
+        };
+        let after = ShareSpec {
+            max_uses: 5,
+            registry: None,
+            ..before.clone()
+        };
+        let op = Operation::change_share("fs1.lab.test", before.clone(), after);
+        // The change starts from the values read with « before ».
+        let Operation::ChangeShare { after, .. } = &op else {
+            panic!()
+        };
+        assert_eq!(after.registry, before.registry);
+        let json = operation_to_json(&op).unwrap();
+        assert_eq!(
+            json["avant"]["registre"],
+            json!([["path", "/srv/essai"], ["vfs objects", "acl_xattr"]])
+        );
+        assert_eq!(operation_from_json(&json).unwrap(), op);
+        // Without a key, the form of J8.6.
+        let plain = Operation::delete_share(
+            "wdc1.win.test",
+            ShareSpec {
+                registry: None,
+                ..before
+            },
+        );
+        let json = operation_to_json(&plain).unwrap();
+        assert!(json["partage"].get("registre").is_none());
+        assert_eq!(operation_from_json(&json).unwrap(), plain);
+        let mut bad = json.clone();
+        bad["partage"]["registre"] = json!([["path"]]);
+        assert!(operation_from_json(&bad).is_err());
+    }
+
+    #[test]
+    fn propagation_journaled_and_inverted() {
+        let op = Operation::propagate_inheritance(
+            "fs1.lab.test",
+            "Commun",
+            "Compta\\2026",
+            true,
+            "20261022120000-0a1b2c3d",
+            3012,
+        );
+        assert_eq!(op.dn(), "\\\\fs1.lab.test\\Commun\\Compta\\2026");
+        assert!(op.is_file_share() && !op.is_ldap() && !op.is_sysvol());
+        let json = operation_to_json(&op).unwrap();
+        assert_eq!(json["type"], "propager_heritage");
+        assert_eq!(json["sens"], "calcul");
+        assert_eq!(operation_from_json(&json).unwrap(), op);
+        // Its inverse writes the backup back, the inverse of that writes it again.
+        let changeset = Changeset {
+            operations: vec![op.clone()],
+            remarks: Vec::new(),
+        };
+        let undo = [inverse_sysvol(&op)];
+        let Operation::PropagateInheritance { direction, .. } = &undo[0] else {
+            panic!()
+        };
+        assert_eq!(*direction, Direction::Undo);
+        let json = operation_to_json(&undo[0]).unwrap();
+        assert_eq!(json["sens"], "annulation");
+        assert_eq!(operation_from_json(&json).unwrap(), undo[0]);
+        // A backup name that is not a file of the folder is refused.
+        let mut bad = operation_to_json(&op).unwrap();
+        bad["sauvegarde"] = "../../.bashrc".into();
+        assert!(operation_from_json(&bad).is_err());
+        let text = preview(&changeset, &English).unwrap();
+        assert!(text.contains("Propagate the inheritance under"), "{text}");
+        assert!(text.contains("3012 elements"), "{text}");
+        assert!(text.contains("replaced by the inherited ones"), "{text}");
+        // A journal of J8.4 has neither « droits » nor « proprietaire »: the DACL alone.
+        assert!(json.get("droits").is_none() && json.get("proprietaire").is_none());
+        // The owner replaced, the DACL left (J8.7): journaled and read back.
+        let owner: Sid = "S-1-5-32-544".parse().unwrap();
+        let op = Operation::propagate_parts(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            false,
+            crate::propagation::Parts {
+                dacl: false,
+                sacl: None,
+                owner: Some(owner),
+            },
+            "20261023120000-0a1b2c3d",
+            12,
+        );
+        let json = operation_to_json(&op).unwrap();
+        assert_eq!(json["droits"], false);
+        assert_eq!(json["proprietaire"], "S-1-5-32-544");
+        assert_eq!(operation_from_json(&json).unwrap(), op);
+        let undo = inverse_sysvol(&op);
+        assert!(
+            matches!(&undo, Operation::PropagateInheritance { parts, .. } if parts.owner == Some(owner))
+        );
+        let mut bad = json.clone();
+        bad["proprietaire"] = "pas un SID".into();
+        assert!(operation_from_json(&bad).is_err());
+        let text = preview(
+            &Changeset {
+                operations: vec![op],
+                remarks: Vec::new(),
+            },
+            &English,
+        )
+        .unwrap();
+        assert!(text.contains("Replace the owner under"), "{text}");
+        assert!(text.contains("S-1-5-32-544"), "{text}");
+        // The auditing entries alone, « replace » on (J8.7).
+        let op = Operation::propagate_parts(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            false,
+            crate::propagation::Parts {
+                dacl: false,
+                sacl: Some(true),
+                owner: None,
+            },
+            "20261023120000-0a1b2c3e",
+            12,
+        );
+        let json = operation_to_json(&op).unwrap();
+        assert_eq!(
+            (json["audit"].clone(), json["remplacer_audit"].clone()),
+            (true.into(), true.into())
+        );
+        assert_eq!(operation_from_json(&json).unwrap(), op);
+        let text = preview(
+            &Changeset {
+                operations: vec![op],
+                remarks: Vec::new(),
+            },
+            &English,
+        )
+        .unwrap();
+        assert!(
+            text.contains("Propagate the auditing entries under"),
+            "{text}"
+        );
     }
 
     #[test]

@@ -523,6 +523,15 @@ fn forms() -> Vec<(&'static str, String)> {
             "attributes: object expected",
             tr("attributes: object expected"),
         ),
+        ("share: object expected", tr("share: object expected")),
+        ("share: registry", tr("share: registry")),
+        ("backup: {}", tr("backup: {a}")),
+        ("propagation: direction", tr("propagation: direction")),
+        ("propagation: owner", tr("propagation: owner")),
+        (
+            "share: {} is not a number",
+            tr("share: {a} is not a number"),
+        ),
         ("array expected: {}", tr("array expected: {a}")),
         ("missing key {}", tr("missing key {a}")),
         ("integer expected: {}", tr("integer expected: {a}")),
@@ -794,7 +803,7 @@ mod tests {
     /// Literals of these sources that are not messages: text written out (records,
     /// preview lines, INF sections, SDDL), expectations, and the two compositions `{}: {}`,
     /// handled by `codec_message` itself.
-    const NOT_MESSAGES: [&str; 35] = [
+    const NOT_MESSAGES: [&str; 36] = [
         ", ",
         "; ",
         " ",
@@ -826,6 +835,7 @@ mod tests {
         "+ {}",
         "{} → {}",
         "LDAP operations are handled by operation_lines",
+        "only operations on shares",
         "{} = {}",
         "{}. {}",
         "     {}",

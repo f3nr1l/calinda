@@ -389,7 +389,7 @@ impl Sheet {
     fn setup(&self, read_only: bool) {
         let imp = self.imp();
         // Escape in the capture phase: a toast shown would take it otherwise, and it would
-        // take two Escape to close the sheet (seen on fedora, J3.5).
+        // take two Escape to close the sheet (seen in J3.5).
         let escape = gtk::ShortcutController::new();
         escape.set_propagation_phase(gtk::PropagationPhase::Capture);
         let weak = self.downgrade();

@@ -1,7 +1,8 @@
 # Using Calinda
 
 Calinda manages an Active Directory or Samba domain from GNOME, without a Windows computer:
-accounts, groups, organizational units, DNS and Group Policy. This guide covers version 1.2.
+accounts, groups, organizational units, DNS, Group Policy, file shares and their permissions.
+This guide covers version 1.3.
 Up to version 1.1, the application was called Annuaire.
 Version française : [utilisation.md](utilisation.md).
 
@@ -13,7 +14,7 @@ already on the system. There is no repository yet; install the file you received
 built yourself (README, section “Construire le RPM”):
 
 ```sh
-sudo dnf install ./calinda-1.2.1-1.fc44.x86_64.rpm
+sudo dnf install ./calinda-1.3.0-1.fc44.x86_64.rpm
 ```
 
 The application appears as “Calinda” in the application menu; from a terminal, the command is
@@ -88,8 +89,8 @@ the selection: enable, disable, unlock, reset the password, move, rename (F2), d
 protect an OU from accidental deletion.
 
 The bottom of the sidebar leads to the domain's other windows, each with its shortcut: DNS
-(Ctrl+D), DNS Health (Shift+Ctrl+D), Group Policy (Ctrl+G), Password Policies (Ctrl+M) and
-Change History (Ctrl+H). They are also in the main menu.
+(Ctrl+D), DNS Health (Shift+Ctrl+D), Group Policy (Ctrl+G), Password Policies (Ctrl+M), Shares
+(Ctrl+P) and Change History (Ctrl+H). They are also in the main menu.
 
 **Properties.** Enter or a double click opens the object's properties: the general, account,
 members or “Member Of” tabs and, depending on the object:
@@ -227,6 +228,141 @@ common preview, and Ctrl+Z undoes the operation (a deleted PSO is recreated with
 and groups it applies to). A PSO created by `samba-tool` or PowerShell is read without loss, and
 an edit writes only what changes. A user's properties show, under “Status”, the password policy
 that applies to the user (`msDS-ResultantPSO`, computed by the domain controller).
+
+**Shares.** Ctrl+P, or “Shares”, opens the shares of a file server of the domain (Samba member
+or domain controller, Windows). The server is chosen from the list of the button next to the
+field: the domain controllers, the computers whose system is a server, and the servers already
+opened under this profile, which Calinda remembers; a DNS name can also be typed, then Enter or
+“Open”. A Samba member server usually does not record its system in the directory:
+Calinda recognises it by its having been joined without declaring one (or by a `cifs/` service
+name) and offers it after the servers, marked “Domain member, operating system not declared”. The list shows, for each shared folder, its path on the server, its comment, its
+share permissions named as Windows names them (“Everyone: Read”, “Domain Users: denied Change”)
+and its options; administrative and special shares (`C$`, `ADMIN$`, `IPC$`, printers) are folded
+apart. Reading goes through the Server service (`srvsvc`) in the encrypted SMB 3 session of the
+ticket, as for the SYSVOL, and the profile option “Allow SMB 2 with signing only” applies. A
+refusal of the server is shown in the window.
+
+The “Permissions” button of a share opens the equivalent of the Windows “Sharing” tab: for each
+group or account, what is allowed and what is denied (Read, Change, Full control). A group or
+account is added by a search in the directory, or Everyone, Authenticated Users and
+Administrators in one click. A share without permissions set means “Everyone: Full control”, on
+Windows as on Samba; the first save sets explicit permissions, and undoing goes back to them.
+The NTFS permissions of the folder apply too: the access granted is the most restrictive of
+both.
+
+Ctrl+N creates a share: name (checked as Windows does), folder on the server, which must exist
+(Calinda does not create it; Samba expects a path such as `C:\srv\shares\Common` for
+`/srv/shares/Common`), comment, connection limit, offline availability and access-based
+enumeration. Enter or the pencil button edits a share, the trash button deletes it: the folder
+and its content stay on the server. Everything goes through the common preview, which names the
+file server, and Ctrl+Z undoes the operation (a deleted share is recreated with its permissions
+and options).
+
+On Samba, share permissions, creation, modification and deletion require the account to hold
+`SeDiskOperatorPrivilege` (`net rpc rights grant`), which domain administrators do not have by
+default. A share of Samba's registry configuration (those of `net conf`, with `registry shares =
+yes` or `include = registry`) is managed in full: its connection limit, its offline availability
+(`csc policy`) and access-based enumeration (`access based share enum`: the share is left out of
+the list of an account its share permissions refuse, where Windows hides the folders and files
+it cannot read) are written to its registry key and take effect at once; its creation, change
+and deletion go through the share commands of the server (`add share command`, `change share
+command`, `delete share command`) when it has them, through the key of the share otherwise.
+Calinda writes only the key of the share at hand (`HKLM\Software\Samba\smbconf\<share>`, never
+the global section), and in that key only these parameters, plus the path, the comment, `read
+only = no` and `guest ok = no` of a share it creates as `net conf addshare` does; Ctrl+Z puts
+the key back as it was. A share defined in smb.conf, which Calinda does not write, keeps its
+options: the dialog says so, and so does Calinda after the write. A Samba domain controller does
+not read its shares from the registry: a share created there without share commands is refused,
+and nothing is left. A read-only profile shows the list without offering any write.
+
+**Folders and NTFS permissions.** The folder button of a share opens its folders in a window of
+their own: the tree on the left, read level by level as it is unfolded, and on the right the
+folder chosen, its path `\\server\share\…` and its files, read only on “Show the Files” (a
+folder may hold thousands). One SMB session serves the whole window; F5 reads again, Escape
+closes.
+
+“Security…” (or the button of a file) opens the equivalent of the Windows “Security” tab: the
+owner, the state of inheritance and each entry, allowed or denied, with its level (Full
+control, Modify, Read & execute, Read, Write, or “Special permissions” and the list of fine
+rights), what it applies to for a folder, and where it comes from: explicit, or inherited from a
+given folder of the share, or from above the share. Groups and accounts are named from the
+directory, and those of the server itself (local groups, `BUILTIN\…`) by the server. An entry
+is added by a search in the directory or in one click (Everyone, Authenticated Users, Users,
+Administrators, CREATOR OWNER); the entry dialog offers the type, “Applies to”, the level, the
+fine rights and “one level only”. An explicit entry is edited or removed; an inherited entry is
+changed on the folder it comes from. “Disable Inheritance…” offers the two choices of Windows:
+convert the inherited entries into explicit ones, or remove them; “Enable Inheritance” computes
+the inherited entries again from the parent folder. For a folder, “Replace all child object
+permission entries…” removes the explicit entries of the descendants and turns their
+inheritance on again.
+
+**Owner.** “Change…”, next to the owner, gives it to oneself, to the Administrators group or to
+an account or group searched in the directory; for a folder, “Replace owner on subcontainers and
+objects” also gives it to everything below, under a folder whose inheritance is disabled too and
+to the elements the account cannot read (which is what then lets it open them). It goes through
+the same count, confirmation, backup and Ctrl+Z as the propagation of inheritance; an element
+that could not be read before has nothing to write back and is reported by the undo. The SMB
+client sends no privilege: the server decides from the account. Taking ownership needs the
+“Take ownership” permission on the element, or the “Take ownership of files or other objects”
+privilege (SeTakeOwnershipPrivilege) on the server; giving it to another account also needs
+“Restore files and directories” (SeRestorePrivilege). Domain administrators hold them on a
+Windows domain controller as on a Samba member where `BUILTIN\Administrators` holds them; a
+refusal says which one is missing.
+
+**Auditing.** The “Auditing” section of the tab shows the auditing entries (SACL) as the
+“Auditing” tab of the advanced security settings of Windows: type (“Success”, “Fail” or “All”),
+principal, rights audited, what the entry applies to and where it comes from. “Kind of Entry”,
+above the search, makes the next entry an auditing entry rather than a permission; an explicit
+entry is edited or removed, the inheritance of the auditing entries is disabled or enabled on
+its own, and for a folder “Replace all child object auditing entries…” does what its
+counterpart does for permissions. Propagation, backup and Ctrl+Z are the same. Reading and
+writing auditing needs the “Manage auditing and security log” privilege (SeSecurityPrivilege)
+on the server; without it, the tab says so and stays usable for the permissions and the owner,
+and nothing else in Calinda asks for the SACL. Samba keeps the auditing entries but does
+nothing with them (it writes no event); a change of the permissions made by an account that
+cannot read the auditing loses, on Samba, its protection (not its entries).
+
+Writing the permissions of a folder propagates nothing on the server, neither on Windows nor on
+Samba: Calinda itself computes again, as Windows does, the inherited entries of each descendant
+whose inheritance is not disabled (and does not go under a folder whose inheritance is, unless
+“Replace” is on). When what the children inherit changes, “Continue…” first counts the folders
+and files concerned and asks for a confirmation that says where their descriptors will be saved
+(`~/.local/state/calinda/propagations/`), before the common preview. While writing, the preview
+shows the progress and a “Stop” button: what is written stays written and saved, “Resume”
+starts the propagation again, which writes only what is not yet up to date. An element refused
+(no right, changed meanwhile) is reported at the end without stopping the others. Ctrl+Z, in
+the folders window as elsewhere, writes the saved descriptors back, each only if it is still as
+the propagation left it, then the permissions of the folder.
+
+A backup still named by the log is never removed, since Ctrl+Z, the history and resuming use it.
+Those whose entry has left the log (it keeps 10 MB and five archives) are removed at start-up
+after 30 days; the delay is set by
+`gsettings set io.github.f3nr1l.Calinda jours-sauvegardes-propagation 90` (0: never). In the
+history, the “Backups of propagations” button tells how many there are and the room they take,
+and removes at once those the log no longer names.
+
+If the application stops during a propagation (forced close, crash), the domain offers to settle
+the change when it opens again: Calinda ascertains from the backup what was written and tells
+how many elements it holds; “Complete” starts the propagation again, which writes only what is
+not yet up to date, “Undo what was done” writes the saved descriptors back.
+
+On Samba, NTFS permissions are faithful only with the `acl_xattr` module; Samba keeps generic
+rights as file rights (a “GA” read back as “FA”), which Calinda takes as identical. With
+`acl_xattr:ignore system acls`, only the Unix owner of an element that has no NT permissions yet
+can write them.
+
+**Effective access.** “Effective Access…”, next to “Security…” in the folders window (or the
+button of a file, or the one of a share in the “Shares” window for its root), tells what an
+account or a group may do on this element, as the Windows “Effective Access” tab. The account
+or group is searched in the directory; Calinda reads its groups (`tokenGroups`, or for a group
+those that hold it), the local groups of the server that count it (through SAMR), the share
+permissions and those of the element, and evaluates them as the server does. The result gives
+the level obtained (share and NTFS combined), then each right, granted or not, with what limits
+it (the share, the NTFS permissions, or both) and the entry that decides on each side: the one
+that grants it, the one that denies it, or none. What is not evaluated is said: unreadable
+local groups, conditional entries, central access policy, integrity label, and always the
+privileges (backup, restore, taking ownership). The identities taken into account are folded
+under the result. Nothing is written.
 
 **Access control entry in SDDL.** In the “Security” tab of the properties, “ACEs and SDDL” view,
 “Add…” opens an input field for an allow or deny entry, simple, object or conditional, in the

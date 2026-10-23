@@ -23,6 +23,19 @@
   <!-- translate="no" : notes de version et nom du développeur hors catalogue. Notes en
        anglais, la langue source depuis la bascule (1.1.0). -->
   <releases>
+    <release version="1.3.0" date="2026-10-23">
+      <description translate="no">
+        <p>File shares and NTFS permissions.</p>
+        <ul>
+          <li>A “Shares” window (Ctrl+P) lists the shares of a Samba or Windows file server of the domain; shares are created, changed and deleted, and their permissions edited as in the “Sharing” tab of Windows.</li>
+          <li>Folders and files of a share, with a “Security” tab like that of Windows: owner, entries and where they come from, inheritance, auditing (SACL) and taking ownership.</li>
+          <li>Inheritance is propagated to the descendants after counting and confirmation, with a backup of the changed descriptors, progress, stop and resume; Ctrl+Z restores them. A propagation cut short by quitting the application is found again when the domain is opened.</li>
+          <li>Effective access of an account or a group, right by right, with what limits it (share or NTFS) and the entry that decides.</li>
+          <li>Samba shares defined in the registry configuration get their connection limit and options written in their key, applied at once.</li>
+          <li>Fixed: on Windows servers, a folder of more than a few hundred files was only partly listed, which already affected the SYSVOL of Windows domain controllers in 1.2.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.2.1" date="2026-10-22">
       <description translate="no">
         <p>Packaging only: a Debian package for Ubuntu 26.04. No change in the application.</p>

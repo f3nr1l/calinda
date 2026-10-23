@@ -16,6 +16,8 @@
 //! `ANNUAIRE_ESSAI_DNS=STEP;;STEP…` runs steps in the DNS window (R4.7, `dns_trial`).
 //! `ANNUAIRE_ESSAI_GPO=STEP;;STEP…` runs steps in the « Group Policy » and « Password
 //! Policies » windows (R4.8, `gpo_trial`).
+//! `ANNUAIRE_ESSAI_PARTAGES=STEP;;STEP…` runs steps in the « Shares » window (J8.2, J8.3,
+//! J8.6, `shares_trial`).
 //! `ANNUAIRE_ESSAI_FOCUS=1` (with `ANNUAIRE_ESSAI_NOEUD`) opens the sheet of the first row
 //! from the table, closes it, then again with the table read anew while the sheet is open,
 //! and writes where the focus went back each time (R4.10, `clavier._Focus`).
@@ -89,6 +91,12 @@ pub fn arm(window: &crate::window::Window) {
         .filter(|a| !a.is_empty())
     {
         gpo_trial(window, steps.split(";;").map(str::to_owned).collect());
+    }
+    if let Some(steps) = std::env::var("ANNUAIRE_ESSAI_PARTAGES")
+        .ok()
+        .filter(|a| !a.is_empty())
+    {
+        shares_trial(window, steps.split(";;").map(str::to_owned).collect());
     }
     if std::env::var_os("ANNUAIRE_ESSAI_FOCUS").is_some() {
         focus_trial(window);
@@ -1437,6 +1445,515 @@ async fn editor_step(g: &crate::gpo::GpoWindow, p: &[&str], start: std::time::In
         other => eprintln!("essai éditeur : étape inconnue {other}"),
     }
     true
+}
+
+/// Steps in the « Shares » window (J8): `domaine|DOMAIN`, `partages` (opened, servers
+/// offered printed), `serveur|NAME` (its list printed, or the error),
+/// `creer|NAME|PATH|COMMENT[|LIMIT|CACHING|ABE]`, `modifier|NAME|COMMENT`,
+/// `options|NAME|LIMIT|CACHING|ABE` (J8.7: limit 0 for none, caching as the index of its
+/// choices, ABE 1 or 0; the note of the options group printed),
+/// `droits|NAME|SID TO ADD|SID TO REMOVE` (either may be empty),
+/// `supprimer|NAME`, `annuler` (Ctrl+Z of the window), `voir-nouveau`, `voir|NAME` (its note
+/// printed) and `voir-droits|NAME` (a dialog left open), `propose|NAME|oui|non` (whether NAME is among the servers offered,
+/// printed; a wrong answer stops the trial), `pause|MS`. Each write goes through the
+/// common preview, applied once verified; the list is printed again after it.
+/// Folders and NTFS permissions (J8.4): `dossiers|NAME` (the window of the share, its tree
+/// printed), `deplier|PATH`, `fichiers|PATH`, `securite|PATH|dossier|fichier` (the tab opened,
+/// its rows printed), then on that tab `ntfs-ajouter|SID|autorise|refus|MASK|SCOPE`,
+/// `ntfs-retirer|SID`, `ntfs-heritage|convertir|supprimer|activer`, `ntfs-remplacer|1|0`,
+/// `ntfs-proprietaire|moi|SID|1` (the owner chosen, 1: « Replace owner on subcontainers and
+/// objects »), `ntfs-dialogue-proprietaire` (the dialog of the owner left open, J8.7),
+/// `ntfs-audit-ajouter|SID|reussite|echec|tout|MASK|SCOPE`, `ntfs-audit-retirer|SID`,
+/// `ntfs-audit-heritage|convertir|supprimer|activer`, `ntfs-audit-remplacer|1|0`,
+/// `ntfs-audit-entree|SID` (the dialog of an auditing entry left open),
+/// `ntfs-entree|SID` (the entry dialog left open), `ntfs-confirmation` (the confirmation of a
+/// propagation left open), `ntfs-continuer[|arreter]` (confirmation of
+/// the propagation answered, preview applied, stopped after the first batch with `arreter`);
+/// `bilan|reprendre|fermer` (the dialog of a propagation stopped), `annuler-dossiers` (Ctrl+Z
+/// of the folders window), `fermer-dialogue`, `sauvegardes` (the backups of propagations
+/// counted, then the history and its dialog of the backups left open, J8.7). Effective access
+/// (J8.5):
+/// `acces|PATH|dossier|fichier|DN[|garder]` (in the folders window) and
+/// `acces-partage|NAME|DN[|garder]` (root of a share): the dialog opened for that account or
+/// group, its lines printed, then closed unless `garder` (left open for the audit).
+fn shares_trial(window: &crate::window::Window, steps: Vec<String>) {
+    let weak = window.downgrade();
+    glib::spawn_future_local(async move {
+        let mut shares: Option<crate::shares::SharesWindow> = None;
+        let mut folders: Option<crate::folders::FoldersWindow> = None;
+        let print = |w: &crate::shares::SharesWindow| {
+            eprintln!("essai partages état : {}", w.trial_state());
+            for line in w.trial_rows() {
+                eprintln!("essai partages ligne : {}", line.replace('\n', " / "));
+            }
+        };
+        // The list read again, and the preview gone: the next step must not find it.
+        let settled = async |w: &crate::shares::SharesWindow| {
+            glib::timeout_future(Duration::from_millis(300)).await;
+            let _ = until(LIMIT, || (w.trial_state() != "chargement").then_some(())).await;
+            let _ = until(LIMIT, || {
+                find::<crate::writes::PreviewDialog>()
+                    .is_none()
+                    .then_some(())
+            })
+            .await;
+        };
+        for step in steps {
+            let Some(window) = weak.upgrade() else { return };
+            let p: Vec<&str> = step.split('|').collect();
+            let arg = |i: usize| p.get(i).copied().unwrap_or_default();
+            let start = std::time::Instant::now();
+            match arg(0) {
+                "domaine" => {
+                    let _ = WidgetExt::activate_action(
+                        &window,
+                        "win.ouvrir-profil",
+                        Some(&arg(1).to_variant()),
+                    );
+                    if until(LIMIT, || window.source()).await.is_none() {
+                        eprintln!("essai partages : domaine non ouvert");
+                        return;
+                    }
+                }
+                "partages" => {
+                    let _ = WidgetExt::activate_action(&window, "win.partages", None);
+                    shares = until(LIMIT, || window.imp_shares()).await;
+                    let Some(w) = shares.as_ref() else { return };
+                    glib::timeout_future(Duration::from_millis(1500)).await;
+                    eprintln!(
+                        "essai partages fenêtre : {} en {:.3} s",
+                        w.trial_state(),
+                        start.elapsed().as_secs_f64()
+                    );
+                    for line in w.trial_servers() {
+                        eprintln!("essai partages serveur : {line}");
+                    }
+                }
+                "propose" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    let name = arg(1).to_lowercase();
+                    let offered = w
+                        .trial_servers()
+                        .iter()
+                        .any(|line| line.split(" | ").next() == Some(name.as_str()));
+                    if offered == (arg(2) == "oui") {
+                        eprintln!(
+                            "essai partages proposé : {name} {}",
+                            if offered { "oui" } else { "non" }
+                        );
+                    } else {
+                        eprintln!(
+                            "essai partages : {name} {}",
+                            if offered {
+                                "proposé à tort (introuvable attendu)"
+                            } else {
+                                "introuvable parmi les serveurs proposés"
+                            }
+                        );
+                        return;
+                    }
+                }
+                "serveur" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.open_server(arg(1));
+                    settled(w).await;
+                    eprintln!(
+                        "essai partages {} lu en {:.3} s",
+                        arg(1),
+                        start.elapsed().as_secs_f64()
+                    );
+                    print(w);
+                    for line in w.trial_servers() {
+                        eprintln!("essai partages serveur : {line}");
+                    }
+                }
+                "creer" | "modifier" | "options" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    let creating = arg(0) == "creer";
+                    w.trial_open((!creating).then(|| arg(1)));
+                    let Some(d) = until(LIMIT, find::<crate::shares::ShareDialog>).await else {
+                        return;
+                    };
+                    // J8.7: the note says whether Samba keeps the options.
+                    eprintln!("essai partages note des options : {:?}", d.trial_note());
+                    let first = if arg(0) == "options" { 2 } else { 4 };
+                    if !arg(first).is_empty() {
+                        let number = |i: usize| arg(i).parse::<u32>().unwrap_or(0);
+                        d.trial_options(number(first), number(first + 1), arg(first + 2) == "1");
+                    }
+                    if creating {
+                        d.trial(Some(arg(1)), Some(arg(2)), Some(arg(3)));
+                    } else if arg(0) == "modifier" {
+                        d.trial(None, None, Some(arg(2)));
+                    } else {
+                        d.trial(None, None, None);
+                    }
+                    if !confirm(start, arg(0)).await {
+                        eprintln!("essai partages problèmes : {}", d.trial_problems());
+                        return;
+                    }
+                    settled(w).await;
+                    print(w);
+                }
+                "droits" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.trial_permissions(arg(1));
+                    let Some(d) = until(LIMIT, find::<crate::shares::PermissionsDialog>).await
+                    else {
+                        return;
+                    };
+                    for line in d.trial_rows() {
+                        eprintln!("essai partages droits avant : {line}");
+                    }
+                    let some = |t: &str| (!t.is_empty()).then(|| t.to_owned());
+                    d.trial(some(arg(2)).as_deref(), some(arg(3)).as_deref(), false);
+                    for line in d.trial_rows() {
+                        eprintln!("essai partages droits après : {line}");
+                    }
+                    d.trial(None, None, true);
+                    if !confirm(start, "droits").await {
+                        return;
+                    }
+                    settled(w).await;
+                    print(w);
+                }
+                "supprimer" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.trial_delete(arg(1));
+                    if !confirm(start, "supprimer").await {
+                        return;
+                    }
+                    settled(w).await;
+                    print(w);
+                }
+                "annuler" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    let _ = WidgetExt::activate_action(w, "partages.annuler-derniere", None);
+                    if !confirm(start, "annuler").await {
+                        return;
+                    }
+                    settled(w).await;
+                    print(w);
+                }
+                // Dialogs left open, for the audit of accessibility.
+                "voir-nouveau" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.trial_open(None);
+                    let shown = until(LIMIT, find::<crate::shares::ShareDialog>).await;
+                    eprintln!("essai partages dialogue : {}", shown.is_some());
+                }
+                // The dialog of an existing share left open, its note printed (J8.7).
+                "voir" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.trial_open(Some(arg(1)));
+                    let shown = until(LIMIT, find::<crate::shares::ShareDialog>).await;
+                    eprintln!(
+                        "essai partages note des options : {:?}",
+                        shown.map(|d| d.trial_note()).unwrap_or_default()
+                    );
+                }
+                "voir-droits" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    w.trial_permissions(arg(1));
+                    let shown = until(LIMIT, find::<crate::shares::PermissionsDialog>).await;
+                    for line in shown.iter().flat_map(|d| d.trial_rows()) {
+                        eprintln!("essai partages droits : {line}");
+                    }
+                }
+                "dossiers" => {
+                    let Some(w) = shares.as_ref() else { return };
+                    folders = w.folders(arg(1));
+                    let Some(f) = folders.as_ref() else { return };
+                    let _ = until(LIMIT, || (f.trial_state() != "chargement").then_some(())).await;
+                    glib::timeout_future(Duration::from_millis(300)).await;
+                    eprintln!(
+                        "essai dossiers {} : {} en {:.3} s",
+                        arg(1),
+                        f.trial_state(),
+                        start.elapsed().as_secs_f64()
+                    );
+                    for line in f.trial_tree() {
+                        eprintln!("essai dossiers arbre : {line}");
+                    }
+                }
+                "deplier" => {
+                    let Some(f) = folders.as_ref() else { return };
+                    let before = f.trial_tree().len();
+                    if !f.trial_select(arg(1)) {
+                        eprintln!("essai dossiers : {} introuvable", arg(1));
+                        return;
+                    }
+                    let _ = until(Duration::from_secs(10), || {
+                        (f.trial_tree().len() != before).then_some(())
+                    })
+                    .await;
+                    eprintln!(
+                        "essai dossiers {} déplié en {:.3} s",
+                        arg(1),
+                        start.elapsed().as_secs_f64()
+                    );
+                    for line in f.trial_tree() {
+                        eprintln!("essai dossiers arbre : {line}");
+                    }
+                }
+                "fichiers" => {
+                    let Some(f) = folders.as_ref() else { return };
+                    if !f.trial_select(arg(1)) {
+                        eprintln!("essai dossiers : {} introuvable", arg(1));
+                        return;
+                    }
+                    f.trial_files();
+                    let _ = until(LIMIT, || {
+                        let (state, _) = f.trial_file_rows();
+                        (state != crate::i18n::tr("Reading…")).then_some(())
+                    })
+                    .await;
+                    let (state, names) = f.trial_file_rows();
+                    eprintln!(
+                        "essai dossiers fichiers de {} en {:.3} s : {state} : {}",
+                        arg(1),
+                        start.elapsed().as_secs_f64(),
+                        names.join(", ")
+                    );
+                }
+                "securite" => {
+                    let Some(f) = folders.as_ref() else { return };
+                    f.open_security(arg(1), arg(2) != "fichier");
+                    let Some(d) = until(LIMIT, || {
+                        find::<crate::file_security::FileSecurityDialog>()
+                            .filter(crate::file_security::FileSecurityDialog::trial_ready)
+                    })
+                    .await
+                    else {
+                        return;
+                    };
+                    eprintln!(
+                        "essai sécurité {} lue en {:.3} s",
+                        arg(1),
+                        start.elapsed().as_secs_f64()
+                    );
+                    for line in d.trial_rows() {
+                        eprintln!("essai sécurité : {line}");
+                    }
+                }
+                step if step.starts_with("ntfs-") => {
+                    let Some(d) = find::<crate::file_security::FileSecurityDialog>() else {
+                        eprintln!("essai sécurité : pas d'onglet ouvert");
+                        return;
+                    };
+                    match step {
+                        "ntfs-ajouter" => d.trial_add(
+                            arg(1),
+                            arg(2) == "refus",
+                            u32::from_str_radix(arg(3).trim_start_matches("0x"), 16).unwrap_or(0),
+                            arg(4).parse().unwrap_or(1),
+                        ),
+                        "ntfs-retirer" => d.trial_remove(arg(1)),
+                        "ntfs-heritage" => d.trial_inheritance(arg(1)),
+                        "ntfs-remplacer" => d.trial_replace(arg(1) != "0"),
+                        "ntfs-proprietaire" => {
+                            d.trial_owner(arg(1), arg(2) == "1");
+                            // « moi » is read in the directory first.
+                            glib::timeout_future(Duration::from_millis(800)).await;
+                        }
+                        "ntfs-audit-ajouter" => d.trial_add_audit(
+                            arg(1),
+                            arg(2),
+                            u32::from_str_radix(arg(3).trim_start_matches("0x"), 16).unwrap_or(0),
+                            arg(4).parse().unwrap_or(1),
+                        ),
+                        "ntfs-audit-retirer" => d.trial_remove_audit(arg(1)),
+                        "ntfs-audit-heritage" => d.trial_audit_inheritance(arg(1)),
+                        "ntfs-audit-remplacer" => d.trial_audit_replace(arg(1) != "0"),
+                        "ntfs-audit-entree" => {
+                            d.trial_open_audit_entry(arg(1));
+                            let shown =
+                                until(LIMIT, find::<crate::file_security::FileAceDialog>).await;
+                            eprintln!("essai sécurité entrée d'audit : {}", shown.is_some());
+                            continue;
+                        }
+                        "ntfs-dialogue-proprietaire" => {
+                            d.trial_open_owner();
+                            let shown =
+                                until(LIMIT, find::<crate::file_security::OwnerDialog>).await;
+                            eprintln!("essai sécurité propriétaire : {}", shown.is_some());
+                            continue;
+                        }
+                        "ntfs-entree" => {
+                            d.trial_open_entry(arg(1));
+                            let shown =
+                                until(LIMIT, find::<crate::file_security::FileAceDialog>).await;
+                            eprintln!("essai sécurité entrée : {}", shown.is_some());
+                            continue;
+                        }
+                        "ntfs-confirmation" => {
+                            // The confirmation of a propagation left open (audit).
+                            d.trial_proceed();
+                            let n = until(Duration::from_secs(60), || d.trial_confirmation()).await;
+                            eprintln!("essai sécurité confirmation : {n:?}");
+                            continue;
+                        }
+                        "ntfs-continuer" => {
+                            d.trial_proceed();
+                            // A propagation asks its confirmation first.
+                            let counted = until(Duration::from_secs(60), || {
+                                d.trial_confirmation()
+                                    .or_else(|| find::<crate::writes::PreviewDialog>().map(|_| 0))
+                            })
+                            .await;
+                            if let Some(n) = counted.filter(|n| *n > 0) {
+                                eprintln!(
+                                    "essai sécurité confirmation : {n} éléments en {:.3} s",
+                                    start.elapsed().as_secs_f64()
+                                );
+                                d.trial_confirm(true);
+                            }
+                            if !confirm(start, "ntfs").await {
+                                return;
+                            }
+                            if arg(1) == "arreter" {
+                                let preview = find::<crate::writes::PreviewDialog>();
+                                if let Some(p) = preview {
+                                    let _ = until(LIMIT, || {
+                                        p.trial_progress().filter(|t| {
+                                            t.starts_with(|c: char| c.is_ascii_digit())
+                                                && !t.starts_with("0 ")
+                                        })
+                                    })
+                                    .await;
+                                    p.trial_stop();
+                                    eprintln!("essai sécurité : arrêt demandé");
+                                }
+                            }
+                            let _ = until(LIMIT, || {
+                                find::<crate::writes::PreviewDialog>()
+                                    .is_none()
+                                    .then_some(())
+                            })
+                            .await;
+                            eprintln!(
+                                "essai sécurité écrite en {:.3} s",
+                                start.elapsed().as_secs_f64()
+                            );
+                            glib::timeout_future(Duration::from_millis(300)).await;
+                            continue;
+                        }
+                        _ => eprintln!("essai sécurité : étape inconnue {step}"),
+                    }
+                    for line in d.trial_rows() {
+                        eprintln!("essai sécurité : {line}");
+                    }
+                }
+                "bilan" => {
+                    // The dialog of a propagation stopped or refused: printed, then answered.
+                    let alert = until(Duration::from_secs(5), find::<adw::AlertDialog>).await;
+                    match alert {
+                        Some(a) => {
+                            eprintln!(
+                                "essai bilan propagation : {} | {}",
+                                adw::prelude::AlertDialogExt::heading(&a).unwrap_or_default(),
+                                adw::prelude::AlertDialogExt::body(&a)
+                            );
+                            a.emit_by_name::<()>("response", &[&arg(1)]);
+                            adw::prelude::AdwDialogExt::force_close(&a);
+                            if arg(1) == "reprendre" && !confirm(start, "reprise").await {
+                                return;
+                            }
+                            let _ = until(LIMIT, || {
+                                find::<crate::writes::PreviewDialog>()
+                                    .is_none()
+                                    .then_some(())
+                            })
+                            .await;
+                        }
+                        None => eprintln!("essai bilan propagation : aucun dialogue"),
+                    }
+                }
+                // Effective access (J8.5): of DN to PATH of the share opened by `dossiers`,
+                // or to the root of the share NAME.
+                "acces" | "acces-partage" => {
+                    let dialog = if arg(0) == "acces" {
+                        let Some(f) = folders.as_ref() else { return };
+                        Some(f.open_access(arg(1), arg(2) != "fichier"))
+                    } else {
+                        shares.as_ref().and_then(|w| w.access(arg(1)))
+                    };
+                    let Some(d) = dialog else { return };
+                    d.choose(arg(if arg(0) == "acces" { 3 } else { 2 }));
+                    if until(LIMIT, || d.trial_done().then_some(()))
+                        .await
+                        .is_none()
+                    {
+                        eprintln!("essai accès : pas de résultat");
+                        return;
+                    }
+                    eprintln!(
+                        "essai accès {} lu en {:.3} s",
+                        arg(1),
+                        start.elapsed().as_secs_f64()
+                    );
+                    for line in d.trial_lines() {
+                        eprintln!("essai accès : {line}");
+                    }
+                    if arg(4) != "garder" && p.last() != Some(&"garder") {
+                        adw::prelude::AdwDialogExt::close(&d);
+                    }
+                }
+                "annuler-dossiers" => {
+                    let Some(f) = folders.as_ref() else { return };
+                    let _ = WidgetExt::activate_action(f, "dossiers.annuler-derniere", None);
+                    if !confirm(start, "annuler").await {
+                        return;
+                    }
+                    let _ = until(LIMIT, || {
+                        find::<crate::writes::PreviewDialog>()
+                            .is_none()
+                            .then_some(())
+                    })
+                    .await;
+                    eprintln!(
+                        "essai dossiers annulation en {:.3} s",
+                        start.elapsed().as_secs_f64()
+                    );
+                }
+                "sauvegardes" => {
+                    let Some(context) = window.write_context() else {
+                        return;
+                    };
+                    let journal = context.journal.clone();
+                    let stored = annuaire_core::propagation::inventory(None, || {
+                        annuaire_core::writer::read_journal(&journal)
+                    })
+                    .unwrap_or_default();
+                    eprintln!(
+                        "essai sauvegardes : {} dont {} nommées par le journal",
+                        stored.len(),
+                        stored.iter().filter(|s| s.referenced).count()
+                    );
+                    let history = crate::history::HistoryDialog::new(context);
+                    adw::prelude::AdwDialogExt::present(&history, Some(&window));
+                    history.trial_backups();
+                }
+                "fermer-dialogue" => {
+                    if let Some(d) = find::<crate::file_security::FileAceDialog>() {
+                        adw::prelude::AdwDialogExt::close(&d);
+                    }
+                    if let Some(d) = find::<crate::file_security::OwnerDialog>() {
+                        adw::prelude::AdwDialogExt::close(&d);
+                    }
+                    if let Some(d) = find::<crate::file_security::FileSecurityDialog>() {
+                        adw::prelude::AdwDialogExt::close(&d);
+                    }
+                }
+                "pause" => {
+                    let ms = arg(1).parse().unwrap_or(1000);
+                    glib::timeout_future(Duration::from_millis(ms)).await;
+                }
+                other => eprintln!("essai partages : étape inconnue {other}"),
+            }
+        }
+        eprintln!("essai partages fin");
+    });
 }
 
 /// Steps in the « Group Policy » window (R4.8): `domaine|DOMAIN`, `gpo` (opened, tree

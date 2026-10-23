@@ -1,0 +1,315 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Onglet « Sécurité » d'un dossier ou d'un fichier d'un partage (ADR 0023 § 5, J8.4), comme
+// celui de Windows : propriétaire (« Modifier » : soi-même, Administrateurs ou un compte de
+// l'annuaire ; pour un dossier, « Remplacer le propriétaire des sous-conteneurs et des objets »,
+// J8.7), état de l'héritage (désactiver en convertissant ou en
+// retirant les entrées héritées, réactiver), entrées autorisées et refusées avec ce qu'elles
+// accordent, ce à quoi elles s'appliquent et d'où elles viennent ; ajout d'une entrée par
+// recherche dans l'annuaire ou d'une identité bien connue, modification et retrait des
+// entrées explicites ; pour un dossier, « Remplacer toutes les autorisations des objets
+// enfants » ; l'audit (SACL, J8.7) : entrées de réussite et d'échec, leur héritage et leur
+// remplacement chez les enfants, ou pourquoi le compte ne peut pas les lire. Lignes
+// construites par file_security.rs ; « Continuer » compte les descendants
+// et demande confirmation si l'héritage doit être propagé, puis mène à l'aperçu commun.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueSecuriteNtfs: Adw.Dialog {
+  title: _("Security");
+  content-width: 760;
+  content-height: 760;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Security");
+      };
+    }
+
+    content: Stack state {
+      transition-type: crossfade;
+
+      StackPage {
+        name: "chargement";
+
+        child: Spinner {
+          spinning: true;
+          halign: center;
+          valign: center;
+          width-request: 32;
+          height-request: 32;
+        };
+      }
+
+      StackPage {
+        name: "erreur";
+
+        child: Adw.StatusPage error {
+          icon-name: "dialog-warning-symbolic";
+        };
+      }
+
+      StackPage {
+        name: "contenu";
+
+        child: Adw.PreferencesPage {
+          Adw.PreferencesGroup {
+            Adw.ActionRow owner_row {
+              title: _("Owner");
+              subtitle-selectable: true;
+
+              styles [
+                "property",
+              ]
+
+              [suffix]
+              Button owner_button {
+                label: _("Change…");
+                valign: center;
+                clicked => $owner();
+
+                accessibility {
+                  label: _("Change the owner");
+                }
+              }
+            }
+
+            Adw.ActionRow inheritance_row {
+              title: _("Inheritance");
+              subtitle-lines: 0;
+
+              styles [
+                "property",
+              ]
+
+              [suffix]
+              Button inheritance_button {
+                valign: center;
+                clicked => $inheritance();
+              }
+            }
+          }
+
+          Adw.PreferencesGroup {
+            title: _("Permissions");
+            description: _("A denial wins over an allowance. The explicit entries come first, then those inherited; an inherited entry is changed on the folder it comes from.");
+
+            ListBox entries_list {
+              selection-mode: none;
+
+              accessibility {
+                label: _("Permission entries");
+              }
+
+              styles [
+                "boxed-list",
+              ]
+            }
+
+            Label nobody_label {
+              label: _("No entry: nobody but the owner can open this element.");
+              xalign: 0;
+              wrap: true;
+              visible: false;
+
+              styles [
+                "warning",
+              ]
+            }
+          }
+
+          Adw.PreferencesGroup audit_group {
+            title: _("Auditing");
+            description: _("Each entry has the server write an event in its Security log when the access it names succeeds or fails.");
+
+            Label audit_unavailable {
+              xalign: 0;
+              wrap: true;
+              visible: false;
+
+              styles [
+                "warning",
+              ]
+            }
+
+            Adw.ActionRow audit_inheritance_row {
+              title: _("Inheritance of the Auditing Entries");
+              subtitle-lines: 0;
+
+              styles [
+                "property",
+              ]
+
+              [suffix]
+              Button audit_inheritance_button {
+                valign: center;
+                clicked => $audit_inheritance();
+              }
+            }
+
+            ListBox audit_list {
+              selection-mode: none;
+              margin-top: 6;
+
+              accessibility {
+                label: _("Auditing entries");
+              }
+
+              styles [
+                "boxed-list",
+              ]
+            }
+
+            Label audit_none {
+              label: _("No auditing entry.");
+              xalign: 0;
+              visible: false;
+              margin-top: 6;
+
+              styles [
+                "dim-label",
+              ]
+            }
+          }
+
+          Adw.PreferencesGroup add_group {
+            title: _("Add an Entry");
+
+            Adw.ComboRow kind_row {
+              title: _("Kind of Entry");
+              use-subtitle: true;
+
+              model: StringList {
+                strings [
+                  _("Permission"),
+                  _("Auditing"),
+                ]
+              };
+            }
+
+            Box {
+              spacing: 6;
+
+              Button {
+                label: _("Everyone");
+                clicked => $add_everyone();
+              }
+
+              Button {
+                label: _("Authenticated Users");
+                clicked => $add_authenticated();
+              }
+
+              Button {
+                label: _("Users");
+                clicked => $add_users();
+              }
+
+              Button {
+                label: _("Administrators");
+                clicked => $add_administrators();
+              }
+
+              Button creator_button {
+                label: _("CREATOR OWNER");
+                clicked => $add_creator();
+              }
+            }
+
+            SearchEntry principal_entry {
+              placeholder-text: _("Name or logon name of the group or account to add");
+              margin-top: 12;
+              margin-bottom: 6;
+              search-changed => $search();
+
+              accessibility {
+                label: _("Search for the group or account to add");
+              }
+            }
+
+            ListBox candidates_list {
+              selection-mode: none;
+              visible: false;
+
+              accessibility {
+                label: _("Groups and accounts found");
+              }
+
+              styles [
+                "boxed-list",
+              ]
+            }
+
+            Label candidates_count {
+              xalign: 0;
+              wrap: true;
+              margin-top: 6;
+
+              styles [
+                "dim-label",
+              ]
+            }
+          }
+
+          Adw.PreferencesGroup children_group {
+            title: _("Subfolders and Files");
+
+            Adw.SwitchRow owner_replace_switch {
+              title: _("Replace owner on subcontainers and objects");
+              title-lines: 0;
+              notify::active => $changed();
+            }
+
+            Adw.SwitchRow replace_switch {
+              title: _("Replace all child object permission entries with inheritable permission entries from this object");
+              title-lines: 0;
+              notify::active => $changed();
+            }
+
+            Adw.SwitchRow audit_replace_switch {
+              title: _("Replace all child object auditing entries with inheritable auditing entries from this object");
+              title-lines: 0;
+              notify::active => $changed();
+            }
+          }
+
+          Adw.PreferencesGroup problems_group {
+            visible: false;
+
+            Label problems {
+              xalign: 0;
+              wrap: true;
+
+              styles [
+                "error",
+              ]
+            }
+          }
+        };
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button continue_button {
+        label: _("Continue…");
+        sensitive: false;
+        clicked => $next();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

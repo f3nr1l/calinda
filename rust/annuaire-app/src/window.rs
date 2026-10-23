@@ -135,6 +135,7 @@ mod imp {
         /// The « Group Policy » and « Password Policies » windows, one at a time each.
         pub gpo: RefCell<Option<crate::gpo::GpoWindow>>,
         pub pso: RefCell<Option<crate::pso::PsoWindow>>,
+        pub shares: RefCell<Option<crate::shares::SharesWindow>>,
         /// Keyboard focus (`_Focus`): zone (table, tree) the visible dialog was opened from,
         /// and zone of the last focus known.
         pub focus_zone: RefCell<Option<gtk::Widget>>,
@@ -281,7 +282,7 @@ impl Window {
 
     fn install_actions(&self) {
         type Handler = fn(&Window, Option<String>);
-        let actions: [(&str, bool, Handler); 16] = [
+        let actions: [(&str, bool, Handler); 17] = [
             ("rechercher", false, |w, _| w.focus_search()),
             // Menu entry « Undo the last change… » (`clavier.annuler_derniere`).
             ("annuler-derniere", false, |w, _| {
@@ -292,6 +293,9 @@ impl Window {
             }),
             ("pso", false, |w, _| {
                 w.open_pso();
+            }),
+            ("partages", false, |w, _| {
+                w.open_shares();
             }),
             ("historique", false, |w, _| w.show_history()),
             ("dns", false, |w, _| {
@@ -351,6 +355,7 @@ impl Window {
             ("<Shift><Control>d", "win.sante-dns", "domaine"),
             ("<Control>g", "win.gpo", "domaine"),
             ("<Control>m", "win.pso", "domaine"),
+            ("<Control>p", "win.partages", "domaine"),
         ] {
             let weak = self.downgrade();
             let callback = gtk::CallbackAction::new(move |_, _| {
@@ -458,6 +463,69 @@ impl Window {
     /// The « Password Policies » window, if open (trials).
     pub fn imp_pso(&self) -> Option<crate::pso::PsoWindow> {
         self.imp().pso.borrow().clone()
+    }
+
+    /// « Shares » window of the open domain (J8.2), one at a time.
+    fn open_shares(&self) -> Option<crate::shares::SharesWindow> {
+        let source = self.source()?;
+        let imp = self.imp();
+        let current = imp.shares.borrow().clone();
+        let window = match current {
+            Some(w) if std::ptr::addr_eq(Arc::as_ptr(w.source()), Arc::as_ptr(&source)) => w,
+            other => {
+                if let Some(old) = other {
+                    old.close();
+                }
+                let w = crate::shares::SharesWindow::new(source, self);
+                let weak = self.downgrade();
+                w.connect_close_request(move |closed| {
+                    if let Some(window) = weak.upgrade() {
+                        let mut kept = window.imp().shares.borrow_mut();
+                        if kept.as_ref() == Some(closed) {
+                            kept.take();
+                        }
+                    }
+                    glib::Propagation::Proceed
+                });
+                *imp.shares.borrow_mut() = Some(w.clone());
+                w
+            }
+        };
+        window.present();
+        Some(window)
+    }
+
+    /// The « Shares » window, if open (trials).
+    pub fn imp_shares(&self) -> Option<crate::shares::SharesWindow> {
+        self.imp().shares.borrow().clone()
+    }
+
+    /// The file servers opened under the profile of `domain` (ADR 0023 § 2), in the order of
+    /// their first opening.
+    pub fn file_servers(&self, domain: &str) -> Vec<String> {
+        self.store()
+            .list()
+            .into_iter()
+            .find(|p| p.domain == domain)
+            .map(|p| p.file_servers)
+            .unwrap_or_default()
+    }
+
+    /// Keeps `server` among the file servers of the profile of `domain`.
+    pub fn remember_file_server(&self, domain: &str, server: &str) {
+        let store = self.store();
+        let Some(mut profile) = store.list().into_iter().find(|p| p.domain == domain) else {
+            return;
+        };
+        if profile
+            .file_servers
+            .iter()
+            .any(|s| s.eq_ignore_ascii_case(server))
+        {
+            return;
+        }
+        profile.file_servers.push(server.to_lowercase());
+        store.save(&profile);
     }
 
     /// DNS window of the open domain (J3.3), one at a time (`ouvrir_dns`).

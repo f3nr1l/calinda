@@ -2,9 +2,65 @@
 
 Ce journal retient ce qui change pour l'utilisateur d'une version à l'autre.
 
+## 1.3.0 — 2026-10-23
+
+Calinda gère désormais les partages des serveurs de fichiers du domaine, Samba ou Windows, et
+les droits NTFS de leurs dossiers et fichiers, comme le font les onglets « Partage »,
+« Sécurité », « Audit » et « Accès effectif » de Windows (ADR 0023). Toute
+écriture passe par l'aperçu commun, le journal et Ctrl+Z. Notes de version : [docs/notes-1.3.0.md](docs/notes-1.3.0.md).
+
+- Fenêtre « Partages » (Ctrl+P) : les partages d'un serveur de fichiers du domaine, avec chemin,
+  commentaire, droits de partage en clair et options ; le serveur se choisit parmi les
+  contrôleurs et serveurs de l'annuaire et ceux déjà ouverts, que le profil retient, ou se
+  saisit. Les autorisations d'un partage se modifient comme dans l'onglet « Partage » de
+  Windows ; un partage se crée, se modifie et se supprime (le dossier reste).
+- La fenêtre « Partages » propose aussi les serveurs Samba membres, qui n'inscrivent pas leur
+  système dans l'annuaire : un ordinateur joint sans système déclaré, ou qui porte un SPN
+  `cifs/`, est tenu pour un serveur de fichiers ; les postes de travail restent à l'écart.
+- Partages Samba de la configuration en registre (`net conf`) : la limite de connexions, la
+  disponibilité hors connexion et l'énumération basée sur l'accès s'écrivent dans la clé du
+  partage et prennent effet aussitôt, au lieu d'être gardées par Samba ; la création, la
+  modification et la suppression passent par cette clé quand le serveur n'a pas de commandes de
+  partage. Calinda n'écrit que la clé du partage et ces paramètres, Ctrl+Z la remet comme elle
+  était ; un partage défini dans smb.conf garde ses options, comme le dialogue l'annonce.
+- Dossiers et droits NTFS d'un partage : arborescence lue à la demande, fichiers sur demande,
+  onglet « Sécurité » comme celui de Windows (propriétaire, entrées et leur provenance, ajout,
+  modification, retrait, héritage désactivé ou réactivé, remplacement des autorisations des
+  enfants), groupes locaux du serveur nommés par le serveur. La propagation de l'héritage aux
+  descendants est faite par Calinda comme par Windows, après comptage et confirmation, avec
+  sauvegarde des descripteurs modifiés, progression, arrêt et reprise ; Ctrl+Z remet les
+  descripteurs sauvegardés. Elle tient 100 000 éléments sans que la mémoire croisse (environ
+  2 000 éléments par seconde), et passe aussi en SMB 2.1 signé quand le profil l'autorise.
+- Une propagation coupée par un arrêt de l'application est constatée d'après sa sauvegarde à
+  la réouverture du domaine, et proposée à la reprise (« Terminer » la relance et n'écrit que ce
+  qui manque) ou à l'annulation.
+- Sauvegardes des propagations : celles que le journal nomme encore sont gardées, les autres
+  sont retirées au lancement après 30 jours (clé `jours-sauvegardes-propagation`) ou tout de
+  suite depuis l'historique, qui dit la place qu'elles prennent.
+- Prise de possession dans l'onglet « Sécurité » d'un dossier ou d'un fichier : « Modifier… » à
+  côté du propriétaire (soi-même, Administrateurs, ou un compte ou un groupe de l'annuaire) et,
+  pour un dossier, « Remplacer le propriétaire des sous-conteneurs et des objets », avec la
+  sauvegarde, l'arrêt, la reprise et Ctrl+Z de la propagation ; un refus dit quel privilège
+  manque sur le serveur.
+- Audit (SACL) dans l'onglet « Sécurité » : entrées de réussite et d'échec comme l'onglet
+  « Audit » de Windows, ajout, modification, retrait, héritage et remplacement chez les enfants,
+  propagés et annulables comme les autorisations ; sans le privilège SeSecurityPrivilege,
+  l'onglet le dit et reste utilisable, et aucune autre lecture ne demande l'audit.
+- Accès effectif d'un compte ou d'un groupe à un dossier, un fichier ou la racine d'un partage :
+  chaque droit, accordé ou non, avec ce qui le limite (partage, droits NTFS) et l'entrée qui en
+  décide, comme l'onglet « Accès effectif » de Windows ; groupes de l'annuaire et groupes locaux
+  du serveur pris en compte. Sur un serveur membre, les groupes intégrés (`BUILTIN\…`) sont
+  ceux du serveur, lus par SAMR, et non ceux des contrôleurs de domaine que l'annuaire rend
+  avec les groupes du compte.
+- Correction : sur un serveur Windows, un dossier de plus de quelques centaines de fichiers
+  n'était lu qu'en partie, Windows ne remplissant pas sa réponse alors qu'il restait des noms.
+  Les versions 1.2 en souffraient déjà pour le SYSVOL des contrôleurs Windows (un magasin
+  central ou un dossier de GPO très fourni). Le dossier est désormais relu jusqu'au dernier nom,
+  dans le SYSVOL comme dans les dossiers des partages.
+
 ## 1.2.1 — 2026-10-22
 
-- Paquet Debian pour Ubuntu 26.04 : `meson dist` embarque le répertoire `debian/`, et
+- Paquet Debian pour Ubuntu 26.04 : `meson dist` embarque le répertoire `debian/`, et
   `build-aux/construire-deb.sh` construit le `.deb` dans un conteneur.
 - Aucun changement dans l'application.
 

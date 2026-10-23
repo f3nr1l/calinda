@@ -1,0 +1,89 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Choix du propriétaire d'un dossier ou d'un fichier (ADR 0023 § 5, J8.7), comme le bouton
+// « Modifier » à côté du propriétaire dans les paramètres de sécurité avancés de Windows :
+// soi-même, le groupe Administrateurs, ou un compte ou un groupe cherché dans l'annuaire.
+// Construit par file_security.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueProprietaireNtfs: Adw.Dialog {
+  title: _("Owner");
+  content-width: 560;
+  content-height: 620;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Owner");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Select a User or Group");
+
+        Adw.ActionRow myself_row {
+          title: _("Myself");
+          activatable: true;
+          activated => $myself();
+        }
+
+        Adw.ActionRow administrators_row {
+          title: _("Administrators");
+          subtitle: "BUILTIN\\Administrators (S-1-5-32-544)";
+          activatable: true;
+          activated => $administrators();
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Another Account or Group");
+
+        SearchEntry principal_entry {
+          placeholder-text: _("Name or logon name of the account or group");
+          search-changed => $search();
+
+          accessibility {
+            label: _("Search for the account or group that becomes the owner");
+          }
+        }
+
+        ListBox candidates_list {
+          selection-mode: none;
+          visible: false;
+          margin-top: 6;
+
+          accessibility {
+            label: _("Groups and accounts found");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+
+        Label candidates_count {
+          xalign: 0;
+          wrap: true;
+          margin-top: 6;
+
+          styles [
+            "dim-label",
+          ]
+        }
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+    }
+  };
+}

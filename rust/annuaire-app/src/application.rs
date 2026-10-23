@@ -28,6 +28,8 @@ pub fn run() -> glib::ExitCode {
     });
     application.add_action(&help);
     application.set_accels_for_action("app.shortcuts", &["<Control>question"]);
+    // Primary instance only, before the first window opens.
+    application.connect_startup(|_| crate::history::purge_old_backups(&config::settings()));
     application.connect_activate(|application| {
         let window = application.active_window().unwrap_or_else(|| {
             let window = Window::new(application);

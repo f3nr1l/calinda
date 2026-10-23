@@ -1,0 +1,215 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Dossiers d'un partage et leurs droits NTFS (ADR 0023 § 5, J8.4) : l'arborescence des
+// dossiers, lue niveau par niveau à mesure qu'on la déplie, et, pour le dossier choisi, son
+// chemin, l'onglet « Sécurité » et ses fichiers, lus à la demande. Lignes construites par
+// folders.rs ; l'onglet « Sécurité » est le dialogue de file_security.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDossiers: Adw.Window {
+  title: _("Folders and NTFS Permissions");
+  default-width: 1000;
+  default-height: 680;
+  width-request: 360;
+  height-request: 294;
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {
+          title: _("Folders and NTFS Permissions");
+        };
+
+        [end]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Read Again (F5)");
+          action-name: "dossiers.actualiser";
+
+          accessibility {
+            label: _("Read Again");
+          }
+        }
+      }
+
+      content: Stack state {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "chargement";
+
+          child: Spinner {
+            spinning: true;
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        }
+
+        StackPage {
+          name: "erreur";
+
+          child: Adw.StatusPage error {
+            icon-name: "dialog-warning-symbolic";
+
+            child: Button {
+              label: _("Read Again");
+              halign: center;
+              action-name: "dossiers.actualiser";
+
+              styles [
+                "pill",
+              ]
+            };
+          };
+        }
+
+        StackPage {
+          name: "contenu";
+
+          child: Paned {
+            position: 320;
+            shrink-start-child: false;
+            shrink-end-child: false;
+
+            start-child: ScrolledWindow {
+              hscrollbar-policy: never;
+              width-request: 220;
+
+              child: ListView tree {
+                tab-behavior: item;
+
+                accessibility {
+                  label: _("Folders of the share");
+                }
+
+                styles [
+                  "navigation-sidebar",
+                ]
+
+                model: SingleSelection tree_selection {
+                  autoselect: true;
+                  notify::selected-item => $selected();
+                };
+
+                factory: BuilderListItemFactory {
+                  template ListItem {
+                    accessible-label: bind template.item as <TreeListRow>.item as <$AnnuaireDossierNtfs>.nom;
+
+                    child: TreeExpander {
+                      list-row: bind template.item;
+
+                      child: Box {
+                        spacing: 8;
+
+                        Image {
+                          icon-name: "folder-symbolic";
+                        }
+
+                        Label {
+                          xalign: 0;
+                          ellipsize: end;
+                          label: bind template.item as <TreeListRow>.item as <$AnnuaireDossierNtfs>.nom;
+                        }
+                      };
+                    };
+                  }
+                };
+              };
+            };
+
+            end-child: Adw.PreferencesPage {
+              Adw.PreferencesGroup {
+                title: _("Folder");
+
+                Adw.ActionRow folder_row {
+                  title-lines: 0;
+                  subtitle-lines: 0;
+
+                  styles [
+                    "property",
+                  ]
+
+                  [suffix]
+                  Button security_button {
+                    label: _("Security…");
+                    valign: center;
+                    clicked => $security();
+
+                    accessibility {
+                      description: _("Owner, permissions and inheritance of this folder");
+                    }
+                  }
+
+                  [suffix]
+                  Button access_button {
+                    label: _("Effective Access…");
+                    valign: center;
+                    clicked => $access();
+
+                    accessibility {
+                      description: _("What an account or a group may do in this folder, through the share and the NTFS permissions");
+                    }
+                  }
+                }
+
+                Label folder_problem {
+                  xalign: 0;
+                  wrap: true;
+                  visible: false;
+                  margin-top: 6;
+
+                  styles [
+                    "error",
+                  ]
+                }
+              }
+
+              Adw.PreferencesGroup files_group {
+                title: _("Files of the folder");
+
+                [header-suffix]
+                Button files_button {
+                  label: _("Show the Files");
+                  valign: center;
+                  clicked => $files();
+
+                  styles [
+                    "flat",
+                  ]
+                }
+
+                ListBox files_list {
+                  selection-mode: none;
+                  visible: false;
+
+                  accessibility {
+                    label: _("Files of the folder");
+                  }
+
+                  styles [
+                    "boxed-list",
+                  ]
+                }
+
+                Label files_state {
+                  xalign: 0;
+                  wrap: true;
+                  label: _("The files are read when asked: a folder may hold thousands.");
+
+                  styles [
+                    "dim-label",
+                  ]
+                }
+              }
+            };
+          };
+        }
+      };
+    };
+  };
+}

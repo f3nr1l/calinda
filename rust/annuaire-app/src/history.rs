@@ -13,19 +13,20 @@
 //! When a domain opens, `propose_resume` looks for the applications interrupted by an abrupt
 //! stop or left incomplete (`to_resume`), reads the directory to settle the doubtful
 //! operations (`ascertain`), then proposes to undo (`inverse`) or to complete
-//! (`continuation`); each choice goes through the preview.
+//! (`completion`: a propagation cut by the stop starts again, then the operations not done);
+//! each choice goes through the preview.
 
 use std::sync::Arc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use annuaire_core::changes::{self, Report};
-use annuaire_core::writer;
+use annuaire_core::{propagation, writer};
 use gtk::{gio, glib};
 
 use crate::catalog::AppCatalog;
 use crate::errors;
-use crate::i18n::{fill, tr};
+use crate::i18n::{fill, tr, tr_n};
 use crate::preview_views::{self as pv, HistoryEntry};
 use crate::writes::{self, Options, WriteContext};
 
@@ -139,6 +140,10 @@ mod imp {
                     d.undo();
                     None
                 }),
+                ("backups", |d, _| {
+                    super::manage_backups(d);
+                    None
+                }),
             ]));
         }
 
@@ -233,6 +238,11 @@ impl HistoryDialog {
         );
     }
 
+    /// « Backups of propagations » (trials).
+    pub fn trial_backups(&self) {
+        manage_backups(self);
+    }
+
     /// Selects the first entry and undoes it (trials).
     pub fn trial_undo_first(&self) -> bool {
         self.imp().selection.set_selected(0);
@@ -280,6 +290,143 @@ pub fn undo_last(window: &impl IsA<gtk::Widget>) {
     );
 }
 
+// --- Backups of the propagations -----------------------------------------------------------
+
+fn megabytes(bytes: u64) -> String {
+    format!("{:.1}", bytes as f64 / 1_048_576.0)
+}
+
+/// At the start, in a thread of its own: removes the backups of propagation the journal no
+/// longer names and older than the retention of the settings (`jours-sauvegardes-propagation`,
+/// 0: none removed). A failure is left for the next start.
+pub fn purge_old_backups(settings: &gio::Settings) {
+    let days = u64::try_from(settings.int("jours-sauvegardes-propagation")).unwrap_or(0);
+    if days == 0 {
+        return;
+    }
+    std::thread::spawn(move || {
+        let journal = annuaire_core::journal::Journal::new(
+            None,
+            annuaire_core::journal::MAX_SIZE,
+            annuaire_core::journal::ARCHIVES,
+        );
+        let Ok(stored) = propagation::inventory(None, || writer::read_journal(&journal)) else {
+            return;
+        };
+        let _ = propagation::purge(
+            None,
+            &stored,
+            std::time::Duration::from_secs(days * 86_400),
+            std::time::SystemTime::now(),
+        );
+    });
+}
+
+/// « Backups of propagations »: what the folder holds, and the removal of the backups the
+/// journal no longer names, whatever their age.
+fn manage_backups(dialog: &HistoryDialog) {
+    let context = dialog.context().clone();
+    let weak = dialog.downgrade();
+    glib::spawn_future_local(async move {
+        let listed = gio::spawn_blocking(move || {
+            propagation::inventory(None, || writer::read_journal(&context.journal))
+        })
+        .await;
+        let Some(dialog) = weak.upgrade() else { return };
+        let stored = match listed {
+            Ok(Ok(stored)) => stored,
+            Ok(Err(e)) => {
+                writes::show_error(
+                    &dialog,
+                    &tr("Cannot read the backups"),
+                    &propagation::backup_dir().display().to_string(),
+                    &e.to_string(),
+                );
+                return;
+            }
+            Err(_) => return,
+        };
+        let size = |kept: bool| -> (usize, u64) {
+            stored
+                .iter()
+                .filter(|s| s.referenced == kept)
+                .fold((0, 0), |(n, b), s| (n + 1, b + s.size))
+        };
+        let (named, named_bytes) = size(true);
+        let (loose, loose_bytes) = size(false);
+        let named_text = fill(
+            &tr_n(
+                "{n} backup ({taille} MB) is named by the log: Ctrl+Z, the history and resuming read it, it is kept.",
+                "{n} backups ({taille} MB) are named by the log: Ctrl+Z, the history and resuming read them, they are kept.",
+                named as u64,
+            ),
+            &[
+                ("n", &named.to_string()),
+                ("taille", &megabytes(named_bytes)),
+            ],
+        );
+        let loose_text = fill(
+            &tr_n(
+                "{n} backup ({taille} MB) is no longer named by the log (its older entries are gone) and can be removed.",
+                "{n} backups ({taille} MB) are no longer named by the log (its older entries are gone) and can be removed.",
+                loose as u64,
+            ),
+            &[
+                ("n", &loose.to_string()),
+                ("taille", &megabytes(loose_bytes)),
+            ],
+        );
+        let body = format!(
+            "{}\n\n{named_text}\n{loose_text}",
+            propagation::backup_dir().display()
+        );
+        let alert = adw::AlertDialog::new(Some(&tr("Backups of propagations")), Some(&body));
+        alert.add_response("fermer", &tr("Close"));
+        alert.set_close_response("fermer");
+        if loose > 0 {
+            alert.add_response("retirer", &tr("Remove the backups no longer named"));
+            alert.set_response_appearance("retirer", adw::ResponseAppearance::Destructive);
+        }
+        let weak = dialog.downgrade();
+        alert.connect_response(None, move |_, response| {
+            if response != "retirer" {
+                return;
+            }
+            let Some(dialog) = weak.upgrade() else { return };
+            let done = propagation::purge(
+                None,
+                &stored,
+                std::time::Duration::ZERO,
+                std::time::SystemTime::now(),
+            );
+            match done {
+                Ok(purged) => writes::announce(
+                    &dialog,
+                    &fill(
+                        &tr_n(
+                            "{n} backup removed ({taille} MB).",
+                            "{n} backups removed ({taille} MB).",
+                            purged.removed as u64,
+                        ),
+                        &[
+                            ("n", &purged.removed.to_string()),
+                            ("taille", &megabytes(purged.bytes)),
+                        ],
+                    ),
+                    None,
+                ),
+                Err(e) => writes::show_error(
+                    &dialog,
+                    &tr("Cannot remove the backups"),
+                    &propagation::backup_dir().display().to_string(),
+                    &e.to_string(),
+                ),
+            }
+        });
+        alert.present(Some(&dialog));
+    });
+}
+
 // --- Resuming at the start -----------------------------------------------------------------
 
 /// Applications to settle (abrupt stop, incomplete rollback): undo or complete
@@ -296,14 +443,15 @@ pub fn propose_resume(window: &crate::window::Window) {
             let first = writer::to_resume(&for_reading.journal)
                 .into_iter()
                 .find(|r| r.domain == domain)?;
-            Some(writer::ascertain(&for_reading.connection, &first))
+            let settled = writer::ascertain(&for_reading.connection, &first);
+            Some((first, settled))
         })
         .await;
-        let (Some(window), Ok(Some(settled))) = (weak.upgrade(), settled) else {
+        let (Some(window), Ok(Some((first, settled)))) = (weak.upgrade(), settled) else {
             return;
         };
         match settled {
-            Ok(report) => ask(&window, report),
+            Ok(report) => ask(&window, &first, report),
             Err(failure) => {
                 let problem = errors::failure_problem(&failure, &context.profile.domain);
                 writes::show_error(
@@ -317,12 +465,29 @@ pub fn propose_resume(window: &crate::window::Window) {
     });
 }
 
+/// What the dialog says of a propagation cut by a stop of the application (ADR 0023 § 8):
+/// what its backup holds, and what each choice does.
+fn cut_text(cut: &changes::Operation) -> String {
+    let changes::Operation::PropagateInheritance { unc, backup, .. } = cut else {
+        return String::new();
+    };
+    let saved = propagation::saved_count(&propagation::backup_path(backup, None)).unwrap_or(0);
+    fill(
+        &tr_n(
+            "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} element. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved.",
+            "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} elements. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved.",
+            saved as u64,
+        ),
+        &[("chemin", unc), ("n", &saved.to_string())],
+    )
+}
+
 /// `_demander`.
-fn ask(window: &crate::window::Window, report: Report) {
-    let complete = changes::continuation(&report)
+fn ask(window: &crate::window::Window, interrupted: &Report, report: Report) {
+    let complete = changes::completion(interrupted, &report)
         .ok()
         .filter(|c| !c.operations.is_empty());
-    let body = format!(
+    let mut body = format!(
         "{}\n\n{}",
         pv::describe(&report, &[]),
         fill(
@@ -330,6 +495,10 @@ fn ask(window: &crate::window::Window, report: Report) {
             &[("date", &report.timestamp), ("dc", &report.dc)],
         )
     );
+    if let Some(cut) = changes::cut_propagation(interrupted, &report) {
+        body.push_str("\n\n");
+        body.push_str(&cut_text(cut));
+    }
     let alert = adw::AlertDialog::new(
         Some(&fill(
             &tr("Change to settle: {titre}"),

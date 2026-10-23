@@ -200,6 +200,46 @@ pub enum WriteMsg {
     SysvolNoLongerExists {
         path: String,
     },
+    /// Shares of a file server (ADR 0023): `unc` names the share, `path` a file or folder.
+    ShareExists {
+        unc: String,
+    },
+    ShareMissing {
+        unc: String,
+    },
+    ShareChanged {
+        unc: String,
+    },
+    ShareNotInState {
+        unc: String,
+    },
+    /// The share is as wanted but for its options or its connection limit, which the server
+    /// keeps (a share of Samba's smb.conf; those of its registry are written, J8.7).
+    ShareOptionsKept {
+        unc: String,
+    },
+    /// A share created as a key of Samba's registry configuration is not served: the server
+    /// does not read its shares from the registry; the key is removed (J8.7).
+    ShareRegistryIgnored {
+        unc: String,
+    },
+    FileNotInState {
+        path: String,
+    },
+    /// The backup of a propagation (ADR 0023 § 5) cannot be written or read.
+    BackupUnusable {
+        file: String,
+    },
+    /// The server refused to write the owner of a file or folder (J8.7), with `status`.
+    OwnerRefused {
+        path: String,
+        status: u32,
+    },
+    /// The server refused to write the auditing entries (SACL) of a file or folder (J8.7).
+    AuditRefused {
+        path: String,
+        status: u32,
+    },
 }
 
 /// The catalogue of the interface, for the messages of the writer and of the inverse.
@@ -214,6 +254,15 @@ pub trait WriteCatalog: Catalog + Send + Sync {
             _ => "ErreurSysvol",
         };
         record(class, error.to_string(), dc)
+    }
+    /// An error of a file or folder of a share (ADR 0023 § 5): as a SYSVOL error, the
+    /// interface naming the file server rather than the SYSVOL of a DC.
+    fn file_error(&self, error: &SysvolError, server: &str) -> ErrorRecord {
+        self.sysvol_error(error, server)
+    }
+    /// An error of the share service of a file server (ADR 0023 § 4).
+    fn share_error(&self, error: &crate::srvsvc::Error, server: &str) -> ErrorRecord {
+        record("ErreurPartage", error.to_string(), server)
     }
 }
 
@@ -514,7 +563,7 @@ impl View {
             Ok(())
         };
         for (index, op) in operations.iter().enumerate() {
-            if op.is_sysvol() {
+            if !op.is_ldap() {
                 continue;
             }
             let dn_text = op.dn();
@@ -753,6 +802,32 @@ fn preverify(
 ) -> Result<(Vec<Problem>, Option<Guard>), OpError> {
     let mut view = View::default();
     let mut problems = Vec::new();
+    // Shares of file servers first (ADR 0023): their own connections, nothing in the burst.
+    let mut session = session;
+    if changeset.touches_shares() {
+        let Some(s) = session.as_deref_mut() else {
+            return Err(OpError::Record(record(
+                "ErreurAnnuaire",
+                "opération sur un partage sans session".into(),
+                "",
+            )));
+        };
+        for (index, op) in changeset.operations.iter().enumerate() {
+            if !op.is_file_share() {
+                continue;
+            }
+            match crate::share_write::check(&mut s.shares, op, catalog) {
+                Ok(Some((kind, msg))) => problems.push(Problem {
+                    index,
+                    dn: op.dn().to_owned(),
+                    kind,
+                    message: catalog.write_text(&msg),
+                }),
+                Ok(None) => {}
+                Err(r) => return Err(OpError::Sysvol(r)),
+            }
+        }
+    }
     let mut burst = Burst::new();
     let preload = view.preload(link, &changeset.operations, &mut burst)?;
     let first_op = changeset.operations.first();
@@ -963,6 +1038,7 @@ fn preverify(
                 view.created.remove(&key(dn));
                 view.arrived.remove(&key(dn));
             }
+            share_op if share_op.is_file_share() => {}
             sysvol_op => {
                 let Some(v) = sysvol_view.as_mut() else {
                     return Err(OpError::Record(record(
@@ -1132,7 +1208,11 @@ pub fn verify(
     let imposed = connection.profile().write_dc.is_some();
     connection
         .run(true, move |link| {
-            let mut session = SysvolSession::new(sysvol_write::opener(link.sysvol), &link.state.dc);
+            let mut session = SysvolSession::with_protection(
+                sysvol_write::opener(link.sysvol),
+                &link.state.dc,
+                link.sysvol,
+            );
             let found = preverify(
                 link,
                 &changeset,
@@ -1453,6 +1533,25 @@ fn apply_one(
     let result = (|| -> Result<Applied, OpError> {
         let dc = link.state.dc.clone();
         let timeout = Some(link.timeout);
+        if op.is_file_share() {
+            let Some(session) = session.as_deref_mut() else {
+                return Err(OpError::Record(record(
+                    "ErreurAnnuaire",
+                    "opération sur un partage sans session".into(),
+                    "",
+                )));
+            };
+            suite.send(link)?;
+            crate::share_write::apply(&mut session.shares, op, catalog).map_err(|e| match e {
+                StepError::Verification(r) => OpError::Verification(r),
+                StepError::Conflict(r) | StepError::Other(r) => OpError::Record(r),
+            })?;
+            return Ok(Applied {
+                operation: op.clone(),
+                after: None,
+                before: None,
+            });
+        }
         if op.is_sysvol() {
             let Some(session) = session.as_deref_mut() else {
                 return Err(OpError::Record(record(
@@ -1769,7 +1868,7 @@ fn identity(link: &mut Link) -> String {
 }
 
 /// A random identifier, as `uuid.uuid4().hex`.
-fn new_id() -> String {
+pub(crate) fn new_id() -> String {
     let mut bytes = [0u8; 16];
     if std::fs::File::open("/dev/urandom")
         .and_then(|mut f| f.read_exact(&mut bytes))
@@ -1849,11 +1948,17 @@ fn attempt(
     session: &mut SysvolSession,
     imposed: bool,
 ) -> Result<Result<Outcome, ErrorRecord>, LdapError> {
+    // Operations on shares are written on their file server, not on the DC.
+    let target = changeset
+        .operations
+        .iter()
+        .find_map(Operation::server)
+        .map_or_else(|| link.state.dc.clone(), str::to_owned);
     let mut report = Report {
         id: new_id(),
         timestamp: timestamp(),
         domain: domain.to_owned(),
-        dc: link.state.dc.clone(),
+        dc: target,
         user: user.to_owned(),
         changeset: changeset.clone(),
         applied: Vec::new(),
@@ -2009,7 +2114,11 @@ pub fn apply(
     let imposed = profile.write_dc.is_some();
     connection
         .run(false, move |link| {
-            let mut session = SysvolSession::new(sysvol_write::opener(link.sysvol), &link.state.dc);
+            let mut session = SysvolSession::with_protection(
+                sysvol_write::opener(link.sysvol),
+                &link.state.dc,
+                link.sysvol,
+            );
             let result = attempts(
                 link,
                 &changeset,
@@ -2363,6 +2472,9 @@ fn ascertain_one(
     op: &Operation,
     session: &mut SysvolSession,
 ) -> Result<(Option<bool>, Option<Read>), LdapError> {
+    if op.is_file_share() {
+        return Ok((crate::share_write::ascertain(&mut session.shares, op), None));
+    }
     if op.is_sysvol() {
         return Ok((sysvol_write::ascertain(session, op).unwrap_or(None), None));
     }
@@ -2419,7 +2531,11 @@ fn ascertain_one(
 pub fn ascertain(connection: &Connection, report: &Report) -> Result<Report, Failure> {
     let report = report.clone();
     connection.run(true, move |link| {
-        let mut session = SysvolSession::new(sysvol_write::opener(link.sysvol), &link.state.dc);
+        let mut session = SysvolSession::with_protection(
+            sysvol_write::opener(link.sysvol),
+            &link.state.dc,
+            link.sysvol,
+        );
         let mut result = report.clone();
         if let Some(d) = result.doubtful.clone() {
             let (done, after) = ascertain_one(link, &d.operation, &mut session)?;

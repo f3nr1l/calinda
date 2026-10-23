@@ -69,6 +69,9 @@ pub struct Profile {
     /// Read and write the SYSVOL of a DC that knows SMB 2.x only (Windows Server 2008 R2 and
     /// earlier) with signing only, unencrypted; false by default (ADR 0021).
     pub smb2_signing: bool,
+    /// File servers opened under this profile (ADR 0023 § 2), offered first in the « Shares »
+    /// window; key `serveurs-fichiers`, names separated by spaces.
+    pub file_servers: Vec<String>,
 }
 
 /// A field of the serialized form of a profile (a GVariant `a{sv}` in GSettings).
@@ -163,6 +166,7 @@ impl Profile {
             write_dc: None,
             cache: true,
             smb2_signing: false,
+            file_servers: Vec::new(),
         }
     }
 
@@ -206,6 +210,12 @@ impl Profile {
                 self.ca.as_ref().map(|c| c.to_string_lossy().into_owned()),
             ),
         ];
+        if !self.file_servers.is_empty() {
+            fields.insert(
+                "serveurs-fichiers".into(),
+                Field::Text(self.file_servers.join(" ")),
+            );
+        }
         for (key, value) in optional {
             if let Some(value) = value.filter(|v| !v.is_empty()) {
                 fields.insert(key.into(), Field::Text(value));
@@ -245,6 +255,16 @@ impl Profile {
             write_dc: text("dc-ecriture")?,
             cache,
             smb2_signing,
+            // Absent from the profiles written before it; a name that is not a DNS name is
+            // left out rather than refusing the profile.
+            file_servers: text("serveurs-fichiers")?
+                .map(|t| {
+                    t.split_whitespace()
+                        .filter(|n| valid_dns_name(n))
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default(),
         };
         profile.validate()?;
         Ok(profile)
@@ -349,6 +369,7 @@ T39+3r2LE06AhAdk
         p.read_only = false;
         p.cache = false;
         p.smb2_signing = true;
+        p.file_servers = vec!["fs1.lab.test".into(), "wdc1.win.test".into()];
         let fields = p.to_fields();
         assert_eq!(
             fields.keys().map(String::as_str).collect::<Vec<_>>(),
@@ -359,6 +380,7 @@ T39+3r2LE06AhAdk
                 "domaine",
                 "lecture-seule",
                 "mode",
+                "serveurs-fichiers",
                 "smb2-signature-seule"
             ]
         );

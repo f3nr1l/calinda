@@ -380,6 +380,13 @@ impl ProfileDialog {
             write_dc: chosen(&imp.write_dc_combo, &imp.write_dc_list),
             cache: imp.cache_switch.is_active(),
             smb2_signing: imp.smb2_switch.is_active(),
+            // Not edited here: kept as the « Shares » window left them.
+            file_servers: imp
+                .origin
+                .borrow()
+                .as_ref()
+                .map(|p| p.file_servers.clone())
+                .unwrap_or_default(),
         };
         if let Err(error) = profile.validate() {
             show_error(&imp.message, Some(&texts::profile_error(&error)));

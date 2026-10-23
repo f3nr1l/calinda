@@ -10,6 +10,7 @@ pub mod crypto;
 #[cfg(test)]
 pub(crate) mod fake_server;
 pub mod msg;
+pub mod pipe;
 pub mod spnego;
 mod wire;
 

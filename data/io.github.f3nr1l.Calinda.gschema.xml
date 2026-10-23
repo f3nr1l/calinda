@@ -41,5 +41,11 @@
       <summary>Fonctionnalités avancées</summary>
       <description>Montrer les objets marqués showInAdvancedViewOnly (System, Program Data, LostAndFound…), comme le mode avancé de la console Windows.</description>
     </key>
+    <key name="jours-sauvegardes-propagation" type="i">
+      <range min="0" max="3650"/>
+      <default>30</default>
+      <summary>Jours de garde des sauvegardes de propagation</summary>
+      <description>Au lancement, les sauvegardes de propagation des droits NTFS ($XDG_STATE_HOME/calinda/propagations) que le journal ne nomme plus et qui n'ont pas changé depuis ce nombre de jours sont retirées. Une sauvegarde que le journal nomme (Ctrl+Z, historique, reprise) n'est jamais retirée. 0 : aucun retrait au lancement.</description>
+    </key>
   </schema>
 </schemalist>

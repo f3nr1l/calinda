@@ -73,6 +73,58 @@ pub enum Msg {
     SetPermissions {
         path: String,
     },
+    AddShare {
+        unc: String,
+    },
+    ChangeShare {
+        unc: String,
+    },
+    DeleteShare {
+        unc: String,
+    },
+    DeleteShareKeepsFolder,
+    /// Inheritance propagated under a folder of a share (ADR 0023 § 5).
+    Propagate {
+        path: String,
+    },
+    PropagationCount {
+        n: usize,
+    },
+    PropagationReplace,
+    /// The owner of every descendant replaced (J8.7), alone or with the DACL.
+    PropagateOwner {
+        path: String,
+    },
+    PropagationOwner {
+        owner: String,
+    },
+    /// The auditing entries of the descendants recomputed (J8.7).
+    PropagateAudit {
+        path: String,
+    },
+    PropagationAudit {
+        replace: bool,
+    },
+    PropagationBackup {
+        file: String,
+    },
+    /// Descriptors of a propagation written back (`undo`) or again.
+    PropagationRewrite {
+        path: String,
+        undo: bool,
+    },
+    SharePath {
+        path: String,
+    },
+    ShareRemark {
+        remark: String,
+    },
+    ShareMaxUses {
+        n: u32,
+    },
+    ShareFlags {
+        flags: u32,
+    },
     Create {
         dn: String,
     },
@@ -248,6 +300,39 @@ impl Catalog for English {
             Msg::ReplaceFile { path } => format!("Replace the file {path}"),
             Msg::DeleteFile { path } => format!("Delete the file {path}"),
             Msg::SetPermissions { path } => format!("Change the permissions of {path}"),
+            Msg::AddShare { unc } => format!("Create the share {unc}"),
+            Msg::ChangeShare { unc } => format!("Change the share {unc}"),
+            Msg::DeleteShare { unc } => format!("Delete the share {unc}"),
+            Msg::DeleteShareKeepsFolder => "The folder and its content stay on the server.".into(),
+            Msg::Propagate { path } => format!("Propagate the inheritance under {path}"),
+            Msg::PropagationCount { n } => format!("{n} elements under the folder examined"),
+            Msg::PropagationReplace => {
+                "The permissions of every descendant are replaced by the inherited ones.".into()
+            }
+            Msg::PropagateOwner { path } => format!("Replace the owner under {path}"),
+            Msg::PropagationOwner { owner } => {
+                format!("owner of every element under the folder: {owner}")
+            }
+            Msg::PropagateAudit { path } => {
+                format!("Propagate the auditing entries under {path}")
+            }
+            Msg::PropagationAudit { replace: false } => {
+                "auditing entries inherited computed again".into()
+            }
+            Msg::PropagationAudit { replace: true } => {
+                "auditing entries of every descendant replaced by the inherited ones".into()
+            }
+            Msg::PropagationBackup { file } => format!("backup: {file}"),
+            Msg::PropagationRewrite { path, undo: true } => {
+                format!("Write back the permissions saved under {path}")
+            }
+            Msg::PropagationRewrite { path, undo: false } => {
+                format!("Write again the permissions propagated under {path}")
+            }
+            Msg::SharePath { path } => format!("path: {path}"),
+            Msg::ShareRemark { remark } => format!("comment: {remark}"),
+            Msg::ShareMaxUses { n } => format!("at most {n} connections"),
+            Msg::ShareFlags { flags } => format!("options: 0x{flags:08X}"),
             Msg::Create { dn } => format!("Create {dn}"),
             Msg::NoVersionCheck => "(no version check)".into(),
             Msg::Modify { dn } => format!("Modify {dn}"),

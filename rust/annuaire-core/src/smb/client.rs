@@ -152,6 +152,7 @@ fn command_name(c: u16) -> &'static str {
         command::CLOSE => "CLOSE",
         command::READ => "READ",
         command::WRITE => "WRITE",
+        command::IOCTL => "IOCTL",
         command::QUERY_DIRECTORY => "QUERY_DIRECTORY",
         command::QUERY_INFO => "QUERY_INFO",
         command::SET_INFO => "SET_INFO",
@@ -1048,6 +1049,7 @@ mod tests {
         let config = Config {
             dialect: dialect::SMB210,
             unsigned: true,
+            ..Config::default()
         };
         let (server, client) = try_connect(config, true);
         let error = client.unwrap_err();

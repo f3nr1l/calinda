@@ -8,6 +8,7 @@
     <file preprocess="xml-stripblanks">accueil.ui</file>
     <file preprocess="xml-stripblanks">apercu.ui</file>
     <file preprocess="xml-stripblanks">attributs.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-acces-effectif.ui</file>
     <file preprocess="xml-stripblanks">dialogue-ace.ui</file>
     <file preprocess="xml-stripblanks">dialogue-attribut.ui</file>
     <file preprocess="xml-stripblanks">dialogue-classes.ui</file>
@@ -31,6 +32,12 @@
     <file preprocess="xml-stripblanks">dialogue-pref-raccourci.ui</file>
     <file preprocess="xml-stripblanks">dialogue-pref-registre.ui</file>
     <file preprocess="xml-stripblanks">dialogue-profil.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-partage.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-partage-droits.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-securite-ntfs.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-entree-ntfs.ui</file>
+    <file preprocess="xml-stripblanks">dialogue-proprietaire-ntfs.ui</file>
+    <file preprocess="xml-stripblanks">dossiers.ui</file>
     <file preprocess="xml-stripblanks">dialogue-pso.ui</file>
     <file preprocess="xml-stripblanks">dialogue-registre-brut.ui</file>
     <file preprocess="xml-stripblanks">dialogue-renommer.ui</file>
@@ -49,6 +56,7 @@
     <file preprocess="xml-stripblanks">historique.ui</file>
     <file preprocess="xml-stripblanks">ligne-profil.ui</file>
     <file preprocess="xml-stripblanks">preferences.ui</file>
+    <file preprocess="xml-stripblanks">partages.ui</file>
     <file preprocess="xml-stripblanks">pso.ui</file>
     <file preprocess="xml-stripblanks">recherche.ui</file>
     <file preprocess="xml-stripblanks">sante-dns.ui</file>

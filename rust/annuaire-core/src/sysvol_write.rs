@@ -45,12 +45,13 @@ pub fn opener(protection: Protection) -> Opener {
 
 // SE_DACL_AUTO_INHERITED is not part of it: a Windows server (NTFS) computes it itself and
 // clears it from a DACL set over SMB; Samba keeps the one it is given.
-const DACL_BITS: u16 = sd::SE_DACL_PRESENT | sd::SE_DACL_PROTECTED | sd::SE_DACL_AUTO_INHERIT_REQ;
+pub(crate) const DACL_BITS: u16 =
+    sd::SE_DACL_PRESENT | sd::SE_DACL_PROTECTED | sd::SE_DACL_AUTO_INHERIT_REQ;
 
 /// ACEs of the DACL, each once: NTFS does not keep a repeated ACE (the form of
 /// `dsacl2fsacl`, which the tool writes as Samba does, has one), which changes nothing to the
 /// access.
-fn aces(descriptor: &SecurityDescriptor) -> Option<Vec<&sd::Ace>> {
+pub(crate) fn aces(descriptor: &SecurityDescriptor) -> Option<Vec<&sd::Ace>> {
     let dacl = descriptor.dacl.as_ref()?;
     let mut seen: Vec<&sd::Ace> = Vec::new();
     for ace in &dacl.aces {
@@ -77,8 +78,9 @@ pub fn same_descriptor(a: Option<&[u8]>, b: Option<&[u8]>) -> bool {
         && x.control & DACL_BITS == y.control & DACL_BITS
 }
 
-/// Parts to write to go from `before` to `after`: the DACL, and the owner or the group only
-/// if they change (writing the owner asks one more right) (`informations`).
+/// Parts to write to go from `before` to `after`: the DACL if it changes, the owner or the
+/// group only if they change (writing the owner asks one more right, and taking ownership of
+/// an element does not give `WRITE_DAC`) (`informations`); the DACL when nothing changes.
 pub fn information(before: &[u8], after: &[u8]) -> u32 {
     let (Ok(x), Ok(y)) = (
         SecurityDescriptor::decode(before),
@@ -86,12 +88,29 @@ pub fn information(before: &[u8], after: &[u8]) -> u32 {
     ) else {
         return sysvol::INFO_OGD;
     };
-    let mut info = sysvol::INFO_DACL;
+    let mut info = 0;
+    // `SE_DACL_AUTO_INHERIT_REQ` is sent, never read back: alone, it does not change the DACL.
+    let state = sd::SE_DACL_PRESENT | sd::SE_DACL_PROTECTED;
+    if x.dacl != y.dacl || x.control & state != y.control & state {
+        info |= sysvol::INFO_DACL;
+    }
+    // The SACL, when the descriptor to write carries one (it was read, J8.7) and it changes;
+    // a Windows server gives none for an element without auditing entries.
+    let audit = sd::SE_SACL_PROTECTED;
+    let carried = y.control & sd::SE_SACL_PRESENT != 0 || y.sacl.is_some();
+    let entries =
+        |d: &SecurityDescriptor| d.sacl.as_ref().map(|a| a.aces.clone()).unwrap_or_default();
+    if carried && (entries(&x) != entries(&y) || x.control & audit != y.control & audit) {
+        info |= sysvol::INFO_SACL;
+    }
     if x.owner != y.owner {
         info |= sysvol::INFO_OWNER;
     }
     if x.group != y.group {
         info |= sysvol::INFO_GROUP;
+    }
+    if info == 0 {
+        info = sysvol::INFO_DACL;
     }
     info
 }
@@ -196,6 +215,8 @@ pub struct SysvolSession {
     opener: Opener,
     pub dc: String,
     client: Option<Session>,
+    /// The file servers of operations on shares (ADR 0023), protected as the SYSVOL.
+    pub shares: crate::share_write::Shares,
 }
 
 impl std::fmt::Debug for SysvolSession {
@@ -213,7 +234,15 @@ impl SysvolSession {
             opener,
             dc: dc.to_owned(),
             client: None,
+            shares: crate::share_write::Shares::default(),
         }
+    }
+
+    /// Same, operations on shares protected as `protection` (the option of the profile).
+    pub fn with_protection(opener: Opener, dc: &str, protection: Protection) -> Self {
+        let mut session = Self::new(opener, dc);
+        session.shares = crate::share_write::Shares::new(protection);
+        session
     }
 
     pub fn client(&mut self) -> sysvol::Result<&mut Session> {
@@ -232,6 +261,7 @@ impl SysvolSession {
         if let Some(client) = self.client.take() {
             client.close();
         }
+        self.shares.close();
     }
 }
 

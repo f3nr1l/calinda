@@ -4,12 +4,15 @@ data/io.github.f3nr1l.Calinda.metainfo.xml.in
 rust/annuaire-app/data/ui/accueil.blp
 rust/annuaire-app/data/ui/apercu.blp
 rust/annuaire-app/data/ui/attributs.blp
+rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
 rust/annuaire-app/data/ui/dialogue-ace.blp
 rust/annuaire-app/data/ui/dialogue-attribut.blp
 rust/annuaire-app/data/ui/dialogue-classes.blp
 rust/annuaire-app/data/ui/dialogue-delegation.blp
 rust/annuaire-app/data/ui/dialogue-deplacer.blp
 rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
+rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
 rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 rust/annuaire-app/data/ui/dialogue-gpo-lier.blp
 rust/annuaire-app/data/ui/dialogue-gpo-nom.blp
@@ -21,6 +24,8 @@ rust/annuaire-app/data/ui/dialogue-groupe.blp
 rust/annuaire-app/data/ui/dialogue-membres.blp
 rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
 rust/annuaire-app/data/ui/dialogue-ou.blp
+rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+rust/annuaire-app/data/ui/dialogue-partage.blp
 rust/annuaire-app/data/ui/dialogue-pref-cible.blp
 rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
 rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
@@ -30,10 +35,12 @@ rust/annuaire-app/data/ui/dialogue-profil.blp
 rust/annuaire-app/data/ui/dialogue-pso.blp
 rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 rust/annuaire-app/data/ui/dialogue-renommer.blp
+rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 rust/annuaire-app/data/ui/dialogue-strategie.blp
 rust/annuaire-app/data/ui/dialogue-ticket.blp
 rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 rust/annuaire-app/data/ui/dns.blp
+rust/annuaire-app/data/ui/dossiers.blp
 rust/annuaire-app/data/ui/editeur-gpo.blp
 rust/annuaire-app/data/ui/editeur-modeles.blp
 rust/annuaire-app/data/ui/fenetre.blp
@@ -44,6 +51,7 @@ rust/annuaire-app/data/ui/gpo-securite-groupes.blp
 rust/annuaire-app/data/ui/gpo.blp
 rust/annuaire-app/data/ui/historique.blp
 rust/annuaire-app/data/ui/ligne-profil.blp
+rust/annuaire-app/data/ui/partages.blp
 rust/annuaire-app/data/ui/preferences.blp
 rust/annuaire-app/data/ui/pso.blp
 rust/annuaire-app/data/ui/recherche.blp
@@ -51,6 +59,8 @@ rust/annuaire-app/data/ui/sante-dns.blp
 rust/annuaire-app/data/ui/securite.blp
 rust/annuaire-app/data/ui/shortcuts-dialog.blp
 rust/annuaire-app/data/ui/strategie.blp
+rust/annuaire-app/src/access.rs
+rust/annuaire-app/src/access_views.rs
 rust/annuaire-app/src/account_views.rs
 rust/annuaire-app/src/accounts.rs
 rust/annuaire-app/src/attribute_views.rs
@@ -65,6 +75,8 @@ rust/annuaire-app/src/dns_health.rs
 rust/annuaire-app/src/dns_record.rs
 rust/annuaire-app/src/dns_views.rs
 rust/annuaire-app/src/errors.rs
+rust/annuaire-app/src/file_security.rs
+rust/annuaire-app/src/folders.rs
 rust/annuaire-app/src/gpo.rs
 rust/annuaire-app/src/gpo_dialogs.rs
 rust/annuaire-app/src/gpo_editor.rs
@@ -87,6 +99,8 @@ rust/annuaire-app/src/pso_views.rs
 rust/annuaire-app/src/search.rs
 rust/annuaire-app/src/security.rs
 rust/annuaire-app/src/security_views.rs
+rust/annuaire-app/src/share_views.rs
+rust/annuaire-app/src/shares.rs
 rust/annuaire-app/src/sheet.rs
 rust/annuaire-app/src/sheet_views.rs
 rust/annuaire-app/src/template_views.rs

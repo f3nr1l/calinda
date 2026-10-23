@@ -112,8 +112,10 @@ fn descriptors_compared_by_content() {
     assert_eq!(information(&one, &protected), sysvol::INFO_DACL);
     assert_eq!(
         information(&one, &other_owner),
-        sysvol::INFO_DACL | sysvol::INFO_OWNER | sysvol::INFO_GROUP
+        sysvol::INFO_OWNER | sysvol::INFO_GROUP
     );
+    // Nothing changes: the DACL is written again.
+    assert_eq!(information(&one, &one), sysvol::INFO_DACL);
     assert_eq!(information(b"x", &one), sysvol::INFO_OGD);
 }
 

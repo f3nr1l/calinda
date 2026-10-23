@@ -4,8 +4,9 @@ Calinda est un outil GNOME (GTK 4, libadwaita) d'administration Active Directory
 domaines Samba AD et Windows AD. Il est écrit en Rust. Son nom est celui de la calinda, une danse
 d'origine africaine passée par les Antilles, comme la samba en est une autre.
 
-La version 1.2.1 couvre les comptes, le DNS, la sécurité des objets et les stratégies de groupe
-jusqu'à leur contenu ; l'interface existe en anglais et en français. Jusqu'à la version 1.1,
+La version 1.3.0 couvre les comptes, le DNS, la sécurité des objets, les stratégies de groupe
+jusqu'à leur contenu, et les partages des serveurs de fichiers avec les droits NTFS de leurs
+dossiers ; l'interface existe en anglais et en français. Jusqu'à la version 1.1,
 l'application s'appelait Annuaire. L'application est issue du port Rust d'une première version
 écrite en Python (1.0).
 
@@ -23,12 +24,13 @@ Les crates gardent le nom d'origine du projet.
   et SDDL, enregistrements DNS, `gPLink`, `Registry.pol`, `GptTmpl.inf`…), sans dépendance.
 - `rust/annuaire-core` : connexion aux contrôleurs (LDAP scellé par Kerberos, LDAPS,
   StartTLS), recherches, modèle, changesets et journal, SYSVOL en SMB 3 (ou en SMB 2 signé,
-  sur option du profil), DNS, GPO, copie locale.
+  sur option du profil), DNS, GPO, copie locale ; partages et droits NTFS des serveurs de
+  fichiers (DCE/RPC sur SMB : srvsvc, samr, lsarpc, winreg).
 - `rust/annuaire-app` : l'application, dont les interfaces sont décrites en Blueprint
   (`rust/annuaire-app/data/ui`).
 - `data/` : fichier `.desktop`, metainfo, schéma GSettings, icônes.
 - `po/` : catalogue de traduction.
-- `packaging/rpm/` : le `.spec`.
+- `packaging/rpm/` : le `.spec` ; `packaging/deb/` : le répertoire `debian/`.
 - `build-aux/` : scripts de construction et manifeste Flatpak.
 
 ## Construire et lancer

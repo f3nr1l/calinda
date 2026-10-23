@@ -6,6 +6,8 @@
 //! (`annuaire-core`).
 
 mod a11y;
+mod access;
+mod access_views;
 mod account_views;
 mod accounts;
 mod application;
@@ -23,6 +25,8 @@ mod dns_record;
 mod dns_views;
 mod errors;
 mod feed;
+mod file_security;
+mod folders;
 mod gpo;
 mod gpo_dialogs;
 mod gpo_editor;
@@ -49,6 +53,8 @@ mod search;
 mod security;
 mod security_views;
 mod settings;
+mod share_views;
+mod shares;
 mod sheet;
 mod sheet_views;
 mod template_views;

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calinda\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 14:20-0400\n"
+"POT-Creation-Date: 2026-10-22 23:23-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,6 +111,7 @@ msgstr ""
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
 #: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-lier.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-nom.blp
@@ -120,6 +121,8 @@ msgstr ""
 #: rust/annuaire-app/data/ui/dialogue-groupe.blp
 #: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
 #: rust/annuaire-app/data/ui/dialogue-ou.blp
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
 #: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
 #: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
 #: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
@@ -129,10 +132,12 @@ msgstr ""
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/dialogue-renommer.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 #: rust/annuaire-app/data/ui/dialogue-ticket.blp
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/recherche.blp rust/annuaire-app/src/gpo_editor.rs
+#: rust/annuaire-app/data/ui/recherche.blp
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_editor.rs
 #: rust/annuaire-app/src/window.rs rust/annuaire-app/src/window/accounts.rs
 #: rust/annuaire-app/src/writes.rs
 msgid "Cancel"
@@ -146,6 +151,20 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/apercu.blp
 msgid "Checking beforehand…"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/apercu.blp
+msgid "Progress of the propagation"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/apercu.blp
+msgid "Stop"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/apercu.blp
+msgid ""
+"Stops the propagation after the batch being written; what is written stays "
+"written and saved"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/apercu.blp
@@ -227,6 +246,7 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/attributs.blp
 #: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/fenetre.blp
 #: rust/annuaire-app/data/ui/fiche.blp
@@ -240,7 +260,56 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
+#. Effective access to the root of the share (J8.5), read-only profile included.
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+#: rust/annuaire-app/src/folders.rs rust/annuaire-app/src/shares.rs
+msgid "Effective Access"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Account or Group"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid ""
+"The access is computed as the server would: the share permissions, the NTFS "
+"permissions, the groups of the directory and the local groups of the server."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "No account or group chosen"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Name or logon name of the account or group"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Search for the account or group"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Accounts and groups found"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Rights of the account"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+msgid "Identities taken into account"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/sante-dns.blp
+#: rust/annuaire-app/src/attributes.rs rust/annuaire-app/src/gpo.rs
+#: rust/annuaire-app/src/sheet.rs rust/annuaire-app/src/window/domain.rs
+#: rust/annuaire-app/src/writes.rs
+msgid "Close"
+msgstr ""
+
 #: rust/annuaire-app/data/ui/dialogue-ace.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Add an Entry"
 msgstr ""
 
@@ -273,7 +342,11 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-ace.blp
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/file_security.rs
 msgid "Continue…"
 msgstr ""
 
@@ -360,7 +433,9 @@ msgstr ""
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-principaux.blp
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Groups and accounts found"
 msgstr ""
 
@@ -470,6 +545,53 @@ msgstr ""
 msgid "Also create the reverse pointer (PTR)"
 msgstr ""
 
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid "Permission Entry"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+#: rust/annuaire-app/src/file_security.rs
+#: rust/annuaire-app/src/preview_views.rs rust/annuaire-app/src/share_views.rs
+msgid "Allow"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+#: rust/annuaire-app/data/ui/securite.blp
+#: rust/annuaire-app/src/file_security.rs
+#: rust/annuaire-app/src/preview_views.rs rust/annuaire-app/src/share_views.rs
+msgid "Deny"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid "Applies to"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/preview_views.rs rust/annuaire-app/src/shares.rs
+msgid "Permissions"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid ""
+"Only apply these permissions to objects and/or containers within this "
+"container"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid "Advanced Permissions"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid ""
+"Checking or unchecking a right sets the permissions to the level it matches, "
+"or to “Special permissions”."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+msgid "OK"
+msgstr ""
+
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/gpo.blp
 #: rust/annuaire-app/data/ui/shortcuts-dialog.blp
@@ -497,7 +619,9 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-principaux.blp
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Search for the group or account to add"
 msgstr ""
 
@@ -847,6 +971,136 @@ msgid ""
 "(second preview)"
 msgstr ""
 
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+msgid "Share Permissions"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+msgid "Groups and accounts"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+msgid ""
+"A permission denied wins over one allowed. The NTFS permissions of the "
+"folder apply too: the access granted is the most restrictive of both."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+msgid "Groups and accounts of the share"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+msgid "Nobody: the share refuses every access."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-profil.blp
+#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/file_security.rs
+#: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/pso.rs
+#: rust/annuaire-app/src/shares.rs
+msgid "Add"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/security_views.rs
+msgid "Everyone"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/security_views.rs
+msgid "Authenticated Users"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/security_views.rs
+msgid "Administrators"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Name or logon name of the group or account to add"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Share"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Share name"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Folder on the server"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
+msgid "Comment"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid ""
+"The local path of the folder on the server (C:\\Shares\\Common, or the one "
+"Samba gives, C:\\srv\\shares\\Common). The folder must exist: Calinda does "
+"not create it."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+#: rust/annuaire-app/data/ui/dialogue-strategie.blp
+msgid "Options"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid ""
+"Samba takes these options from its configuration (smb.conf or net conf) and "
+"keeps them: a change made here is then reported as not applied."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Limit the number of connections"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Simultaneous connections"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Offline availability"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Only the files the user chooses"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "All the files opened"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "All the files opened, optimized for performance"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "No file"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Access-based enumeration"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "A user sees only the files and folders they may read."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-partage.blp
+msgid "Permissions of the share"
+msgstr ""
+
 #: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
 msgid "Targeting filter"
 msgstr ""
@@ -948,12 +1202,13 @@ msgstr ""
 #: rust/annuaire-app/data/ui/ligne-profil.blp
 #: rust/annuaire-app/data/ui/shortcuts-dialog.blp
 #: rust/annuaire-app/src/preference_views.rs rust/annuaire-app/src/pso.rs
+#: rust/annuaire-app/src/share_views.rs rust/annuaire-app/src/shares.rs
 #: rust/annuaire-app/src/window.rs rust/annuaire-app/src/window/accounts.rs
 msgid "Delete"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
-#: rust/annuaire-app/src/security_views.rs
+#: rust/annuaire-app/src/security_views.rs rust/annuaire-app/src/share_views.rs
 msgid "Printer"
 msgstr ""
 
@@ -975,11 +1230,6 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
 msgid "With the “Delete” action"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
-msgid "Comment"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
@@ -1255,12 +1505,6 @@ msgid "Value data, one string per line"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-profil.blp
-#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/gpo_security.rs
-#: rust/annuaire-app/src/pso.rs
-msgid "Add"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/dialogue-profil.blp
 msgid "DNS name of the domain (lab.test)"
 msgstr ""
 
@@ -1290,7 +1534,9 @@ msgid "PDC emulator (DNS)"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-profil.blp
-#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/sheet_views.rs
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/folders.rs
+#: rust/annuaire-app/src/sheet_views.rs
 msgid "Security"
 msgstr ""
 
@@ -1471,10 +1717,6 @@ msgstr ""
 msgid "Accounts and groups the policy applies to"
 msgstr ""
 
-#: rust/annuaire-app/data/ui/dialogue-pso.blp
-msgid "Name or logon name of the group or account to add"
-msgstr ""
-
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/editeur-modeles.blp
 msgid "Add a registry entry"
@@ -1546,6 +1788,48 @@ msgstr ""
 msgid "Logon name"
 msgstr ""
 
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/data/ui/securite.blp
+msgid "Owner"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Inheritance"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid ""
+"A denial wins over an allowance. The explicit entries come first, then those "
+"inherited; an inherited entry is changed on the folder it comes from."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Permission entries"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "No entry: nobody but the owner can open this element."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/search.rs rust/annuaire-app/src/security_views.rs
+msgid "Users"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "CREATOR OWNER"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Subfolders and Files"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid ""
+"Replace all child object permission entries with inheritable permission "
+"entries from this object"
+msgstr ""
+
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 msgid "Add this setting to the changes to save (Ctrl+Enter)"
 msgstr ""
@@ -1567,10 +1851,6 @@ msgstr ""
 #: rust/annuaire-app/src/sheet_views.rs rust/annuaire-app/src/template_views.rs
 #: rust/annuaire-app/src/views.rs
 msgid "Disabled"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/dialogue-strategie.blp
-msgid "Options"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
@@ -1690,12 +1970,13 @@ msgid "New record"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/gpo.blp
-#: rust/annuaire-app/data/ui/pso.blp
+#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
 msgid "Refresh (F5)"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/fenetre.blp
-#: rust/annuaire-app/data/ui/gpo.blp rust/annuaire-app/data/ui/pso.blp
+#: rust/annuaire-app/data/ui/gpo.blp rust/annuaire-app/data/ui/partages.blp
+#: rust/annuaire-app/data/ui/pso.blp
 #: rust/annuaire-app/data/ui/shortcuts-dialog.blp
 msgid "Refresh"
 msgstr ""
@@ -1746,11 +2027,57 @@ msgstr ""
 msgid "Show deleted names (tombstone)"
 msgstr ""
 
-#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/sante-dns.blp
-#: rust/annuaire-app/src/attributes.rs rust/annuaire-app/src/gpo.rs
-#: rust/annuaire-app/src/sheet.rs rust/annuaire-app/src/window/domain.rs
-#: rust/annuaire-app/src/writes.rs
-msgid "Close"
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Folders and NTFS Permissions"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Read Again (F5)"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
+#: rust/annuaire-app/data/ui/securite.blp
+#: rust/annuaire-app/data/ui/strategie.blp rust/annuaire-app/src/gpo_editor.rs
+msgid "Read Again"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Folders of the share"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp rust/annuaire-app/src/share_views.rs
+msgid "Folder"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Security…"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Owner, permissions and inheritance of this folder"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Effective Access…"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid ""
+"What an account or a group may do in this folder, through the share and the "
+"NTFS permissions"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Files of the folder"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp
+msgid "Show the Files"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/dossiers.blp rust/annuaire-app/src/folders.rs
+msgid "The files are read when asked: a folder may hold thousands."
 msgstr ""
 
 #: rust/annuaire-app/data/ui/editeur-gpo.blp
@@ -1907,6 +2234,19 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Ctrl+M"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Shares (Ctrl+P)"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/partages.blp
+#: rust/annuaire-app/data/ui/shortcuts-dialog.blp
+msgid "Shares"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Ctrl+P"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/fenetre.blp
@@ -2509,6 +2849,61 @@ msgstr ""
 msgid "Erase the Local Copy"
 msgstr ""
 
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "New Share (Ctrl+N)"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "New Share"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "File server (fs1.example.com)"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "File server"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Known file servers"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Open"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Lists the shares of this server"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Choose a File Server"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid ""
+"A server of the domain, from the list or typed by its DNS name. Its shares "
+"are read through the Server service, over the encrypted SMB session of your "
+"ticket."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Shared folders"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "No shared folder on this server."
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Administrative and special shares"
+msgstr ""
+
+#: rust/annuaire-app/data/ui/partages.blp
+msgid "Created by the server itself (C$, ADMIN$, IPC$, printers…)"
+msgstr ""
+
 #: rust/annuaire-app/data/ui/preferences.blp
 msgid "Add an item (Ctrl+N)"
 msgstr ""
@@ -2563,11 +2958,6 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/pso.blp
 msgid "New Fine-grained password policy"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/pso.blp rust/annuaire-app/data/ui/securite.blp
-#: rust/annuaire-app/data/ui/strategie.blp rust/annuaire-app/src/gpo_editor.rs
-msgid "Read Again"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/pso.blp
@@ -2777,20 +3167,11 @@ msgid "Delegate tasks on this object to a group or an account"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/securite.blp
-msgid "Owner"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/securite.blp
 msgid "Auditing (SACL)"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/securite.blp
 msgid "Permissions with no effect on this object"
-msgstr ""
-
-#: rust/annuaire-app/data/ui/securite.blp
-#: rust/annuaire-app/src/preview_views.rs
-msgid "Deny"
 msgstr ""
 
 #: rust/annuaire-app/data/ui/securite.blp
@@ -2973,6 +3354,147 @@ msgstr ""
 
 #: rust/annuaire-app/data/ui/strategie.blp
 msgid "Filtered out, or whose link does not count for this account."
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs
+msgid "This account or group no longer exists, or has no SID."
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs
+msgid "This element no longer exists on the server."
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/file_security.rs
+#: rust/annuaire-app/src/share_views.rs
+msgid "Unreadable permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/delegation.rs
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_dialogs.rs
+#: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/preferences.rs
+#: rust/annuaire-app/src/pso.rs rust/annuaire-app/src/shares.rs
+msgid "Searching…"
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/gpo_security.rs
+msgid "Choose"
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs
+msgid "Reading the groups and the permissions…"
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/dns_record.rs
+#: rust/annuaire-app/src/gpo.rs rust/annuaire-app/src/gpo_editor.rs
+#: rust/annuaire-app/src/pso.rs rust/annuaire-app/src/shares.rs
+#: rust/annuaire-app/src/writes.rs
+msgid "No domain is open."
+msgstr ""
+
+#: rust/annuaire-app/src/access.rs
+msgid "A group given in place of an account: as for one of its members."
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs rust/annuaire-app/src/share_views.rs
+msgid "Full control"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "Synchronize"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "implicit rights of the owner"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "no list of permissions: everything is allowed"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+#, rust-format
+msgid "denied by {entree}"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "no entry grants it"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+#, rust-format
+msgid "granted by {entree}"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+#, rust-format
+msgid "{cote}: {raison}"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs rust/annuaire-app/src/preview_views.rs
+msgid "share"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "no permissions set, everything is allowed"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "NTFS"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "Granted"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "Not granted: limited by the share"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "Not granted: limited by the NTFS permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "Not granted: limited by the share and the NTFS permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "nothing"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+#, rust-format
+msgid "{acces} (share: {partage}; NTFS: {ntfs})"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "everything"
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+#, rust-format
+msgid ""
+"The local groups of the server could not be read ({raison}): an access given "
+"to one of them is not counted."
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid ""
+"Conditional entries apply to this account: their condition is not evaluated."
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "A central access policy applies to this element: it is not evaluated."
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid "An integrity label applies to this element: it is not evaluated."
+msgstr ""
+
+#: rust/annuaire-app/src/access_views.rs
+msgid ""
+"Privileges (backup, restore, taking ownership) are not counted: an account "
+"that holds one may do more."
 msgstr ""
 
 #: rust/annuaire-app/src/account_views.rs
@@ -3554,6 +4076,80 @@ msgstr ""
 
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
+msgid "Create share {partage}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Change share {partage}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Delete share {partage}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+msgid "The folder and its content stay on the server."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Propagate the inheritance under {chemin}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{n} element under the folder examined"
+msgid_plural "{n} elements under the folder examined"
+msgstr[0] ""
+msgstr[1] ""
+
+#: rust/annuaire-app/src/catalog.rs
+msgid ""
+"The permissions of every descendant are replaced by the inherited ones "
+"(explicit entries removed, inheritance turned on again)."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "backup: {fichier}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Write back the permissions saved under {chemin}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Write again the permissions propagated under {chemin}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "path: {chemin}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "comment: {commentaire}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid "at most {n} connection"
+msgid_plural "at most {n} connections"
+msgstr[0] ""
+msgstr[1] ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "options: {options}"
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
 msgid "Create {dn}"
 msgstr ""
 
@@ -3989,6 +4585,48 @@ msgstr ""
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
 msgid "“{c}” no longer exists."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The share “{p}” already exists."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The share “{p}” no longer exists."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The share “{p}” has changed since the preview: read it again."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid ""
+"The server accepted the change, but the share “{p}”, read again, is not in "
+"the expected state."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid ""
+"The server accepted the change of the share “{p}” but kept its own options "
+"or connection limit: Samba takes them from its configuration (smb.conf or "
+"net conf)."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid ""
+"The server accepted the change, but “{c}”, read again, does not have the "
+"expected permissions."
+msgstr ""
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The backup of the propagation “{f}” cannot be written or read."
 msgstr ""
 
 #: rust/annuaire-app/src/codec_texts.rs
@@ -4828,6 +5466,24 @@ msgstr ""
 
 #: rust/annuaire-app/src/codec_texts.rs
 msgid "attributes: object expected"
+msgstr ""
+
+#: rust/annuaire-app/src/codec_texts.rs
+msgid "share: object expected"
+msgstr ""
+
+#: rust/annuaire-app/src/codec_texts.rs
+#, rust-format
+msgid "backup: {a}"
+msgstr ""
+
+#: rust/annuaire-app/src/codec_texts.rs
+msgid "propagation: direction"
+msgstr ""
+
+#: rust/annuaire-app/src/codec_texts.rs
+#, rust-format
+msgid "share: {a} is not a number"
 msgstr ""
 
 #: rust/annuaire-app/src/codec_texts.rs
@@ -5982,12 +6638,6 @@ msgstr ""
 msgid "Zimbabwe"
 msgstr ""
 
-#: rust/annuaire-app/src/delegation.rs rust/annuaire-app/src/gpo_dialogs.rs
-#: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/preferences.rs
-#: rust/annuaire-app/src/pso.rs
-msgid "Searching…"
-msgstr ""
-
 #: rust/annuaire-app/src/delegation.rs
 msgid "Delegate to this object"
 msgstr ""
@@ -6279,12 +6929,6 @@ msgstr ""
 msgid "{nom} in the {zone} zone"
 msgstr ""
 
-#: rust/annuaire-app/src/dns_record.rs rust/annuaire-app/src/gpo.rs
-#: rust/annuaire-app/src/gpo_editor.rs rust/annuaire-app/src/pso.rs
-#: rust/annuaire-app/src/writes.rs
-msgid "No domain is open."
-msgstr ""
-
 #. / `3600` → `3600 s (1 h)`; the short form only when it is exact (`texte_duree`).
 
 #: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/pso_views.rs
@@ -6476,11 +7120,11 @@ msgstr ""
 msgid "Aging"
 msgstr ""
 
-#: rust/annuaire-app/src/dns_views.rs
+#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/preview_views.rs
 msgid "enabled"
 msgstr ""
 
-#: rust/annuaire-app/src/dns_views.rs
+#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/preview_views.rs
 msgid "disabled"
 msgstr ""
 
@@ -6917,6 +7561,263 @@ msgstr ""
 msgid "Unable to read the SYSVOL of {dc}."
 msgstr ""
 
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} is not responding."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "No valid Kerberos ticket to open the share on {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid ""
+"{serveur} cannot encrypt the SMB session (SMB 3 required, or SMB 2 with "
+"signing allowed in the domain profile)."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "Kerberos refuses the SMB session with {serveur}."
+msgstr ""
+
+#. STATUS_BAD_NETWORK_NAME
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "This share does not exist on {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} refuses this account access to the share."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "Unable to read the share on {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid ""
+"{serveur} refuses the operation on its shares. On Samba, the account needs "
+"SeDiskOperatorPrivilege (net rpc rights grant), and creating, changing or "
+"deleting a share also needs the add, change and delete share commands in "
+"smb.conf."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "A share with this name already exists on {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The folder does not exist on {serveur}: create it first."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} refuses this share name, or does not have this share."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} refuses a value of the share."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} does not support this operation on its shares."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} refused the operation on its shares (Win32 error {code})."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "No valid Kerberos ticket for {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} cannot encrypt the SMB session (SMB 3 required)."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid ""
+"{serveur} only offers SMB 2, which cannot encrypt the session. For an older "
+"server, enable “Allow SMB 2 with signing only” in the domain profile."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} refuses this account the list of its shares."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "Unable to read the shares of {serveur}."
+msgstr ""
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} does not answer as a file server (share service)."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Permissions cannot be read"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/share_views.rs
+msgid "(unknown)"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/pso.rs
+#: rust/annuaire-app/src/shares.rs
+msgid "Edit"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/pso.rs
+#: rust/annuaire-app/src/shares.rs
+msgid "Remove"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Enable Inheritance"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Disable Inheritance…"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/shares.rs
+msgid "These permissions cannot be encoded."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/shares.rs
+msgid "Nothing has changed."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Disable Inheritance"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "What should become of the entries inherited from the parent folder?"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Remove All Inherited Entries"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Convert into Explicit Entries"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_dialogs.rs
+#: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/shares.rs
+msgid "Unreadable SID"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Counting…"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "The subfolders cannot be counted"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid "Propagate to {n} element?"
+msgid_plural "Propagate to {n} elements?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid ""
+"The permissions of the {dossiers} folders and {fichiers} files under "
+"{chemin} will be replaced by those they inherit: their explicit entries "
+"removed, their inheritance turned on again."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid ""
+"The inherited permissions of the {dossiers} folders and {fichiers} files "
+"under {chemin} will be computed again; their explicit entries stay, and "
+"nothing changes under a folder whose inheritance is disabled."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid ""
+"Before an element is written, its descriptor is saved in {dossier}. The "
+"writing can be stopped: what is written stays written and saved. Ctrl+Z "
+"writes the saved descriptors back."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Continue to the Preview"
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid ""
+"NTFS permissions of {chemin}; the permissions of the share do not change."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid ""
+"The propagation can be stopped from this window while it writes; what is "
+"written stays saved."
+msgstr ""
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "Nobody but the owner will be able to open this element."
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+#, rust-format
+msgid "The folders of {partage} cannot be read"
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+msgid "Root of the share"
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs rust/annuaire-app/src/sheet.rs
+msgid "Reading…"
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+#, rust-format
+msgid "Security: {nom}"
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+#, rust-format
+msgid "Effective access: {nom}"
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+msgid "No file in this folder."
+msgstr ""
+
+#: rust/annuaire-app/src/folders.rs
+#, rust-format
+msgid "{n} file"
+msgid_plural "{n} files"
+msgstr[0] ""
+msgstr[1] ""
+
 #: rust/annuaire-app/src/gpo.rs
 msgid ", alert"
 msgstr ""
@@ -7235,10 +8136,6 @@ msgstr ""
 msgid "Add to the filtering"
 msgstr ""
 
-#: rust/annuaire-app/src/gpo_dialogs.rs rust/annuaire-app/src/gpo_security.rs
-msgid "Unreadable SID"
-msgstr ""
-
 #: rust/annuaire-app/src/gpo_dialogs.rs
 msgid "Do not add"
 msgstr ""
@@ -7345,10 +8242,6 @@ msgstr ""
 
 #: rust/annuaire-app/src/gpo_security.rs
 msgid "Group name or identifier"
-msgstr ""
-
-#: rust/annuaire-app/src/gpo_security.rs
-msgid "Choose"
 msgstr ""
 
 #: rust/annuaire-app/src/gpo_security.rs
@@ -9707,10 +10600,6 @@ msgid "File deletion"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "Permissions"
-msgstr ""
-
-#: rust/annuaire-app/src/preview_views.rs
 msgid "Creation"
 msgstr ""
 
@@ -9727,7 +10616,23 @@ msgid "Rename and move"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "Allow"
+msgid "Share creation"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "Share modification"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "Share deletion"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "Propagation of inheritance"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "Permissions saved before a propagation"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
@@ -9753,7 +10658,31 @@ msgid "(unchanged)"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "registry"
+msgid "path"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "comment"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "connections"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "options"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "share permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "(deleted)"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "(kept)"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
@@ -9761,11 +10690,54 @@ msgid "permissions"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "content"
+msgid "inheritance"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "(deleted)"
+msgid "descendants"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "{n} element examined"
+msgid_plural "{n} elements examined"
+msgstr[0] ""
+msgstr[1] ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "inherited permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "replaced on every descendant"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "recomputed where inheritance is on"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "as the propagation left them"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "as saved before it"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "as saved before the propagation"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "backup"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "registry"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "content"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
@@ -9928,10 +10900,6 @@ msgid "Policies cannot be read"
 msgstr ""
 
 #: rust/annuaire-app/src/pso.rs
-msgid "Edit"
-msgstr ""
-
-#: rust/annuaire-app/src/pso.rs
 msgid "This policy no longer exists."
 msgstr ""
 
@@ -9967,11 +10935,7 @@ msgstr ""
 msgid "A policy with this name already exists."
 msgstr ""
 
-#: rust/annuaire-app/src/pso.rs
-msgid "Remove"
-msgstr ""
-
-#: rust/annuaire-app/src/pso.rs
+#: rust/annuaire-app/src/pso.rs rust/annuaire-app/src/shares.rs
 #, rust-format
 msgid "Remove: {nom}"
 msgstr ""
@@ -10125,10 +11089,6 @@ msgstr ""
 msgid "All types"
 msgstr ""
 
-#: rust/annuaire-app/src/search.rs rust/annuaire-app/src/security_views.rs
-msgid "Users"
-msgstr ""
-
 #: rust/annuaire-app/src/search.rs
 msgid "Computers"
 msgstr ""
@@ -10220,10 +11180,6 @@ msgid "Cannot remove"
 msgstr ""
 
 #: rust/annuaire-app/src/security_views.rs
-msgid "Everyone"
-msgstr ""
-
-#: rust/annuaire-app/src/security_views.rs
 msgid "Creator Owner"
 msgstr ""
 
@@ -10260,10 +11216,6 @@ msgid "Self"
 msgstr ""
 
 #: rust/annuaire-app/src/security_views.rs
-msgid "Authenticated Users"
-msgstr ""
-
-#: rust/annuaire-app/src/security_views.rs
 msgid "Restricted"
 msgstr ""
 
@@ -10277,10 +11229,6 @@ msgstr ""
 
 #: rust/annuaire-app/src/security_views.rs
 msgid "Network Service"
-msgstr ""
-
-#: rust/annuaire-app/src/security_views.rs
-msgid "Administrators"
 msgstr ""
 
 #: rust/annuaire-app/src/security_views.rs
@@ -11172,6 +12120,383 @@ msgid ""
 "ignores it."
 msgstr ""
 
+#: rust/annuaire-app/src/share_views.rs
+msgid "Change"
+msgstr ""
+
+#. « Lire » in the « Share » tab of Windows, « Lecture » in the « Security » tab.
+#: rust/annuaire-app/src/share_views.rs
+msgctxt "share permission"
+msgid "Read"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Special permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Modify"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read & execute"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Write"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "List folder"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read data"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Create files"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Write data"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Create folders"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Append data"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read extended attributes"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Write extended attributes"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Traverse folder"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Execute file"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Delete subfolders and files"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read attributes"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Write attributes"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Read permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Change permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Take ownership"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "This folder only"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "This folder, subfolders and files"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "This folder and subfolders"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "This folder and files"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Subfolders and files only"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Subfolders only"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Files only"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "{portee} (one level)"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "{qui}: denied {droit}"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "{qui}: {droit}"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Everyone: Full control (no permissions set on the share)"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Everyone: Full control (no list of permissions)"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Nobody (empty list of permissions)"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "special permissions ({droits})"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "{texte} (inherited)"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "Special permissions: {droits}"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "explicit"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "inherited from {source}"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "inherited from above the share"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid ""
+"Inheritance is disabled: only the explicit entries apply, nothing comes from "
+"the parent folder."
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid ""
+"The entries inherited from the folder above the share apply; it cannot be "
+"read from here."
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "The entries inherited from the parent folder apply."
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Device"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Interprocess communication"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "Other"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "{genre}, administrative"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "offline: files chosen by the user"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "offline: all files opened"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "offline: all files opened, optimized for performance"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "offline: none"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "access-based enumeration"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "encrypted access required"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+#, rust-format
+msgid "other options 0x{valeur}"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "no limit"
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "The name is empty."
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "The name is longer than 80 characters."
+msgstr ""
+
+#: rust/annuaire-app/src/share_views.rs
+msgid "The name contains a character that Windows refuses."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Domain member, operating system not declared"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Opened before"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs rust/annuaire-app/src/views.rs
+msgid "Domain controller"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid "{systeme}, domain controller"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "No file server known yet: type its name."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid "The shares of {serveur} cannot be read"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid ""
+"This account may only list the shares: paths and permissions are not shown."
+msgstr ""
+
+#. The folders and their NTFS permissions, read-only profile included (J8.4).
+#: rust/annuaire-app/src/shares.rs
+msgid "Folders and NTFS permissions"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "This share no longer exists."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Share cannot be read"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid ""
+"Deletion of the share {partage}: the folder {chemin} and its content stay on "
+"the server."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid ""
+"The open connections to the share are cut. Undoing recreates the share with "
+"its permissions and options."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "A share cannot be renamed: create another one and delete this one."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Changed with “Permissions” in the list of the shares."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid "New share on {serveur}"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid ""
+"Change them after the creation with “Permissions”. The NTFS permissions of "
+"the folder apply too."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "A share with this name already exists on this server."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "The folder on the server is not given."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid ""
+"The folder {chemin} must exist on {serveur}: Calinda does not create it."
+msgstr ""
+
+#. / The choices of « Allowed » and « Denied »: none, then the three levels, then « Special
+
+#. / permissions » when the mask read is none of them (kept as is).
+
+#: rust/annuaire-app/src/shares.rs rust/annuaire-app/src/sheet.rs
+msgid "None"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Allowed"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Denied"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid "{etat} for {nom}"
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+#, rust-format
+msgid ""
+"Permissions of the share {partage}; the NTFS permissions of its folder do "
+"not change."
+msgstr ""
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Nobody will be able to open the share."
+msgstr ""
+
 #: rust/annuaire-app/src/sheet.rs
 msgid "Read-only profile: the properties cannot be modified."
 msgstr ""
@@ -11182,10 +12507,6 @@ msgstr ""
 
 #: rust/annuaire-app/src/sheet.rs
 msgid "Change required at next logon"
-msgstr ""
-
-#: rust/annuaire-app/src/sheet.rs
-msgid "Reading…"
 msgstr ""
 
 #: rust/annuaire-app/src/sheet.rs rust/annuaire-app/src/writes.rs
@@ -11212,10 +12533,6 @@ msgid "{n} member"
 msgid_plural "{n} members"
 msgstr[0] ""
 msgstr[1] ""
-
-#: rust/annuaire-app/src/sheet.rs
-msgid "None"
-msgstr ""
 
 #: rust/annuaire-app/src/sheet.rs
 msgid "Not applicable: the password never expires."
@@ -11745,10 +13062,6 @@ msgid "Distribution group, {portee}"
 msgstr ""
 
 #: rust/annuaire-app/src/views.rs
-msgid "Domain controller"
-msgstr ""
-
-#: rust/annuaire-app/src/views.rs
 msgid "Unreadable"
 msgstr ""
 
@@ -11890,6 +13203,86 @@ msgstr ""
 
 #: rust/annuaire-app/src/writes.rs
 msgid "Change not applied"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Propagation about to start…"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "{examines} of {total} elements examined, {ecrits} written"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Stopping after the batch being written…"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "{ecrits} elements written, {examines} examined under {chemin}."
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "and {n} more"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Propagation stopped"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Propagation done, with refusals"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid ""
+"What is written stays written and saved: Ctrl+Z writes it back. « Resume » "
+"propagates again from the folder and writes only what is not yet as it must "
+"be."
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "{n} elements were left as they were."
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Elements left as they were"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "Resume"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid ""
+"Resumption of a propagation stopped: what is already as it must be is not "
+"written again."
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "its folder cannot be listed ({statut})"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "its permissions cannot be read ({statut})"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "the server refused the write ({statut})"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "read again, its permissions are not those written"
+msgstr ""
+
+#: rust/annuaire-app/src/writes.rs
+msgid "changed since the propagation, left as it is"
 msgstr ""
 
 #: rust/annuaire-app/src/writes.rs

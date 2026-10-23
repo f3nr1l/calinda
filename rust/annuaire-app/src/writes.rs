@@ -18,11 +18,12 @@ use std::sync::Arc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
-use annuaire_core::changes::{Changeset, Issue, Report};
+use annuaire_core::changes::{Changeset, Issue, Operation, Report};
 use annuaire_core::connection::Connection;
 use annuaire_core::dns_write;
 use annuaire_core::journal::Journal;
 use annuaire_core::profile::Profile;
+use annuaire_core::propagation;
 use annuaire_core::security;
 use annuaire_core::writer::{self, ApplyError, Outcome, Problem};
 use gtk::{gio, glib};
@@ -86,6 +87,10 @@ fn after_write(host: &gtk::Widget, report: &Report) {
         w.after_write(report);
     } else if let Some(w) = root.downcast_ref::<crate::pso::PsoWindow>() {
         w.after_write(report);
+    } else if let Some(w) = root.downcast_ref::<crate::shares::SharesWindow>() {
+        w.after_write(report);
+    } else if let Some(w) = root.downcast_ref::<crate::folders::FoldersWindow>() {
+        w.after_write(report);
     } else if let Some(w) = root.downcast_ref::<crate::gpo_editor::GpoEditor>() {
         w.after_write(report);
     }
@@ -135,6 +140,10 @@ pub fn announce(parent: &impl IsA<gtk::Widget>, text: &str, undo: Option<Box<dyn
     } else if let Some(w) = root.downcast_ref::<crate::gpo::GpoWindow>() {
         w.add_toast(toast);
     } else if let Some(w) = root.downcast_ref::<crate::pso::PsoWindow>() {
+        w.add_toast(toast);
+    } else if let Some(w) = root.downcast_ref::<crate::shares::SharesWindow>() {
+        w.add_toast(toast);
+    } else if let Some(w) = root.downcast_ref::<crate::folders::FoldersWindow>() {
         w.add_toast(toast);
     } else if let Some(w) = root.downcast_ref::<crate::gpo_editor::GpoEditor>() {
         w.add_toast(toast);
@@ -295,6 +304,12 @@ mod imp {
         pub warnings: TemplateChild<gtk::Label>,
         #[template_child]
         pub store: TemplateChild<gtk::gio::ListStore>,
+        #[template_child]
+        pub progress_box: TemplateChild<gtk::Box>,
+        #[template_child]
+        pub progress_bar: TemplateChild<gtk::ProgressBar>,
+        #[template_child]
+        pub stop_button: TemplateChild<gtk::Button>,
         pub context: OnceCell<Arc<super::WriteContext>>,
         pub changeset: OnceCell<Changeset>,
         pub resumes: RefCell<Option<String>>,
@@ -326,6 +341,10 @@ mod imp {
                 }),
                 ("apply", |d, _| {
                     d.apply();
+                    None
+                }),
+                ("stop", |d, _| {
+                    d.stop();
                     None
                 }),
             ]));
@@ -428,6 +447,11 @@ impl PreviewDialog {
             changeset.clone(),
         );
         let domain = context.profile.domain.clone();
+        // A changeset on shares is written on its file server, not on the DC (ADR 0023).
+        let server = changeset
+            .operations
+            .iter()
+            .find_map(|o| o.server().map(str::to_owned));
         glib::spawn_future_local(async move {
             let checking = connection.clone();
             let read = gio::spawn_blocking(move || {
@@ -452,9 +476,11 @@ impl PreviewDialog {
                 }
                 Err(_) => return,
             };
-            let dc = connection
-                .state()
-                .map_or_else(|| "?".to_owned(), |s| s.dc.clone());
+            let dc = server.unwrap_or_else(|| {
+                connection
+                    .state()
+                    .map_or_else(|| "?".to_owned(), |s| s.dc.clone())
+            });
             dialog.verified(&problems, &dc);
         });
     }
@@ -506,6 +532,7 @@ impl PreviewDialog {
         imp.cancel_button.set_sensitive(false);
         imp.button_stack.set_visible_child_name("attente");
         self.set_can_close(false);
+        self.follow_propagations(&changeset);
         let resumes = imp.resumes.borrow().clone();
         let retry = imp.retry.take();
         let weak = self.downgrade();
@@ -536,6 +563,60 @@ impl PreviewDialog {
                 ),
             }
         });
+    }
+
+    /// The propagations of the changeset (ADR 0023 § 5) are followed while it is written: a
+    /// bar of progress, and « Stop », which ends them after the batch being written.
+    fn follow_propagations(&self, changeset: &Changeset) {
+        let ids = propagations(changeset);
+        if ids.is_empty() {
+            return;
+        }
+        let imp = self.imp();
+        imp.progress_box.set_visible(true);
+        imp.progress_bar
+            .set_text(Some(&tr("Propagation about to start…")));
+        let controls: Vec<_> = ids.iter().map(|id| propagation::control(id)).collect();
+        let weak = self.downgrade();
+        glib::timeout_add_local(std::time::Duration::from_millis(200), move || {
+            let Some(dialog) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            let imp = dialog.imp();
+            let progress: Vec<_> = controls.iter().map(|c| c.progress()).collect();
+            let (examined, total, written) = progress.iter().fold((0, 0, 0), |(e, t, w), p| {
+                (e + p.examined, t + p.total.max(p.examined), w + p.written)
+            });
+            if total > 0 {
+                imp.progress_bar
+                    .set_fraction((examined as f64 / total as f64).min(1.0));
+            }
+            imp.progress_bar.set_text(Some(&fill(
+                &tr("{examines} of {total} elements examined, {ecrits} written"),
+                &[
+                    ("examines", &examined.to_string()),
+                    ("total", &total.to_string()),
+                    ("ecrits", &written.to_string()),
+                ],
+            )));
+            if progress.iter().all(|p| p.finished) && !progress.is_empty() {
+                imp.stop_button.set_sensitive(false);
+            }
+            glib::ControlFlow::Continue
+        });
+    }
+
+    /// « Stop »: the propagations end after the batch being written.
+    fn stop(&self) {
+        if let Some(changeset) = self.imp().changeset.get() {
+            for id in propagations(changeset) {
+                propagation::control(&id).stop();
+            }
+        }
+        let imp = self.imp();
+        imp.stop_button.set_sensitive(false);
+        imp.progress_bar
+            .set_text(Some(&tr("Stopping after the batch being written…")));
     }
 
     fn done(&self, result: Result<Outcome, ApplyError>, domain: &str) {
@@ -569,6 +650,7 @@ impl PreviewDialog {
             Ok(outcome) => {
                 if std::env::var_os("ANNUAIRE_ESSAI_ACTION").is_some()
                     || std::env::var_os("ANNUAIRE_ESSAI_DNS").is_some()
+                    || std::env::var_os("ANNUAIRE_ESSAI_PARTAGES").is_some()
                 {
                     eprintln!(
                         "essai bilan : {}",
@@ -576,6 +658,7 @@ impl PreviewDialog {
                     );
                 }
                 signal_report(&host, outcome);
+                propagation_outcome(&host, &outcome.report);
                 // The window reads again what may have changed (table, tree).
                 if outcome.report.issue != Issue::Refused {
                     after_write(&host, &outcome.report);
@@ -606,6 +689,197 @@ impl PreviewDialog {
     /// The verification is over (trials).
     pub fn trial_verified(&self) -> bool {
         !self.imp().check_spinner.is_visible()
+    }
+
+    /// The text of the bar of progress of a propagation, if shown (trials).
+    pub fn trial_progress(&self) -> Option<String> {
+        let imp = self.imp();
+        imp.progress_box.is_visible().then(|| {
+            imp.progress_bar
+                .text()
+                .map(|t| t.to_string())
+                .unwrap_or_default()
+        })
+    }
+
+    /// « Stop » (trials).
+    pub fn trial_stop(&self) {
+        self.stop();
+    }
+}
+
+/// The backups of the propagations of a changeset (ADR 0023 § 5).
+pub fn propagations(changeset: &Changeset) -> Vec<String> {
+    changeset
+        .operations
+        .iter()
+        .filter_map(|op| match op {
+            Operation::PropagateInheritance { backup, .. } => Some(backup.clone()),
+            _ => None,
+        })
+        .collect()
+}
+
+/// What the propagations of an applied changeset did: a toast when everything is written,
+/// a dialog when elements were refused or the propagation was stopped (with « Resume », a new
+/// propagation of the same folder, which goes on where the stop left it).
+fn propagation_outcome(host: &gtk::Widget, report: &Report) {
+    for op in &report.changeset.operations {
+        let Operation::PropagateInheritance {
+            server,
+            share,
+            path,
+            replace,
+            parts,
+            backup,
+            direction,
+            count,
+            unc,
+        } = op
+        else {
+            continue;
+        };
+        let control = propagation::control(backup);
+        let progress = control.progress();
+        let refusals = control.refusals();
+        propagation::forget(backup);
+        if report.issue != Issue::Applied {
+            continue;
+        }
+        let counts = fill(
+            &tr("{ecrits} elements written, {examines} examined under {chemin}."),
+            &[
+                ("ecrits", &progress.written.to_string()),
+                ("examines", &progress.examined.to_string()),
+                ("chemin", unc),
+            ],
+        );
+        if refusals.is_empty() && !progress.stopped {
+            announce(host, &counts, None);
+            continue;
+        }
+        let mut lines: Vec<String> = refusals
+            .iter()
+            .take(30)
+            .map(|r| format!("{} — {}", r.path, refusal_text(&r.reason)))
+            .collect();
+        if refusals.len() > 30 {
+            lines.push(fill(
+                &tr("and {n} more"),
+                &[("n", &(refusals.len() - 30).to_string())],
+            ));
+        }
+        let title = if progress.stopped {
+            tr("Propagation stopped")
+        } else {
+            tr("Propagation done, with refusals")
+        };
+        let mut text = counts;
+        if progress.stopped {
+            text.push(' ');
+            text.push_str(&tr(
+                "What is written stays written and saved: Ctrl+Z writes it back. « Resume » propagates again from the folder and writes only what is not yet as it must be.",
+            ));
+        }
+        if !refusals.is_empty() {
+            text.push(' ');
+            text.push_str(&fill(
+                &tr("{n} elements were left as they were."),
+                &[("n", &refusals.len().to_string())],
+            ));
+        }
+        let alert = adw::AlertDialog::new(Some(&title), Some(&text));
+        if !lines.is_empty() {
+            let view = gtk::Label::builder()
+                .label(lines.join("\n"))
+                .xalign(0.0)
+                .wrap(true)
+                .selectable(true)
+                .build();
+            let expander = gtk::Expander::builder()
+                .label(tr("Elements left as they were"))
+                .child(&view)
+                .build();
+            alert.set_extra_child(Some(&expander));
+        }
+        alert.add_response("fermer", &tr("Close"));
+        let resumable =
+            progress.stopped && *direction == annuaire_core::changes::Direction::Compute;
+        if resumable {
+            alert.add_response("reprendre", &tr("Resume"));
+            alert.set_default_response(Some("reprendre"));
+        }
+        let (weak, server, share, path, replace, parts, count) = (
+            host.downgrade(),
+            server.clone(),
+            share.clone(),
+            path.clone(),
+            *replace,
+            parts.clone(),
+            *count,
+        );
+        alert.connect_response(None, move |_, response| {
+            let Some(host) = weak.upgrade() else { return };
+            if response != "reprendre" {
+                return;
+            }
+            let operation = Operation::propagate_parts(
+                &server,
+                &share,
+                &path,
+                replace,
+                parts.clone(),
+                &propagation::new_id(),
+                count,
+            );
+            propose(
+                &host,
+                Changeset {
+                    operations: vec![operation],
+                    remarks: vec![tr(
+                        "Resumption of a propagation stopped: what is already as it must be is not written again.",
+                    )],
+                },
+                Options::default(),
+            );
+        });
+        alert.present(Some(host));
+    }
+}
+
+/// Why an element was left as it was, in words.
+pub fn refusal_text(reason: &propagation::Reason) -> String {
+    use propagation::Reason;
+    let status = |s: u32| format!("NTSTATUS 0x{s:08X}");
+    match reason {
+        Reason::Unlisted(s) => fill(
+            &tr("its folder cannot be listed ({statut})"),
+            &[("statut", &status(*s))],
+        ),
+        Reason::Unreadable(0xC000_0061) => {
+            tr("its auditing entries cannot be read: the account does not hold SeSecurityPrivilege")
+        }
+        Reason::Unreadable(s) => fill(
+            &tr("its permissions cannot be read ({statut})"),
+            &[("statut", &status(*s))],
+        ),
+        // STATUS_INVALID_OWNER: the owner given to another account (J8.7).
+        Reason::Refused(0xC000_005A) => tr(
+            "the server refused the owner: giving ownership to another account needs SeRestorePrivilege",
+        ),
+        // STATUS_PRIVILEGE_NOT_HELD: the auditing entries (J8.7).
+        Reason::Refused(0xC000_0061) => tr(
+            "the server refused the auditing entries: the account does not hold SeSecurityPrivilege",
+        ),
+        Reason::Refused(s) => fill(
+            &tr("the server refused the write ({statut})"),
+            &[("statut", &status(*s))],
+        ),
+        Reason::NotAsWritten => tr("read again, its permissions are not those written"),
+        Reason::Changed => tr("changed since the propagation, left as it is"),
+        Reason::NotSaved => tr(
+            "its permissions could not be read before its owner was replaced: there is nothing to write back",
+        ),
     }
 }
 

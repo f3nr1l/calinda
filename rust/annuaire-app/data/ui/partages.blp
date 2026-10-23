@@ -1,0 +1,194 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Fenêtre « Partages » (ADR 0023, J8.2) : un serveur de fichiers du domaine, choisi parmi les
+// serveurs de l'annuaire et ceux déjà ouverts sous ce profil, ou saisi ; ses partages, avec
+// chemin, commentaire, options et droits en clair ; les partages administratifs repliés à
+// part. « Nouveau partage » (Ctrl+N), « Autorisations », « Modifier » et « Supprimer » passent
+// par les dialogues de partage et par l'aperçu commun. Lignes construites par shares.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuairePartages: Adw.Window {
+  title: _("Shares");
+  default-width: 940;
+  default-height: 680;
+  width-request: 360;
+  height-request: 294;
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {
+          title: _("Shares");
+        };
+
+        [start]
+        Button new_button {
+          icon-name: "list-add-symbolic";
+          tooltip-text: _("New Share (Ctrl+N)");
+          action-name: "partages.nouveau";
+
+          accessibility {
+            label: _("New Share");
+          }
+        }
+
+        [end]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Refresh (F5)");
+          action-name: "partages.actualiser";
+
+          accessibility {
+            label: _("Refresh");
+          }
+        }
+      }
+
+      [top]
+      Box {
+        spacing: 6;
+        margin-start: 12;
+        margin-end: 12;
+        margin-top: 6;
+        margin-bottom: 6;
+
+        Entry server_entry {
+          hexpand: true;
+          placeholder-text: _("File server (fs1.example.com)");
+          input-purpose: url;
+          activate => $open();
+
+          accessibility {
+            label: _("File server");
+          }
+        }
+
+        MenuButton servers_button {
+          icon-name: "view-list-symbolic";
+          tooltip-text: _("Known file servers");
+
+          popover: Popover servers_popover {
+            child: ScrolledWindow {
+              hscrollbar-policy: never;
+              propagate-natural-height: true;
+              max-content-height: 420;
+              min-content-width: 320;
+
+              child: ListBox servers_list {
+                selection-mode: none;
+
+                accessibility {
+                  label: _("Known file servers");
+                }
+              };
+            };
+          };
+
+          accessibility {
+            label: _("Known file servers");
+          }
+        }
+
+        Button {
+          label: _("Open");
+          clicked => $open();
+
+          accessibility {
+            description: _("Lists the shares of this server");
+          }
+        }
+      }
+
+      content: Stack state {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "vide";
+
+          child: Adw.StatusPage {
+            icon-name: "folder-remote-symbolic";
+            title: _("Choose a File Server");
+            description: _("A server of the domain, from the list or typed by its DNS name. Its shares are read through the Server service, over the encrypted SMB session of your ticket.");
+          };
+        }
+
+        StackPage {
+          name: "chargement";
+
+          child: Spinner {
+            spinning: true;
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        }
+
+        StackPage {
+          name: "erreur";
+
+          child: Adw.StatusPage error {
+            icon-name: "dialog-warning-symbolic";
+
+            child: Button {
+              label: _("Read Again");
+              halign: center;
+              action-name: "partages.actualiser";
+
+              styles [
+                "pill",
+              ]
+            };
+          };
+        }
+
+        StackPage {
+          name: "contenu";
+
+          child: Adw.PreferencesPage {
+            Adw.PreferencesGroup shares_group {
+              title: _("Shared folders");
+
+              ListBox shares_list {
+                selection-mode: none;
+
+                accessibility {
+                  label: _("Shared folders");
+                }
+
+                styles [
+                  "boxed-list",
+                ]
+              }
+
+              Label none_label {
+                label: _("No shared folder on this server.");
+                xalign: 0;
+                wrap: true;
+                visible: false;
+
+                styles [
+                  "dim-label",
+                ]
+              }
+            }
+
+            Adw.PreferencesGroup special_group {
+              Adw.ExpanderRow special_row {
+                title: _("Administrative and special shares");
+                subtitle: _("Created by the server itself (C$, ADMIN$, IPC$, printers…)");
+
+                accessibility {
+                  label: _("Administrative and special shares");
+                }
+              }
+            }
+          };
+        }
+      };
+    };
+  };
+}

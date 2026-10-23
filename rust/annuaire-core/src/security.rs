@@ -509,6 +509,43 @@ pub fn name_sids(
     })
 }
 
+/// The SID of the bound account (`whoami`, then its `objectSid`): « myself » when the owner of
+/// a file is changed (ADR 0023 § 5). `None` if the server does not tell. Blocking.
+pub fn own_sid(connection: &Connection) -> Result<Option<Sid>, Failure> {
+    connection.run(true, move |link| {
+        let who = link.session.whoami(Some(link.timeout))?;
+        let base = link.state.root_dse.default_naming_context.clone();
+        let (base, scope, filter) = if let Some(dn) = who.strip_prefix("dn:") {
+            (dn.to_owned(), Scope::Base, "(objectClass=*)".to_owned())
+        } else if let Some(account) = who.strip_prefix("u:") {
+            let sam = account.rsplit('\\').next().unwrap_or(account);
+            (
+                base,
+                Scope::Subtree,
+                format!("(sAMAccountName={})", search::escape_filter(sam)),
+            )
+        } else {
+            return Ok(None);
+        };
+        let request = SearchRequest {
+            base,
+            scope,
+            filter,
+            attributes: vec!["objectSid".into()],
+            controls: Vec::new(),
+            size_limit: 1,
+        };
+        let entries = link
+            .session
+            .search_wait(request, Some(link.timeout))?
+            .into_entries();
+        Ok(entries
+            .first()
+            .and_then(|e| e.values("objectSid").first().cloned())
+            .and_then(|v| Sid::decode(&v).ok()))
+    })
+}
+
 /// Descriptor of `dn`, DACLs of its ancestors and names of the SIDs quoted (None: object
 /// absent) (`lire_securite`). Blocking.
 pub fn read_security(

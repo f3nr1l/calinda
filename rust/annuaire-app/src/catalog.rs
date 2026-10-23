@@ -13,7 +13,7 @@ use annuaire_core::sysvol::SysvolError;
 use annuaire_core::writer::{WriteCatalog, WriteMsg};
 
 use crate::errors;
-use crate::i18n::{fill, tr};
+use crate::i18n::{fill, tr, tr_n};
 
 /// The catalogue of the application, for the core.
 #[derive(Debug, Clone, Copy, Default)]
@@ -64,6 +64,67 @@ impl Catalog for AppCatalog {
             Msg::SetPermissions { path } => {
                 fill(&tr("Change permissions of {chemin}"), &[("chemin", path)])
             }
+            Msg::AddShare { unc } => fill(&tr("Create share {partage}"), &[("partage", unc)]),
+            Msg::ChangeShare { unc } => fill(&tr("Change share {partage}"), &[("partage", unc)]),
+            Msg::DeleteShare { unc } => fill(&tr("Delete share {partage}"), &[("partage", unc)]),
+            Msg::DeleteShareKeepsFolder => tr("The folder and its content stay on the server."),
+            Msg::Propagate { path } => fill(
+                &tr("Propagate the inheritance under {chemin}"),
+                &[("chemin", path)],
+            ),
+            Msg::PropagationCount { n } => fill(
+                &tr_n(
+                    "{n} element under the folder examined",
+                    "{n} elements under the folder examined",
+                    *n as u64,
+                ),
+                &[("n", &n.to_string())],
+            ),
+            Msg::PropagationReplace => tr(
+                "The permissions of every descendant are replaced by the inherited ones (explicit entries removed, inheritance turned on again).",
+            ),
+            Msg::PropagateOwner { path } => {
+                fill(&tr("Replace the owner under {chemin}"), &[("chemin", path)])
+            }
+            Msg::PropagationOwner { owner } => fill(
+                &tr("owner of every element under the folder: {proprietaire}"),
+                &[("proprietaire", owner)],
+            ),
+            Msg::PropagateAudit { path } => fill(
+                &tr("Propagate the auditing entries under {chemin}"),
+                &[("chemin", path)],
+            ),
+            Msg::PropagationAudit { replace: false } => {
+                tr("auditing entries inherited computed again")
+            }
+            Msg::PropagationAudit { replace: true } => {
+                tr("auditing entries of every descendant replaced by the inherited ones")
+            }
+            Msg::PropagationBackup { file } => fill(&tr("backup: {fichier}"), &[("fichier", file)]),
+            Msg::PropagationRewrite { path, undo: true } => fill(
+                &tr("Write back the permissions saved under {chemin}"),
+                &[("chemin", path)],
+            ),
+            Msg::PropagationRewrite { path, undo: false } => fill(
+                &tr("Write again the permissions propagated under {chemin}"),
+                &[("chemin", path)],
+            ),
+            Msg::SharePath { path } => fill(&tr("path: {chemin}"), &[("chemin", path)]),
+            Msg::ShareRemark { remark } => {
+                fill(&tr("comment: {commentaire}"), &[("commentaire", remark)])
+            }
+            Msg::ShareMaxUses { n } => fill(
+                &tr_n(
+                    "at most {n} connection",
+                    "at most {n} connections",
+                    u64::from(*n),
+                ),
+                &[("n", &n.to_string())],
+            ),
+            Msg::ShareFlags { flags } => fill(
+                &tr("options: {options}"),
+                &[("options", &crate::share_views::flags_text(*flags))],
+            ),
             Msg::Create { dn } => fill(&tr("Create {dn}"), &[("dn", dn)]),
             Msg::NoVersionCheck => tr("(without version check)"),
             Msg::Modify { dn } => fill(&tr("Modify {dn}"), &[("dn", dn)]),
@@ -423,6 +484,55 @@ impl WriteCatalog for AppCatalog {
             WriteMsg::SysvolNoLongerExists { path } => {
                 fill(&tr("“{c}” no longer exists."), &[("c", path)])
             }
+            WriteMsg::ShareExists { unc } => {
+                fill(&tr("The share “{p}” already exists."), &[("p", unc)])
+            }
+            WriteMsg::ShareMissing { unc } => {
+                fill(&tr("The share “{p}” no longer exists."), &[("p", unc)])
+            }
+            WriteMsg::ShareChanged { unc } => fill(
+                &tr("The share “{p}” has changed since the preview: read it again."),
+                &[("p", unc)],
+            ),
+            WriteMsg::ShareNotInState { unc } => fill(
+                &tr(
+                    "The server accepted the change, but the share “{p}”, read again, is not in the expected state.",
+                ),
+                &[("p", unc)],
+            ),
+            WriteMsg::ShareOptionsKept { unc } => fill(
+                &tr(
+                    "The server accepted the change of the share “{p}” but kept its own options or connection limit: this share is defined in smb.conf, which Calinda does not write (it writes those of Samba's registry configuration).",
+                ),
+                &[("p", unc)],
+            ),
+            WriteMsg::ShareRegistryIgnored { unc } => fill(
+                &tr(
+                    "Samba does not serve the share “{p}” written in its registry configuration: the server does not read its shares there (registry shares, include = registry). The key written was removed.",
+                ),
+                &[("p", unc)],
+            ),
+            WriteMsg::FileNotInState { path } => fill(
+                &tr(
+                    "The server accepted the change, but “{c}”, read again, does not have the expected permissions.",
+                ),
+                &[("c", path)],
+            ),
+            WriteMsg::BackupUnusable { file } => fill(
+                &tr("The backup of the propagation “{f}” cannot be written or read."),
+                &[("f", file)],
+            ),
+            WriteMsg::OwnerRefused { path, status } => crate::errors::owner_refusal(*status, path),
+            WriteMsg::AuditRefused { path, status } => crate::errors::audit_refusal(*status, path),
+        }
+    }
+
+    fn share_error(&self, error: &annuaire_core::srvsvc::Error, server: &str) -> ErrorRecord {
+        let problem = errors::share_problem(error, server);
+        ErrorRecord {
+            class: "ErreurPartage".into(),
+            message: problem.message,
+            detail: problem.detail,
         }
     }
 
@@ -437,6 +547,16 @@ impl WriteCatalog for AppCatalog {
 
     fn sysvol_error(&self, error: &SysvolError, dc: &str) -> ErrorRecord {
         let (class, problem) = errors::sysvol_problem(error, dc);
+        ErrorRecord {
+            class: class.into(),
+            message: problem.message,
+            detail: problem.detail,
+        }
+    }
+
+    fn file_error(&self, error: &SysvolError, server: &str) -> ErrorRecord {
+        let (class, _) = errors::sysvol_problem(error, server);
+        let problem = errors::file_problem(error, server);
         ErrorRecord {
             class: class.into(),
             message: problem.message,

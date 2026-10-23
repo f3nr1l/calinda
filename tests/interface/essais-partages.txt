@@ -1,0 +1,67 @@
+# Scénarios de essai_partages.sh (J8, ADR 0023) : NOM|ÉTAPE;;ÉTAPE… (étapes : en-tête de
+# `shares_trial`, rust/annuaire-app/src/trial.rs). Les scénarios qui écrivent défont ce qu'ils
+# ont fait (Ctrl+Z) ; ceux qui finissent sur un dialogue servent à l'audit AT-SPI.
+#
+# Partages, droits du partage, création et suppression (J8.2, J8.3, J8.6) : partage d'essai
+# Essai-Calinda sur un dossier qui existe (fs1 : C:\srv\essai-calinda ; wdc1 :
+# C:\Partages\Essai-Calinda), comme labo_shares.
+liste-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test
+liste-wdc1|domaine|win.test;;partages;;serveur|wdc1.win.test
+partage-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;creer|Essai-Calinda|C:\srv\essai-calinda|Essai;;modifier|Essai-Calinda|Essai modifié;;droits|Essai-Calinda|S-1-5-11|;;annuler;;supprimer|Essai-Calinda;;annuler;;supprimer|Essai-Calinda
+voir-nouveau-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;voir-nouveau
+# Options dans le registre de Samba (J8.7, ADR 0023 § 9) : sur fs1, partage
+# Essai-Winreg-Interface sur C:\srv\essai-calinda (dossier fait au préalable) créé avec une
+# limite de 2 connexions, « Tous les fichiers ouverts » et l'énumération basée sur l'accès,
+# puis sans limite, « Aucun fichier », sans énumération ; Ctrl+Z, suppression, Ctrl+Z,
+# suppression. La note des options est vide : rien n'est gardé par Samba. Sur dc1, partage de
+# smb.conf, elle le dit (dialogue laissé ouvert, pour l'audit).
+options-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;creer|Essai-Winreg-Interface|C:\srv\essai-calinda|Essai winreg|2|1|1;;options|Essai-Winreg-Interface|0|3|0;;annuler;;supprimer|Essai-Winreg-Interface;;annuler;;supprimer|Essai-Winreg-Interface
+voir-registre-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;voir|Vecteurs-Été
+voir-smbconf-dc1|domaine|lab.test;;partages;;serveur|dc1.lab.test;;voir|netlogon
+# Serveurs proposés (J8.7, ADR 0023 § 2) : fs1 (membre Samba, sans operatingSystem) l'est, le
+# poste Windows joint (mêmes SPN HOST/ et RestrictedKrbHost/) et les postes fictifs ne le sont pas.
+serveurs-lab|domaine|lab.test;;partages;;propose|dc1.lab.test|oui;;propose|dc2.lab.test|oui;;propose|par-srv02.lab.test|oui;;propose|fs1.lab.test|oui;;propose|annuaire-poste1.lab.test|non;;propose|par-pc0004.lab.test|non;;propose|par-pc0668.lab.test|non
+serveurs-win|domaine|win.test;;partages;;propose|wdc1.win.test|oui;;propose|srv-paris.win.test|oui;;propose|pc-nan-dir-1.win.test|non
+#
+# Dossiers et droits NTFS (J8.4) : partage J84-Interface fait au préalable sur le serveur, avec
+# les dossiers a, b, c (trois sous-dossiers de trois fichiers chacun, deux fichiers) et grand
+# (30 dossiers de 100 fichiers), propriétaire l'administrateur.
+ntfs-lire-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;deplier|a;;fichiers|a;;securite|a|dossier;;fermer-dialogue;;securite|a\f1.txt|fichier;;fermer-dialogue
+ntfs-ecrire-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;securite|a|dossier;;ntfs-heritage|convertir;;ntfs-ajouter|S-1-5-11|autorise|1301bf|1;;ntfs-continuer;;securite|a\a1\f1.txt|fichier;;fermer-dialogue;;annuler-dossiers
+ntfs-arret-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;securite|grand|dossier;;ntfs-heritage|supprimer;;ntfs-ajouter|S-1-5-32-544|autorise|1f01ff|1;;ntfs-ajouter|S-1-5-11|autorise|1200a9|1;;ntfs-remplacer|1;;ntfs-continuer|arreter;;bilan|reprendre;;securite|grand\g30\f100.txt|fichier;;fermer-dialogue;;annuler-dossiers;;annuler-dossiers
+ntfs-ecrire-wdc1|domaine|win.test;;partages;;serveur|wdc1.win.test;;dossiers|J84-Interface;;deplier|a;;fichiers|a\a1;;securite|a|dossier;;ntfs-ajouter|S-1-5-11|autorise|1301bf|1;;ntfs-continuer;;securite|a\a2\f3.txt|fichier;;fermer-dialogue;;annuler-dossiers
+# Audit : la fenêtre, l'onglet, le dialogue d'entrée, la confirmation d'une propagation.
+audit-dossiers|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;deplier|a;;fichiers|a;;pause|500
+audit-securite|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;securite|a|dossier;;pause|500
+audit-entree|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;securite|a|dossier;;ntfs-entree|S-1-5-11;;pause|500
+audit-confirmation|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J84-Interface;;securite|grand|dossier;;ntfs-remplacer|1;;ntfs-confirmation;;pause|500
+#
+# Accès effectif (J8.5) : partage J85-Interface (fs1 : sharesec Tout le monde Modifier,
+# Administrateurs Contrôle total ; wdc1 : New-SmbShare -ChangeAccess « Tout le monde »
+# -FullAccess Administrateurs) et son dossier « dossier », DACL protégée
+# (D;OICI;0x116;;;GROUPE)(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICI;0x1301bf;;;Domain Users) avec
+# GROUPE = GG-Projet-005 (fs1) ou GG-Nantes-Direction (wdc1). Trois cas : un compte ordinaire,
+# un membre du groupe refusé, l'administrateur ; à comparer au calcul de Windows (AuthzAccessCheck).
+acces-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J85-Interface;;acces|dossier|dossier|CN=Hervé Humbert,OU=Utilisateurs,OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test;;acces|dossier|dossier|CN=Gaëlle Lambert,OU=Utilisateurs,OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test;;acces|dossier|dossier|CN=Administrator,CN=Users,DC=lab,DC=test;;acces-partage|J85-Interface|CN=Hervé Humbert,OU=Utilisateurs,OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test
+acces-wdc1|domaine|win.test;;partages;;serveur|wdc1.win.test;;dossiers|J85-Interface;;acces|dossier|dossier|CN=Noël Humbert (noel.humbert),OU=Utilisateurs,OU=Comptabilité,OU=Nantes,OU=Labo,DC=win,DC=test;;acces|dossier|dossier|CN=Gaëlle Château (gaelle.chateau),OU=Utilisateurs,OU=Direction,OU=Nantes,OU=Labo,DC=win,DC=test;;acces|dossier|dossier|CN=Administrateur,CN=Users,DC=win,DC=test
+audit-acces|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J85-Interface;;acces|dossier|dossier|CN=Gaëlle Lambert,OU=Utilisateurs,OU=Direction,OU=Nantes,OU=Labo,DC=lab,DC=test|garder;;pause|500
+#
+# Prise de possession (J8.7) : partage J87-Interface fait au préalable comme J84-Interface, son
+# dossier a seul (trois sous-dossiers de trois fichiers, deux fichiers), propriétaire
+# l'administrateur (fs1) ou Administrateurs (wdc1). Le propriétaire de a devient Administrateurs
+# (fs1) ou le compte lui-même (wdc1), sous-dossiers et fichiers compris, puis Ctrl+Z.
+proprietaire-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-proprietaire|S-1-5-32-544|1;;ntfs-continuer;;securite|a\a2\f3.txt|fichier;;fermer-dialogue;;annuler-dossiers;;securite|a\a2\f3.txt|fichier;;fermer-dialogue
+proprietaire-wdc1|domaine|win.test;;partages;;serveur|wdc1.win.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-proprietaire|moi|1;;ntfs-continuer;;securite|a\a2\f3.txt|fichier;;fermer-dialogue;;annuler-dossiers;;securite|a\a2\f3.txt|fichier;;fermer-dialogue
+audit-proprietaire|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-dialogue-proprietaire;;pause|1500
+#
+# Audit (SACL, J8.7), sur J87-Interface : une entrée de réussite pour Tout le monde sur a,
+# propagée aux enfants, puis Ctrl+Z ; le dialogue d'une entrée d'audit pour l'audit AT-SPI ;
+# l'onglet lu par un compte ordinaire (son ticket dans KRB5CCNAME), qui ne lit pas la SACL.
+audit-ecrire-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-audit-ajouter|S-1-1-0|reussite|1f01ff|1;;ntfs-continuer;;securite|a\a1\f1.txt|fichier;;fermer-dialogue;;annuler-dossiers;;securite|a\a1\f1.txt|fichier;;fermer-dialogue
+audit-ecrire-wdc1|domaine|win.test;;partages;;serveur|wdc1.win.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-audit-ajouter|S-1-1-0|tout|1f01ff|1;;ntfs-audit-remplacer|1;;ntfs-continuer;;securite|a\a1\f1.txt|fichier;;fermer-dialogue;;annuler-dossiers;;securite|a\a1\f1.txt|fichier;;fermer-dialogue
+audit-entree-audit|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-audit-entree|S-1-1-0;;pause|1500
+audit-ordinaire-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;pause|1500
+
+# Sauvegardes des propagations (J8.7) : après la prise de possession de proprietaire-fs1 et son
+# Ctrl+Z, deux sauvegardes nommées par le journal ; le dialogue de l'historique pour l'audit.
+sauvegardes-fs1|domaine|lab.test;;partages;;serveur|fs1.lab.test;;dossiers|J87-Interface;;securite|a|dossier;;ntfs-proprietaire|S-1-5-32-544|1;;ntfs-continuer;;annuler-dossiers;;sauvegardes;;pause|1500

@@ -1,0 +1,82 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Une entrée d'autorisation NTFS (ADR 0023 § 5, J8.4), comme la fenêtre « Entrée
+// d'autorisation » de Windows : autoriser ou refuser, ce à quoi elle s'applique (dossier), le
+// niveau de base ou les droits fins, et « un seul niveau ». Construit par file_security.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueEntreeNtfs: Adw.Dialog {
+  title: _("Permission Entry");
+  content-width: 620;
+  content-height: 720;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      title-widget: Adw.WindowTitle title {
+        title: _("Permission Entry");
+      };
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ComboRow type_row {
+          title: _("Type");
+          use-subtitle: true;
+          notify::selected => $changed();
+
+          model: StringList {
+            strings [
+              _("Allow"),
+              _("Deny"),
+            ]
+          };
+        }
+
+        Adw.ComboRow scope_row {
+          title: _("Applies to");
+          use-subtitle: true;
+          notify::selected => $changed();
+        }
+
+        Adw.ComboRow level_row {
+          title: _("Permissions");
+          use-subtitle: true;
+          notify::selected => $level_chosen();
+        }
+
+        Adw.SwitchRow one_level_switch {
+          title: _("Only apply these permissions to objects and/or containers within this container");
+          title-lines: 0;
+          notify::active => $changed();
+        }
+      }
+
+      Adw.PreferencesGroup rights_group {
+        title: _("Advanced Permissions");
+        description: _("Checking or unchecking a right sets the permissions to the level it matches, or to “Special permissions”.");
+      }
+    };
+
+    [bottom]
+    ActionBar {
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button ok_button {
+        label: _("OK");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+  };
+}

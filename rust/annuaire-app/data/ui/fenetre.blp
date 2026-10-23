@@ -221,6 +221,30 @@ template $AnnuaireFenetre: Adw.ApplicationWindow {
                 }
 
                 ListBoxRow {
+                  action-name: "win.partages";
+                  tooltip-text: _("Shares (Ctrl+P)");
+
+                  accessibility {
+                    label: _("Shares");
+                    description: _("Ctrl+P");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "folder-remote-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("Shares");
+                    }
+                  };
+                }
+
+                ListBoxRow {
                   action-name: "win.historique";
                   tooltip-text: _("Change History (Ctrl+H)");
 
@@ -700,6 +724,12 @@ menu main_menu {
       label: _("Password Policies");
       action: "win.pso";
       accel: "<Control>m";
+    }
+
+    item {
+      label: _("Shares");
+      action: "win.partages";
+      accel: "<Control>p";
     }
   }
 

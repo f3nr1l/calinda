@@ -219,7 +219,13 @@ pub struct Trial {
 
 impl Trial {
     pub fn new(lab: &Lab, scratch: &Scratch) -> Result<Self> {
-        let (connection, profile) = lab.pdc();
+        Self::with_profile(lab, scratch, lab.profile(true))
+    }
+
+    /// A trial whose connection follows `profile` (an option of the profile, as
+    /// `smb2_signing`); writes allowed.
+    pub fn with_profile(lab: &Lab, scratch: &Scratch, profile: Profile) -> Result<Self> {
+        let connection = source::pdc_connection(&profile);
         let (base, dc) = connection
             .run(true, |link| {
                 Ok((

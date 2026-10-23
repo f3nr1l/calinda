@@ -72,7 +72,7 @@ pub fn touched(report: &Report) -> Touched {
         }
     };
     for op in operations(report) {
-        if op.is_sysvol() {
+        if !op.is_ldap() {
             continue;
         }
         note(op.dn());

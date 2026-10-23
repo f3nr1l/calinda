@@ -91,6 +91,30 @@ template $AnnuaireDialogueApercu: Adw.Dialog {
         }
       }
 
+      Box progress_box {
+        visible: false;
+        spacing: 8;
+
+        ProgressBar progress_bar {
+          hexpand: true;
+          valign: center;
+          show-text: true;
+
+          accessibility {
+            label: _("Progress of the propagation");
+          }
+        }
+
+        Button stop_button {
+          label: _("Stop");
+          clicked => $stop();
+
+          accessibility {
+            description: _("Stops the propagation after the batch being written; what is written stays written and saved");
+          }
+        }
+      }
+
       Label problems {
         visible: false;
         xalign: 0;

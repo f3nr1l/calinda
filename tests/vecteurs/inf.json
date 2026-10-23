@@ -430,7 +430,7 @@
     },
     {
       "id": "inf-windows-secedit-export",
-      "description": "secedit /export du poste Windows 11 joint à LAB.TEST (VM 125) : même format que la GPMC, droits accordés à des noms (Invité, SERVICES RESTREINTS\\TOUS LES SERVICES RESTREINTS), casse SeSystemtimePrivilege",
+      "description": "secedit /export du poste Windows 11 joint à LAB.TEST : même format que la GPMC, droits accordés à des noms (Invité, SERVICES RESTREINTS\\TOUS LES SERVICES RESTREINTS), casse SeSystemtimePrivilege",
       "provenance": {
         "objet": "(export) %TEMP%\\secu-j7s.inf",
         "attribut": "(fichier)",

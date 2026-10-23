@@ -8,8 +8,9 @@
 //! ADR 0021), the DC always named. Every walk and
 //! every read in number goes in **compound and batched** requests: CREATE + QUERY_DIRECTORY
 //! (or READ, QUERY_INFO…) + CLOSE as one related compound, all those of a level sent before
-//! the first response, in batches bounded by the credits. A folder whose listing fills the
-//! buffer is read again on its own; a file longer than the first read is read to its end.
+//! the first response, in batches bounded by the credits. A folder is listed by two
+//! QUERY_DIRECTORY in its compound: when the second still brings names, it is listed again on
+//! its own, to the end; a file longer than the first read is read to its end.
 //!
 //! The steps of a changeset (`states`, `create`, `replace`, `set`, `erase`) do their work and
 //! read the element back in the same compound, and read the states of the paths of `then`
@@ -27,10 +28,10 @@ use crate::smb::msg::{
 use crate::smb::{Client, ErrorKind, Kerberos, Options, Response, SmbError};
 
 pub const SHARE: &str = "SYSVOL";
-/// Response size asked of QUERY_DIRECTORY; beyond `DIRECTORY_FULL` bytes received, the folder
-/// is listed again on its own (some may be left).
+/// Response size asked of QUERY_DIRECTORY. How full a response is does not tell whether names
+/// are left: Windows answers with less than the buffer holds (about 50 KiB of 64 for a folder
+/// of 3 000 files, J8.7), hence the second QUERY_DIRECTORY of a listing compound.
 pub const DIRECTORY_BUFFER: u32 = 65536;
-pub const DIRECTORY_FULL: usize = 60000;
 /// Bytes asked by the first read of a file; GPT.INI holds 22 to 60.
 pub const FIRST_READ: u32 = 65536;
 /// Large files are written in pieces of 256 KiB (4 credits each).
@@ -41,7 +42,13 @@ const SEPARATOR: char = '\\';
 pub const INFO_OWNER: u32 = 0x1;
 pub const INFO_GROUP: u32 = 0x2;
 pub const INFO_DACL: u32 = 0x4;
+/// The SACL (audit): read and written with `ACCESS_SYSTEM_SECURITY`, which asks
+/// `SeSecurityPrivilege` of the account.
+pub const INFO_SACL: u32 = 0x8;
 pub const INFO_OGD: u32 = INFO_OWNER | INFO_GROUP | INFO_DACL;
+/// `FILE_OPEN_FOR_BACKUP_INTENT` (MS-SMB2 2.2.13): the server applies the backup and restore
+/// privileges of the account to the open (ADR 0023 § 5).
+pub const BACKUP_INTENT: u32 = 0x0000_4000;
 
 // Access rights of an open (MS-SMB2 2.2.13.1).
 const READ_DATA: u32 = 0x0000_0001;
@@ -53,6 +60,7 @@ const READ_CONTROL: u32 = 0x0002_0000;
 const WRITE_DAC: u32 = 0x0004_0000;
 const WRITE_OWNER: u32 = 0x0008_0000;
 const SYNCHRONIZE: u32 = 0x0010_0000;
+const ACCESS_SYSTEM_SECURITY: u32 = 0x0100_0000;
 const LIST_DIRECTORY: u32 = READ_DATA;
 const NORMAL: u32 = 0x80;
 const SHARE_ALL: u32 = 0x7;
@@ -68,6 +76,36 @@ const DELETE_ON_CLOSE: u32 = 0x0000_1000;
 /// NTSTATUS of an absent path.
 pub fn absent(s: u32) -> bool {
     s == status::OBJECT_NAME_NOT_FOUND || s == status::OBJECT_PATH_NOT_FOUND
+}
+
+/// The access an open asks to read the parts `info` of a descriptor: `READ_CONTROL`, and
+/// `ACCESS_SYSTEM_SECURITY` for the SACL (an SMB 2 open that asks it alone is refused, by
+/// Windows as by Samba).
+pub fn read_access(info: u32) -> u32 {
+    let mut access = READ_CONTROL;
+    if info & INFO_SACL != 0 {
+        access |= ACCESS_SYSTEM_SECURITY;
+    }
+    access
+}
+
+/// The access an open asks to write the parts `info` of a descriptor, and only those: a
+/// change of owner (`WRITE_OWNER`) does not ask `WRITE_DAC`, which the account taking
+/// ownership of an element usually does not have. A SACL asks `ACCESS_SYSTEM_SECURITY` and
+/// `WRITE_DAC` (Samba refuses it otherwise, as the `SMB2-SACL` test of smbtorture says
+/// Windows does).
+pub fn write_access(info: u32) -> u32 {
+    let mut access = 0;
+    if info & INFO_DACL != 0 {
+        access |= READ_CONTROL | WRITE_DAC;
+    }
+    if info & (INFO_OWNER | INFO_GROUP) != 0 {
+        access |= WRITE_OWNER;
+    }
+    if info & INFO_SACL != 0 {
+        access |= ACCESS_SYSTEM_SECURITY | WRITE_DAC;
+    }
+    access
 }
 
 // -- Paths ----------------------------------------------------------------------------------
@@ -257,8 +295,11 @@ fn close() -> Request {
     msg::close(&RELATED_FILE_ID)
 }
 
-fn list() -> Request {
-    msg::query_directory(&RELATED_FILE_ID, 0, "*", DIRECTORY_BUFFER)
+/// The listing of a folder in a compound: two QUERY_DIRECTORY, the second telling whether the
+/// first brought every name (`listing_at`).
+fn lists() -> [Request; 2] {
+    let list = || msg::query_directory(&RELATED_FILE_ID, 0, "*", DIRECTORY_BUFFER);
+    [list(), list()]
 }
 
 fn read_first() -> Request {
@@ -305,29 +346,39 @@ fn read_bytes(r: &Response, path: &str, reread: bool) -> Result<Vec<u8>> {
     }
 }
 
-/// A listing: entries and whether the buffer was full; or the refusal of the server.
+/// A listing: entries and whether names are left to read; or the refusal of the server.
 type Listing = std::result::Result<(Vec<msg::DirectoryEntry>, bool), u32>;
 
 /// Entries of a QUERY_DIRECTORY response (`NO_MORE_FILES` is empty), or its refusal; an
 /// error if the response is malformed.
-fn listing(r: &Response) -> Result<Listing> {
+fn listing(r: &Response) -> Result<std::result::Result<Vec<msg::DirectoryEntry>, u32>> {
     match r.status() {
         status::SUCCESS => {
             let buf = msg::parse_output(&r.msg, "QUERY_DIRECTORY").map_err(SmbError::from)?;
-            let full = buf.len() >= DIRECTORY_FULL;
-            let entries = msg::parse_directory(&buf).map_err(SmbError::from)?;
-            Ok(Ok((entries, full)))
+            Ok(Ok(msg::parse_directory(&buf).map_err(SmbError::from)?))
         }
-        status::NO_MORE_FILES => Ok(Ok((Vec::new(), false))),
+        status::NO_MORE_FILES => Ok(Ok(Vec::new())),
         s => Ok(Err(s)),
     }
 }
 
-/// The listing of the CREATE + QUERY_DIRECTORY + CLOSE compound of a folder.
+/// The two QUERY_DIRECTORY of a listing compound (`lists`), the first at `at`: its entries,
+/// and names left unless the second answers `NO_MORE_FILES`.
+fn listing_at(chain: &[Response], at: usize) -> Result<Listing> {
+    Ok(match listing(get(chain, at)?)? {
+        Ok(entries) => Ok((
+            entries,
+            get(chain, at + 1)?.status() != status::NO_MORE_FILES,
+        )),
+        Err(s) => Err(s),
+    })
+}
+
+/// The listing of the CREATE + QUERY_DIRECTORY × 2 + CLOSE compound of a folder.
 fn listing_of(chain: &[Response]) -> Result<Listing> {
     let created = get(chain, 0)?;
     if created.status() == status::SUCCESS {
-        listing(get(chain, 1)?)
+        listing_at(chain, 1)
     } else {
         Ok(Err(created.status()))
     }
@@ -347,7 +398,7 @@ fn state_chain(path: &str, nature: Option<bool>) -> Vec<Request> {
         query_security(INFO_OGD),
     ];
     match nature {
-        Some(true) => chain.push(list()),
+        Some(true) => chain.extend(lists()),
         Some(false) => chain.push(read_first()),
         None => {}
     }
@@ -415,6 +466,23 @@ impl Session {
         })
     }
 
+    /// Negotiation, Kerberos session, tree of any share of a file server (ADR 0023 § 5): the
+    /// same operations, paths relative to that share. Blocking.
+    pub fn open_share(
+        server: &str,
+        share: &str,
+        protection: Protection,
+        timeout: Duration,
+    ) -> Result<Session> {
+        let mut auth = Kerberos::new(server, &realm_of(server)).map_err(SmbError::from)?;
+        let options = protection.options(timeout);
+        let client = Client::connect(server, share, &options, &mut auth)?;
+        Ok(Session {
+            dc: server.to_owned(),
+            client,
+        })
+    }
+
     /// A session on a client already connected (tests).
     #[cfg(test)]
     pub(crate) fn from_client(dc: &str, client: Client) -> Session {
@@ -448,24 +516,23 @@ impl Session {
         Ok(responses)
     }
 
-    /// Per path, the CREATE + (QUERY_DIRECTORY | READ) + CLOSE responses (`_groupe`).
+    /// Per path, the CREATE + (QUERY_DIRECTORY × 2 | READ) + CLOSE responses (`_groupe`).
     fn group(&mut self, paths: &[String], directory: bool) -> Result<Vec<Vec<Response>>> {
         let compounds: Vec<Vec<Request>> = paths
             .iter()
             .map(|p| {
                 if directory {
-                    vec![
-                        open(
-                            p,
-                            LIST_DIRECTORY | READ_ATTRIBUTES,
-                            Some(true),
-                            OPEN,
-                            0,
-                            None,
-                        ),
-                        list(),
-                        close(),
-                    ]
+                    let mut chain = vec![open(
+                        p,
+                        LIST_DIRECTORY | READ_ATTRIBUTES,
+                        Some(true),
+                        OPEN,
+                        0,
+                        None,
+                    )];
+                    chain.extend(lists());
+                    chain.push(close());
+                    chain
                 } else {
                     vec![
                         open(p, READ_DATA | READ_ATTRIBUTES, Some(false), OPEN, 0, None),
@@ -580,7 +647,7 @@ impl Session {
             flags = 0;
             match listing(&r) {
                 Err(e) => break Err(e),
-                Ok(Ok((entries, _))) if !entries.is_empty() => {
+                Ok(Ok(entries)) if !entries.is_empty() => {
                     // Counted like the Python session: the requests that brought names.
                     self.client.round_trips += 1;
                     all.extend(entries);
@@ -675,11 +742,12 @@ impl Session {
         paths: &[String],
         info: u32,
     ) -> Result<Vec<Option<Vec<u8>>>> {
+        let access = read_access(info);
         let compounds: Vec<Vec<Request>> = paths
             .iter()
             .map(|p| {
                 vec![
-                    open(p, READ_CONTROL, None, OPEN, 0, None),
+                    open(p, access, None, OPEN, 0, None),
                     query_security(info),
                     close(),
                 ]
@@ -693,6 +761,106 @@ impl Session {
                 Err(e) => return Err(e),
                 Ok(()) => out.push(Some(output(get(&chain, 1)?, path, false)?)),
             }
+        }
+        Ok(out)
+    }
+
+    /// Descriptor of each path, or the status the server refused it with (absent, access
+    /// denied…): one element refused does not stop the others (ADR 0023 § 5).
+    pub fn descriptors(
+        &mut self,
+        paths: &[String],
+        info: u32,
+    ) -> Result<Vec<std::result::Result<Vec<u8>, u32>>> {
+        let access = read_access(info);
+        let compounds: Vec<Vec<Request>> = paths
+            .iter()
+            .map(|p| {
+                vec![
+                    open(p, access, None, OPEN, 0, None),
+                    query_security(info),
+                    close(),
+                ]
+            })
+            .collect();
+        let responses = self.send(&compounds)?;
+        let mut out = Vec::with_capacity(paths.len());
+        for (path, chain) in paths.iter().zip(responses) {
+            out.push(match chain.iter().find(|r| r.status() != status::SUCCESS) {
+                Some(r) => Err(r.status()),
+                None => Ok(output(get(&chain, 1)?, path, false)?),
+            });
+        }
+        Ok(out)
+    }
+
+    /// Writes the descriptor of each path, all in one batch of compounds; the status of each
+    /// (`SUCCESS` or the refusal).
+    pub fn set_descriptors(&mut self, items: &[(String, Vec<u8>)], info: u32) -> Result<Vec<u32>> {
+        self.set_descriptors_with(items, info, 0)
+    }
+
+    /// `set_descriptors` with the create options `options` (`BACKUP_INTENT`).
+    pub fn set_descriptors_with(
+        &mut self,
+        items: &[(String, Vec<u8>)],
+        info: u32,
+        options: u32,
+    ) -> Result<Vec<u32>> {
+        let access = write_access(info);
+        let compounds: Vec<Vec<Request>> = items
+            .iter()
+            .map(|(p, d)| {
+                vec![
+                    open(p, access, None, OPEN, options, None),
+                    set_security(info, d),
+                    close(),
+                ]
+            })
+            .collect();
+        let responses = self.send(&compounds)?;
+        Ok(responses
+            .iter()
+            .map(|chain| {
+                chain
+                    .iter()
+                    .find(|r| r.status() != status::SUCCESS)
+                    .map_or(status::SUCCESS, Response::status)
+            })
+            .collect())
+    }
+
+    /// The elements of each folder, in one batch (a folder too large for one response is
+    /// listed alone to its end), folders first, then by name; per folder, its entries (paths
+    /// relative to the share) or the status the server refused it with.
+    pub fn children(
+        &mut self,
+        folders: &[String],
+    ) -> Result<Vec<std::result::Result<Vec<Entry>, u32>>> {
+        let responses = self.group(folders, true)?;
+        let mut out = Vec::with_capacity(folders.len());
+        for (folder, chain) in folders.iter().zip(responses) {
+            let entries = match listing_of(&chain)? {
+                Ok((_, true)) => self.list_alone(folder)?,
+                Ok((entries, false)) => entries,
+                Err(s) => {
+                    out.push(Err(s));
+                    continue;
+                }
+            };
+            let mut found: Vec<Entry> = named(entries)
+                .map(|e| {
+                    let directory = e.attributes & ATTRIBUTE_DIRECTORY != 0;
+                    Entry {
+                        path: join(&[folder, &e.name]),
+                        directory,
+                        size: if directory { 0 } else { e.end_of_file },
+                        modified: e.last_write_time,
+                    }
+                })
+                .collect();
+            found.sort_by_key(|e| (!e.directory, e.path.to_lowercase()));
+            out.push(Ok(found));
         }
         Ok(out)
     }
@@ -876,12 +1044,19 @@ impl Session {
     }
 
     pub fn set_descriptor(&mut self, path: &str, descriptor: &[u8], info: u32) -> Result<()> {
-        let mut access = READ_CONTROL | WRITE_DAC;
-        if info & (INFO_OWNER | INFO_GROUP) != 0 {
-            access |= WRITE_OWNER;
-        }
+        self.set_descriptor_with(path, descriptor, info, 0)
+    }
+
+    /// `set_descriptor` with the create options `options` (`BACKUP_INTENT`).
+    pub fn set_descriptor_with(
+        &mut self,
+        path: &str,
+        descriptor: &[u8],
+        info: u32,
+        options: u32,
+    ) -> Result<()> {
         let chain = vec![
-            open(path, access, None, OPEN, 0, None),
+            open(path, write_access(info), None, OPEN, options, None),
             set_security(info, descriptor),
             close(),
         ];
@@ -906,7 +1081,7 @@ impl Session {
         state.descriptor = Some(descriptor);
         match nature {
             Some(true) => {
-                let entries = match listing(get(r, 2)?)? {
+                let entries = match listing_at(r, 2)? {
                     Ok((_, true)) => self.list_alone(path)?,
                     Ok((entries, false)) => entries,
                     Err(s) => return Err(SysvolError::status(s, path)),
@@ -1455,7 +1630,13 @@ mod tests {
         use crate::smb::msg::command as c;
         assert_eq!(
             commands(state_chain("x", Some(true))),
-            [c::CREATE, c::QUERY_INFO, c::QUERY_DIRECTORY, c::CLOSE]
+            [
+                c::CREATE,
+                c::QUERY_INFO,
+                c::QUERY_DIRECTORY,
+                c::QUERY_DIRECTORY,
+                c::CLOSE
+            ]
         );
         assert_eq!(
             commands(state_chain("x", Some(false))),

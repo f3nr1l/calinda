@@ -317,8 +317,8 @@ glib::wrapper! {
     /// Names under a zone or a name; their object is made on demand (`ListeNoms`).
     ///
     /// `GtkListView` makes a row at once for each of the first 200 names: adding the 1,844
-    /// names of the first level of lab.test in one go held the loop 50 to 60 ms (measured on
-    /// fedora, J3.5). `fill` shows a first chunk of 50 at once and adds the rest at rest of
+    /// names of the first level of lab.test in one go held the loop 50 to 60 ms (measured in
+    /// J3.5). `fill` shows a first chunk of 50 at once and adds the rest at rest of
     /// the loop. For a zone not read yet (`load` given), the reading starts at the first
     /// `n_items`, that `GtkTreeListModel` only calls at the expansion (ADR 0007, 4).
     pub struct NameList(ObjectSubclass<names::NameList>)

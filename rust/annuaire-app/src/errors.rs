@@ -12,6 +12,7 @@ use annuaire_core::rootdse::RootDseError;
 use annuaire_core::search::SearchError;
 use annuaire_core::smb::ErrorKind;
 use annuaire_core::smb::msg::status;
+use annuaire_core::srvsvc::{self, werror};
 use annuaire_core::store::LineError;
 use annuaire_core::sync::SyncError;
 use annuaire_core::sysvol::{self, SysvolError};
@@ -272,6 +273,47 @@ fn status_message(code: u32, path: &str) -> String {
     )
 }
 
+/// Why the owner of a file or folder could not be written (J8.7, ADR 0023 § 5): the right or
+/// the privilege the server asks, as the lab measured it on Samba and Windows.
+pub fn owner_refusal(code: u32, path: &str) -> String {
+    let text = match code {
+        status::ACCESS_DENIED => tr(
+            "The server refuses this account to take ownership of “{chemin}”: it needs the “Take ownership” permission on the element, or the “Take ownership of files or other objects” privilege (SeTakeOwnershipPrivilege) on the server; on Windows, the “Restore files and directories” privilege (SeRestorePrivilege) also gives it.",
+        ),
+        // STATUS_INVALID_OWNER
+        0xC000_005A => tr(
+            "The server refuses this owner for “{chemin}”: giving ownership to another account, or to a group the account is not a member of, needs the “Restore files and directories” privilege (SeRestorePrivilege) on the server.",
+        ),
+        // STATUS_PRIVILEGE_NOT_HELD
+        0xC000_0061 => tr(
+            "The server refuses to change the owner of “{chemin}”: the account does not hold the privilege it needs (SeTakeOwnershipPrivilege or SeRestorePrivilege).",
+        ),
+        _ => tr("The server refused to change the owner of “{chemin}” (0x{statut:08X})."),
+    };
+    fill(
+        &text,
+        &[("chemin", path), ("statut:08X", &format!("{code:08X}"))],
+    )
+}
+
+/// Why the auditing entries (SACL) of a file or folder could not be read or written (J8.7).
+pub fn audit_refusal(code: u32, path: &str) -> String {
+    let text = match code {
+        // STATUS_PRIVILEGE_NOT_HELD
+        0xC000_0061 => tr(
+            "The server refuses the auditing entries of “{chemin}” to this account: it needs the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server.",
+        ),
+        status::ACCESS_DENIED => tr(
+            "The server refuses to write the auditing entries of “{chemin}”: besides SeSecurityPrivilege, the account needs the “Change permissions” permission on the element.",
+        ),
+        _ => tr("The server refused the auditing entries of “{chemin}” (0x{statut:08X})."),
+    };
+    fill(
+        &text,
+        &[("chemin", path), ("statut:08X", &format!("{code:08X}"))],
+    )
+}
+
 /// A SYSVOL error (`ErreurSysvol`, `erreur_session`): the class of the Python core, the
 /// message, the detail; `ticket` and `kerberos` as `traduire`.
 pub fn sysvol_problem(error: &SysvolError, dc: &str) -> (&'static str, Problem) {
@@ -326,6 +368,113 @@ pub fn sysvol_problem(error: &SysvolError, dc: &str) -> (&'static str, Problem) 
     }
 }
 
+/// An error of a file or folder of a share (ADR 0023 § 5): refusals in clear, session errors
+/// naming the file server rather than the SYSVOL.
+pub fn file_problem(error: &SysvolError, server: &str) -> Problem {
+    let SysvolError::Session(e) = error else {
+        return sysvol_problem(error, server).1;
+    };
+    let template = match e.kind {
+        ErrorKind::Unreachable | ErrorKind::Timeout => tr("{serveur} is not responding."),
+        ErrorKind::Ticket => tr("No valid Kerberos ticket to open the share on {serveur}."),
+        ErrorKind::NoEncryption => tr(
+            "{serveur} cannot encrypt the SMB session (SMB 3 required, or SMB 2 with signing allowed in the domain profile).",
+        ),
+        // A file server limited to SMB 2 (ADR 0021): the option of the profile to enable.
+        ErrorKind::Smb2Only => tr(
+            "{serveur} only offers SMB 2, which cannot encrypt the session. For an older server, enable “Allow SMB 2 with signing only” in the domain profile.",
+        ),
+        ErrorKind::Kerberos => tr("Kerberos refuses the SMB session with {serveur}."),
+        // STATUS_BAD_NETWORK_NAME
+        ErrorKind::Status(0xC000_00CC) => tr("This share does not exist on {serveur}."),
+        ErrorKind::Status(status::ACCESS_DENIED) => {
+            tr("{serveur} refuses this account access to the share.")
+        }
+        ErrorKind::Status(_) | ErrorKind::Protocol => tr("Unable to read the share on {serveur}."),
+    };
+    let mut problem = Problem::new(fill(&template, &[("serveur", server)]), e.to_string());
+    problem.ticket = e.kind == ErrorKind::Ticket;
+    problem.kerberos = e.kind == ErrorKind::Kerberos;
+    problem
+}
+
+/// `ERROR_ALREADY_EXISTS`: a key of Samba's registry configuration that is there already.
+const ALREADY_EXISTS: u32 = annuaire_core::winreg::werror::ALREADY_EXISTS;
+
+/// The phrase of a Win32 refusal of the share service, or of Samba's registry configuration
+/// (ADR 0023 § 4 and § 9).
+fn share_refusal(code: u32, server: &str) -> String {
+    let text = match code {
+        werror::ACCESS_DENIED => tr(
+            "{serveur} refuses the operation on its shares. On Samba, the account needs SeDiskOperatorPrivilege (net rpc rights grant), for the shares and for their registry configuration; a share defined in smb.conf is created, changed or deleted only through the add, change and delete share commands.",
+        ),
+        werror::NERR_DUPLICATE_SHARE | werror::FILE_EXISTS | ALREADY_EXISTS => {
+            tr("A share with this name already exists on {serveur}.")
+        }
+        werror::NERR_NET_NAME_NOT_FOUND => tr("This share does not exist on {serveur}."),
+        werror::NERR_UNKNOWN_DEVICE_DIR
+        | werror::FILE_NOT_FOUND
+        | werror::PATH_NOT_FOUND
+        | werror::BAD_PATHNAME => tr("The folder does not exist on {serveur}: create it first."),
+        werror::INVALID_NAME => {
+            tr("{serveur} refuses this share name, or does not have this share.")
+        }
+        werror::INVALID_PARAMETER => tr("{serveur} refuses a value of the share."),
+        werror::NOT_SUPPORTED | werror::INVALID_LEVEL => {
+            tr("{serveur} does not support this operation on its shares.")
+        }
+        _ => tr("{serveur} refused the operation on its shares (Win32 error {code})."),
+    };
+    fill(&text, &[("serveur", server), ("code", &code.to_string())])
+}
+
+/// An error of the share service of a file server (`ErreurPartage`): refusals in clear,
+/// session errors as for the SYSVOL; `ticket` and `kerberos` as `traduire`.
+pub fn share_problem(error: &srvsvc::Error, server: &str) -> Problem {
+    use annuaire_core::rpc::RpcError;
+    let detail = error.to_string();
+    let (message, ticket, kerberos) = match error {
+        srvsvc::Error::Refused { code, .. } => (share_refusal(*code, server), false, false),
+        srvsvc::Error::Rpc(RpcError::Smb(e)) => {
+            let template = match e.kind {
+                ErrorKind::Unreachable | ErrorKind::Timeout => tr("{serveur} is not responding."),
+                ErrorKind::Ticket => tr("No valid Kerberos ticket for {serveur}."),
+                ErrorKind::NoEncryption => {
+                    tr("{serveur} cannot encrypt the SMB session (SMB 3 required).")
+                }
+                ErrorKind::Smb2Only => tr(
+                    "{serveur} only offers SMB 2, which cannot encrypt the session. For an older server, enable “Allow SMB 2 with signing only” in the domain profile.",
+                ),
+                ErrorKind::Kerberos => tr("Kerberos refuses the SMB session with {serveur}."),
+                ErrorKind::Status(status::ACCESS_DENIED) => {
+                    tr("{serveur} refuses this account the list of its shares.")
+                }
+                ErrorKind::Status(_) | ErrorKind::Protocol => {
+                    tr("Unable to read the shares of {serveur}.")
+                }
+            };
+            (
+                fill(&template, &[("serveur", server)]),
+                e.kind == ErrorKind::Ticket,
+                e.kind == ErrorKind::Kerberos,
+            )
+        }
+        srvsvc::Error::Rpc(_) => (
+            fill(
+                &tr("{serveur} does not answer as a file server (share service)."),
+                &[("serveur", server)],
+            ),
+            false,
+            false,
+        ),
+    };
+    Problem {
+        ticket,
+        kerberos,
+        ..Problem::new(message, detail)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -351,6 +500,19 @@ mod tests {
         assert_eq!(
             ldap_problem(&exists, "").message,
             "An object with this name already exists."
+        );
+    }
+
+    #[test]
+    fn file_server_limited_to_smb2() {
+        // A file server, not the SYSVOL of a DC: the option of the profile named.
+        let error = SysvolError::Session(annuaire_core::smb::SmbError::new(
+            ErrorKind::Smb2Only,
+            "no SMB 3 dialect in common (NEGOTIATE: STATUS_NOT_SUPPORTED)",
+        ));
+        assert_eq!(
+            file_problem(&error, "fs1.lab.test").message,
+            "fs1.lab.test only offers SMB 2, which cannot encrypt the session. For an older server, enable “Allow SMB 2 with signing only” in the domain profile."
         );
     }
 }

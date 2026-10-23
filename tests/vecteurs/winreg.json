@@ -1,0 +1,845 @@
+{
+ "format": 1,
+ "famille": "winreg",
+ "description": "Stubs NDR de MS-RRP (OpenLocalMachine, BaseRegOpenKey, EnumKey, EnumValue, QueryValue, CreateKey, SetValue, DeleteValue, DeleteKey, CloseKey) rendus par Samba sur HKLM\\Software\\Samba\\smbconf (serveur membre fs1, DC dc1) ; attendu lu par un décodeur Python du laboratoire, non publié, valeurs comparées à net conf list",
+ "source": {
+  "samba": "4.22.11-Debian-4.22.11+dfsg-0+deb13u1"
+ },
+ "vecteurs": [
+  {
+   "id": "winreg-fs1-OpenLocalMachine-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 2,
+    "appel": "OpenLocalMachine",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "acces": 33554432
+   },
+   "requete_hex": "0000000000000002",
+   "hex": "010000007b774c618bd74d408eae9520a93dadc300000000",
+   "attendu": {
+    "poignee": "010000007b774c618bd74d408eae9520a93dadc3",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegOpenKey-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000007b774c618bd74d408eae9520a93dadc3",
+    "nom": "Software\\Samba\\smbconf",
+    "acces": 33554432
+   },
+   "requete_hex": "010000007b774c618bd74d408eae9520a93dadc32e002e000400020017000000000000001700000053006f006600740077006100720065005c00530061006d00620061005c0073006d00620063006f006e006600000000000000000000000002",
+   "hex": "01000000b90907571647c041876515c27e48d5cb00000000",
+   "attendu": {
+    "poignee": "01000000b90907571647c041876515c27e48d5cb",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegOpenKey-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "nom": "Calinda-absent",
+    "acces": 33554432
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb1e001e00040002000f000000000000000f000000430061006c0069006e00640061002d0061006200730065006e007400000000000000000000000002",
+   "hex": "000000000000000000000000000000000000000002000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 2
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumKey-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 9,
+    "appel": "BaseRegEnumKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "index": 0
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb00000000000000040400020000020000000000000000000008000200000000040c000200000200000000000000000000100002000000000000000000",
+   "hex": "0e0000041000020000020000000000000700000043006f006d006d0075006e00000000001400020000000004180002000002000000000000000000001c000200000000000000000000000000",
+   "attendu": {
+    "nom": "Commun",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumKey-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 9,
+    "appel": "BaseRegEnumKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "index": 1
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb01000000000000040400020000020000000000000000000008000200000000040c000200000200000000000000000000100002000000000000000000",
+   "hex": "1a0000041000020000020000000000000d000000560065006300740065007500720073002d00c9007400e900000000001400020000000004180002000002000000000000000000001c000200000000000000000000000000",
+   "attendu": {
+    "nom": "Vecteurs-Été",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumKey-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 9,
+    "appel": "BaseRegEnumKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "index": 2
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb02000000000000040400020000020000000000000000000008000200000000040c000200000200000000000000000000100002000000000000000000",
+   "hex": "00000004100002000002000000000000000000001400020000000004180002000002000000000000000000001c000200000000000000000003010000",
+   "attendu": {
+    "nom": "",
+    "werror": 259
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegOpenKey-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "nom": "Commun",
+    "acces": 33554432
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb0e000e000400020007000000000000000700000043006f006d006d0075006e00000000000000000000000002",
+   "hex": "01000000c54efab69857e04789ff48a68f3efbd100000000",
+   "attendu": {
+    "poignee": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "index": 0,
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd100000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "0a0000041400020000020000000000000500000070006100740068000000000018000200010000001c0002002a000000000000002a0000002f007300720076002f00700061007200740061006700650073002f0043006f006d006d0075006e0000000000200002002a000000240002002a00000000000000",
+   "attendu": {
+    "nom": "path",
+    "type": 1,
+    "donnees_hex": "2f007300720076002f00700061007200740061006700650073002f0043006f006d006d0075006e000000",
+    "texte": "/srv/partages/Commun",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "index": 1,
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd101000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "100000041400020000020000000000000800000063006f006d006d0065006e007400000018000200010000001c0002002e000000000000002e0000005000610072007400610067006500200063006f006d006d0075006e0020006400750020006c00610062006f0000000000200002002e000000240002002e00000000000000",
+   "attendu": {
+    "nom": "comment",
+    "type": 1,
+    "donnees_hex": "5000610072007400610067006500200063006f006d006d0075006e0020006400750020006c00610062006f000000",
+    "texte": "Partage commun du labo",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "index": 2,
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd102000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "12000004140002000002000000000000090000006700750065007300740020006f006b000000000018000200010000001c0002000600000000000000060000006e006f00000000002000020006000000240002000600000000000000",
+   "attendu": {
+    "nom": "guest ok",
+    "type": 1,
+    "donnees_hex": "6e006f000000",
+    "texte": "no",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-4",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "index": 3,
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd103000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "140000041400020000020000000000000a000000720065006100640020006f006e006c007900000018000200010000001c0002000600000000000000060000006e006f00000000002000020006000000240002000600000000000000",
+   "attendu": {
+    "nom": "read only",
+    "type": 1,
+    "donnees_hex": "6e006f000000",
+    "texte": "no",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-5",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "index": 4,
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd104000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "02000004140002000002000000000000010000000000000018000200000000001c0002000020000000000000000000002000020000200000240002000000000003010000",
+   "attendu": {
+    "nom": "",
+    "type": 0,
+    "donnees_hex": "",
+    "texte": null,
+    "werror": 259
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegQueryValue-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 17,
+    "appel": "BaseRegQueryValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "nom": "path",
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd10a000a000400020005000000000000000500000070006100740068000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "1400020001000000180002002a000000000000002a0000002f007300720076002f00700061007200740061006700650073002f0043006f006d006d0075006e00000000001c0002002a000000200002002a00000000000000",
+   "attendu": {
+    "type": 1,
+    "donnees_hex": "2f007300720076002f00700061007200740061006700650073002f0043006f006d006d0075006e000000",
+    "texte": "/srv/partages/Commun",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegQueryValue-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 17,
+    "appel": "BaseRegQueryValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1",
+    "nom": "calinda-absent",
+    "taille": 8192
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd11e001e00040002000f000000000000000f000000630061006c0069006e00640061002d0061006200730065006e0074000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "1400020000000000180002000000000000000000000000001c00020000000000200002000000000002000000",
+   "attendu": {
+    "type": 0,
+    "donnees_hex": "",
+    "texte": null,
+    "werror": 2
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegCloseKey-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 5,
+    "appel": "BaseRegCloseKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000c54efab69857e04789ff48a68f3efbd1"
+   },
+   "requete_hex": "01000000c54efab69857e04789ff48a68f3efbd1",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegOpenKey-4",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "nom": "Vecteurs-Été",
+    "acces": 33554432
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb1a001a00040002000d000000000000000d000000560065006300740065007500720073002d00c9007400e900000000000000000000000002",
+   "hex": "01000000adfddfadd868994391e0276c84e8a2d200000000",
+   "attendu": {
+    "poignee": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-6",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 0,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d200000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "0a0000041400020000020000000000000500000070006100740068000000000018000200010000001c0002003600000000000000360000002f007300720076002f00700061007200740061006700650073002f00560065006300740065007500720073002d00c9007400e900000000002000020036000000240002003600000000000000",
+   "attendu": {
+    "nom": "path",
+    "type": 1,
+    "donnees_hex": "2f007300720076002f00700061007200740061006700650073002f00560065006300740065007500720073002d00c9007400e9000000",
+    "texte": "/srv/partages/Vecteurs-Été",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-7",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 1,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d201000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "100000041400020000020000000000000800000063006f006d006d0065006e007400000018000200010000001c00020038000000000000003800000056006500630074006500750072007300200064001920650073007300610069002c00200061006300630065006e0074007500e900730000002000020038000000240002003800000000000000",
+   "attendu": {
+    "nom": "comment",
+    "type": 1,
+    "donnees_hex": "56006500630074006500750072007300200064001920650073007300610069002c00200061006300630065006e0074007500e90073000000",
+    "texte": "Vecteurs d’essai, accentués",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-8",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 2,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d202000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "12000004140002000002000000000000090000006700750065007300740020006f006b000000000018000200010000001c0002000600000000000000060000006e006f00000000002000020006000000240002000600000000000000",
+   "attendu": {
+    "nom": "guest ok",
+    "type": 1,
+    "donnees_hex": "6e006f000000",
+    "texte": "no",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-9",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 3,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d203000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "140000041400020000020000000000000a000000720065006100640020006f006e006c007900000018000200010000001c0002000600000000000000060000006e006f00000000002000020006000000240002000600000000000000",
+   "attendu": {
+    "nom": "read only",
+    "type": 1,
+    "donnees_hex": "6e006f000000",
+    "texte": "no",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-10",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 4,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d204000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "20000004140002000002000000000000100000006d0061007800200063006f006e006e0065006300740069006f006e007300000018000200010000001c00020006000000000000000600000032003500000000002000020006000000240002000600000000000000",
+   "attendu": {
+    "nom": "max connections",
+    "type": 1,
+    "donnees_hex": "320035000000",
+    "texte": "25",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegEnumValue-11",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 10,
+    "appel": "BaseRegEnumValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "index": 5,
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d205000000000000040400020000020000000000000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "02000004140002000002000000000000010000000000000018000200000000001c0002000020000000000000000000002000020000200000240002000000000003010000",
+   "attendu": {
+    "nom": "",
+    "type": 0,
+    "donnees_hex": "",
+    "texte": null,
+    "werror": 259
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegQueryValue-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 17,
+    "appel": "BaseRegQueryValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "nom": "path",
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d20a000a000400020005000000000000000500000070006100740068000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "1400020001000000180002003600000000000000360000002f007300720076002f00700061007200740061006700650073002f00560065006300740065007500720073002d00c9007400e900000000001c00020036000000200002003600000000000000",
+   "attendu": {
+    "type": 1,
+    "donnees_hex": "2f007300720076002f00700061007200740061006700650073002f00560065006300740065007500720073002d00c9007400e9000000",
+    "texte": "/srv/partages/Vecteurs-Été",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegQueryValue-4",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 17,
+    "appel": "BaseRegQueryValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2",
+    "nom": "calinda-absent",
+    "taille": 8192
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d21e001e00040002000f000000000000000f000000630061006c0069006e00640061002d0061006200730065006e0074000000000008000200000000000c00020000200000000000000000000010000200002000001400020000000000",
+   "hex": "1400020000000000180002000000000000000000000000001c00020000000000200002000000000002000000",
+   "attendu": {
+    "type": 0,
+    "donnees_hex": "",
+    "texte": null,
+    "werror": 2
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegCloseKey-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 5,
+    "appel": "BaseRegCloseKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000adfddfadd868994391e0276c84e8a2d2"
+   },
+   "requete_hex": "01000000adfddfadd868994391e0276c84e8a2d2",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegCreateKey-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 6,
+    "appel": "BaseRegCreateKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "nom": "Essai-Vecteurs-3074447",
+    "acces": 33554432
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb2e002e0004000200170000000000000017000000450073007300610069002d00560065006300740065007500720073002d0033003000370034003400340037000000000000000000000000000000000000000002000000000800020000000000",
+   "hex": "01000000823d37f5dc8f974993780fa5a818bcd4080002000100000000000000",
+   "attendu": {
+    "poignee": "01000000823d37f5dc8f974993780fa5a818bcd4",
+    "disposition": 1,
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegSetValue-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 22,
+    "appel": "BaseRegSetValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000823d37f5dc8f974993780fa5a818bcd4",
+    "nom": "comment",
+    "valeur": "Vecteur d’essai, accentué"
+   },
+   "requete_hex": "01000000823d37f5dc8f974993780fa5a818bcd4100010000400020008000000000000000800000063006f006d006d0065006e007400000001000000340000005600650063007400650075007200200064001920650073007300610069002c00200061006300630065006e0074007500e900000034000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegSetValue-2",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 22,
+    "appel": "BaseRegSetValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000823d37f5dc8f974993780fa5a818bcd4",
+    "nom": "csc policy",
+    "valeur": "manual"
+   },
+   "requete_hex": "01000000823d37f5dc8f974993780fa5a818bcd416001600040002000b000000000000000b000000630073006300200070006f006c0069006300790000000000010000000e0000006d0061006e00750061006c00000000000e000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegDeleteValue-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 8,
+    "appel": "BaseRegDeleteValue",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000823d37f5dc8f974993780fa5a818bcd4",
+    "nom": "csc policy"
+   },
+   "requete_hex": "01000000823d37f5dc8f974993780fa5a818bcd416001600040002000b000000000000000b000000630073006300200070006f006c006900630079000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegCloseKey-3",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 5,
+    "appel": "BaseRegCloseKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000823d37f5dc8f974993780fa5a818bcd4"
+   },
+   "requete_hex": "01000000823d37f5dc8f974993780fa5a818bcd4",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-fs1-BaseRegDeleteKey-1",
+   "provenance": {
+    "serveur": "fs1.lab.test",
+    "opnum": 7,
+    "appel": "BaseRegDeleteKey",
+    "commande": "cargo run --example winreg_probe -- fs1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "01000000b90907571647c041876515c27e48d5cb",
+    "nom": "Essai-Vecteurs-3074447"
+   },
+   "requete_hex": "01000000b90907571647c041876515c27e48d5cb2e002e0004000200170000000000000017000000450073007300610069002d00560065006300740065007500720073002d0033003000370034003400340037000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-OpenLocalMachine-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 2,
+    "appel": "OpenLocalMachine",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "acces": 33554432
+   },
+   "requete_hex": "0000000000000002",
+   "hex": "010000009dc4b072a4ee254ba8a836861f627b8e00000000",
+   "attendu": {
+    "poignee": "010000009dc4b072a4ee254ba8a836861f627b8e",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegOpenKey-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000009dc4b072a4ee254ba8a836861f627b8e",
+    "nom": "Software\\Samba\\smbconf",
+    "acces": 33554432
+   },
+   "requete_hex": "010000009dc4b072a4ee254ba8a836861f627b8e2e002e000400020017000000000000001700000053006f006600740077006100720065005c00530061006d00620061005c0073006d00620063006f006e006600000000000000000000000002",
+   "hex": "010000009f81a481bb839444ba4ce3ff4c51aa9e00000000",
+   "attendu": {
+    "poignee": "010000009f81a481bb839444ba4ce3ff4c51aa9e",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegOpenKey-2",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 15,
+    "appel": "BaseRegOpenKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000009f81a481bb839444ba4ce3ff4c51aa9e",
+    "nom": "Calinda-absent",
+    "acces": 33554432
+   },
+   "requete_hex": "010000009f81a481bb839444ba4ce3ff4c51aa9e1e001e00040002000f000000000000000f000000430061006c0069006e00640061002d0061006200730065006e007400000000000000000000000002",
+   "hex": "000000000000000000000000000000000000000002000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 2
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegEnumKey-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 9,
+    "appel": "BaseRegEnumKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000009f81a481bb839444ba4ce3ff4c51aa9e",
+    "index": 0
+   },
+   "requete_hex": "010000009f81a481bb839444ba4ce3ff4c51aa9e00000000000000040400020000020000000000000000000008000200000000040c000200000200000000000000000000100002000000000000000000",
+   "hex": "00000004100002000002000000000000000000001400020000000004180002000002000000000000000000001c000200000000000000000003010000",
+   "attendu": {
+    "nom": "",
+    "werror": 259
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegCreateKey-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 6,
+    "appel": "BaseRegCreateKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000009f81a481bb839444ba4ce3ff4c51aa9e",
+    "nom": "Essai-Vecteurs-3074449",
+    "acces": 33554432
+   },
+   "requete_hex": "010000009f81a481bb839444ba4ce3ff4c51aa9e2e002e0004000200170000000000000017000000450073007300610069002d00560065006300740065007500720073002d0033003000370034003400340039000000000000000000000000000000000000000002000000000800020000000000",
+   "hex": "010000002e7ab044b1aae446a459eb981255daca080002000100000000000000",
+   "attendu": {
+    "poignee": "010000002e7ab044b1aae446a459eb981255daca",
+    "disposition": 1,
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegSetValue-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 22,
+    "appel": "BaseRegSetValue",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000002e7ab044b1aae446a459eb981255daca",
+    "nom": "comment",
+    "valeur": "Vecteur d’essai, accentué"
+   },
+   "requete_hex": "010000002e7ab044b1aae446a459eb981255daca100010000400020008000000000000000800000063006f006d006d0065006e007400000001000000340000005600650063007400650075007200200064001920650073007300610069002c00200061006300630065006e0074007500e900000034000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegSetValue-2",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 22,
+    "appel": "BaseRegSetValue",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000002e7ab044b1aae446a459eb981255daca",
+    "nom": "csc policy",
+    "valeur": "manual"
+   },
+   "requete_hex": "010000002e7ab044b1aae446a459eb981255daca16001600040002000b000000000000000b000000630073006300200070006f006c0069006300790000000000010000000e0000006d0061006e00750061006c00000000000e000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegDeleteValue-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 8,
+    "appel": "BaseRegDeleteValue",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000002e7ab044b1aae446a459eb981255daca",
+    "nom": "csc policy"
+   },
+   "requete_hex": "010000002e7ab044b1aae446a459eb981255daca16001600040002000b000000000000000b000000630073006300200070006f006c006900630079000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegCloseKey-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 5,
+    "appel": "BaseRegCloseKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000002e7ab044b1aae446a459eb981255daca"
+   },
+   "requete_hex": "010000002e7ab044b1aae446a459eb981255daca",
+   "hex": "000000000000000000000000000000000000000000000000",
+   "attendu": {
+    "poignee": "0000000000000000000000000000000000000000",
+    "werror": 0
+   }
+  },
+  {
+   "id": "winreg-dc1-BaseRegDeleteKey-1",
+   "provenance": {
+    "serveur": "dc1.lab.test",
+    "opnum": 7,
+    "appel": "BaseRegDeleteKey",
+    "commande": "cargo run --example winreg_probe -- dc1.lab.test --vectors"
+   },
+   "requete": {
+    "cle": "010000009f81a481bb839444ba4ce3ff4c51aa9e",
+    "nom": "Essai-Vecteurs-3074449"
+   },
+   "requete_hex": "010000009f81a481bb839444ba4ce3ff4c51aa9e2e002e0004000200170000000000000017000000450073007300610069002d00560065006300740065007500720073002d0033003000370034003400340039000000",
+   "hex": "00000000",
+   "attendu": {
+    "werror": 0
+   }
+  }
+ ]
+}
