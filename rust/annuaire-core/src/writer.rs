@@ -2042,7 +2042,15 @@ fn attempt(
                 ("douteuse", json!(report.doubtful.is_some())),
             ],
         );
-        let applied: Vec<(usize, &Applied)> = report.applied.iter().enumerate().collect();
+        // A propagation cut by an error is written back first: what it wrote is saved
+        // (J8.8). Its index is the one of the failed operation, past the applied ones.
+        let cut = changes::cut_by_error(&report, |id| {
+            crate::propagation::backup_path(id, None).exists()
+        });
+        let mut applied: Vec<(usize, &Applied)> = report.applied.iter().enumerate().collect();
+        if let Some(cut) = &cut {
+            applied.push((report.applied.len(), cut));
+        }
         if let Ok((rollback, origins)) = changes::invert(&applied, None, catalog) {
             // A serial number never goes down: the SOA gets a new increment (R4.7).
             let rollback = crate::dns_write::soa_on_rollback(rollback, catalog);

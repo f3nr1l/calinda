@@ -2,6 +2,24 @@
 
 Ce journal retient ce qui change pour l'utilisateur d'une version à l'autre.
 
+## 1.3.1 — 2026-10-24
+
+Version corrective. Notes de version : [docs/notes-1.3.1.md](docs/notes-1.3.1.md).
+
+- Propagation de l'héritage sur un serveur lent (stockage saturé) : Calinda attend une réponse
+  tant que le serveur continue de répondre, le délai croît avec le nombre de requêtes en vol, et
+  les lots rétrécissent quand le serveur est lent, pour que l'arrêt reste rapide. Après un délai
+  dépassé, la session est abandonnée et le retour arrière en ouvre une neuve ; il remet aussi,
+  depuis la sauvegarde, ce que la propagation interrompue avait déjà écrit, et non plus la seule
+  racine.
+- Le compte rendu d'une écriture sur un partage nomme les dossiers par leur chemin
+  `\\serveur\partage\chemin`, et non plus « SYSVOL\… » ; la création, la modification et la
+  suppression d'un partage et la propagation de l'héritage ont leur propre libellé.
+- Onglet « Sécurité » des dossiers et fichiers : ajouter un compte déjà présent avec la même
+  portée réunit ses droits dans l'entrée existante au lieu d'en créer une seconde, et les entrées
+  explicites identiques (même compte, même type, même portée) sont fusionnées à l'écriture, comme
+  le fait Windows.
+
 ## 1.3.0 — 2026-10-23
 
 Calinda gère désormais les partages des serveurs de fichiers du domaine, Samba ou Windows, et

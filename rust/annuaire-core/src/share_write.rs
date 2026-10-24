@@ -107,8 +107,16 @@ impl Shares {
             .ok_or_else(|| srvsvc::Error::Rpc(crate::rpc::RpcError::Protocol("no service".into())))
     }
 
+    /// The session of `\\server\share`, opened at the first need, and again after an error
+    /// of the session (J8.8): a write that timed out on a slow server leaves requests without
+    /// their responses, the rollback that follows goes through a new session.
     pub fn files(&mut self, server: &str, share: &str) -> sysvol::Result<&mut Session> {
         let key = (server.to_lowercase(), share.to_lowercase());
+        if self.files.get(&key).is_some_and(|s| !s.usable())
+            && let Some(abandoned) = self.files.remove(&key)
+        {
+            abandoned.close();
+        }
         if !self.files.contains_key(&key) {
             let session = Session::open_share(server, share, self.protection, DELAY)?;
             self.files.insert(key.clone(), session);

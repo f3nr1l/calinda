@@ -497,6 +497,18 @@ impl Session {
         self.client.round_trips
     }
 
+    /// Can the session still be used? Not after an error of the session (time, connection,
+    /// protocol): requests were left without their responses, a new session is opened
+    /// (J8.8).
+    pub fn usable(&self) -> bool {
+        self.client.usable()
+    }
+
+    /// The base delay of the responses from now on (probes and trials).
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.client.set_timeout(timeout);
+    }
+
     pub fn negotiated(&self) -> crate::smb::Negotiated {
         self.client.negotiated()
     }

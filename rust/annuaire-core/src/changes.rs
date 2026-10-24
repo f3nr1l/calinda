@@ -1765,6 +1765,24 @@ pub fn cut_propagation<'a>(interrupted: &'a Report, settled: &Report) -> Option<
         .then_some(&cut.operation)
 }
 
+/// The propagation that an error cut in a failed application (J8.8: a server too slow to
+/// answer): the operation after the applied ones, if it is a propagation whose backup exists
+/// (`saved`). What it wrote is saved before being written, as after « Stop »: the rollback
+/// writes it back first, then undoes what was applied before it.
+pub fn cut_by_error(report: &Report, saved: impl Fn(&str) -> bool) -> Option<Applied> {
+    if report.doubtful.is_some() {
+        return None;
+    }
+    match report.changeset.operations.get(report.applied.len())? {
+        op @ Operation::PropagateInheritance { backup, .. } if saved(backup) => Some(Applied {
+            operation: op.clone(),
+            after: None,
+            before: None,
+        }),
+        _ => None,
+    }
+}
+
 /// What completes an application cut by a stop (`settled`, ascertained from `interrupted`):
 /// the propagation that was under way started again, then the operations not done
 /// (`continuation`). A computation starts again with a backup of its own and writes only what
@@ -2737,6 +2755,33 @@ mod tests {
             completion(&interrupted, &not_started).unwrap().operations,
             vec![propagation.clone()]
         );
+        // Cut by an error (J8.8): the propagation is undone by the rollback, before the
+        // descriptor of the root, if its backup exists.
+        let mut failed = interrupted.clone();
+        failed.doubtful = None;
+        failed.issue = Issue::Incomplete;
+        assert_eq!(cut_by_error(&failed, |_| false), None);
+        let cut = cut_by_error(&failed, |id| id == "20261023080000-0a1b2c3d").unwrap();
+        assert_eq!(cut.operation, propagation);
+        let pairs = [(0, &failed.applied[0]), (1, &cut)];
+        let (rollback, origins) = invert(&pairs, None, &English).unwrap();
+        assert_eq!(origins, [1, 0]);
+        assert!(matches!(
+            &rollback.operations[0],
+            Operation::PropagateInheritance {
+                direction: Direction::Undo,
+                ..
+            }
+        ));
+        assert!(matches!(
+            &rollback.operations[1],
+            Operation::SetFileDescriptor { before, .. } if before == b"apres"
+        ));
+        // Not when the propagation is doubtful, nor when the failed one is not one.
+        assert_eq!(cut_by_error(&interrupted, |_| true), None);
+        let mut other = failed.clone();
+        other.applied.clear();
+        assert_eq!(cut_by_error(&other, |_| true), None);
         // A rewrite starts again from its own backup.
         let undo = inverse_sysvol(&propagation);
         let mut rewriting = interrupted.clone();

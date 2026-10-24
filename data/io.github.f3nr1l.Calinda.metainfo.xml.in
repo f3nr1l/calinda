@@ -23,6 +23,16 @@
   <!-- translate="no" : notes de version et nom du développeur hors catalogue. Notes en
        anglais, la langue source depuis la bascule (1.1.0). -->
   <releases>
+    <release version="1.3.1" date="2026-10-24">
+      <description translate="no">
+        <p>Bug fixes.</p>
+        <ul>
+          <li>Inheritance propagation on a slow server: Calinda waits as long as the server keeps answering, batches shrink when it is slow, and after a timeout the rollback uses a fresh session and restores everything the interrupted propagation had written, not only the root.</li>
+          <li>Writes on shares are named by their \\server\share\path, and creating, changing or deleting a share and propagating inheritance have their own labels.</li>
+          <li>Identical explicit NTFS entries are merged when written, as Windows does; adding an account already present with the same scope adds its rights to that entry.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.3.0" date="2026-10-23">
       <description translate="no">
         <p>File shares and NTFS permissions.</p>

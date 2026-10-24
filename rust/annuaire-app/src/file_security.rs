@@ -870,7 +870,8 @@ impl FileSecurityDialog {
             true,
             Box::new(move |new| {
                 if let Some(dialog) = weak.upgrade() {
-                    dialog.imp().audit_explicit.borrow_mut().push(new);
+                    // A principal already listed with the same flags: one entry (J8.8).
+                    ntfs::merge_into(&mut dialog.imp().audit_explicit.borrow_mut(), new);
                     dialog.show();
                 }
             }),
@@ -956,7 +957,9 @@ impl FileSecurityDialog {
             false,
             Box::new(move |new| {
                 if let Some(dialog) = weak.upgrade() {
-                    dialog.imp().explicit.borrow_mut().push(new);
+                    // A principal already listed with the same flags: one entry, its rights
+                    // joined, as Windows does (J8.8).
+                    ntfs::merge_into(&mut dialog.imp().explicit.borrow_mut(), new);
                     dialog.show();
                 }
             }),
@@ -1492,7 +1495,7 @@ impl FileSecurityDialog {
                 "tout" => SUCCESSFUL_ACCESS_ACE | FAILED_ACCESS_ACE,
                 _ => SUCCESSFUL_ACCESS_ACE,
             };
-            self.imp().audit_explicit.borrow_mut().push(ace);
+            ntfs::merge_into(&mut self.imp().audit_explicit.borrow_mut(), ace);
         }
         self.show();
     }
@@ -1544,7 +1547,7 @@ impl FileSecurityDialog {
             shv::Scope::ThisFolder
         };
         if let Some(ace) = shv::entry_ace(deny, mask, scope, false, &sid) {
-            self.imp().explicit.borrow_mut().push(ace);
+            ntfs::merge_into(&mut self.imp().explicit.borrow_mut(), ace);
         }
         self.show();
     }

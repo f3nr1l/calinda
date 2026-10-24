@@ -15,6 +15,7 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
+use std::time::Duration;
 
 use super::auth::{AuthError, Authenticator};
 use super::crypto::{self, SessionKeys};
@@ -137,6 +138,8 @@ pub struct Config {
     /// Names given by a QUERY_DIRECTORY at most, the buffer far from full: Windows answers so
     /// (J8.7).
     pub directory_entries: Option<usize>,
+    /// Connections served, one after the other (a client that opens a new session).
+    pub connections: usize,
 }
 
 impl Default for Config {
@@ -146,6 +149,7 @@ impl Default for Config {
             unsigned: false,
             no_security_privilege: false,
             directory_entries: None,
+            connections: 1,
         }
     }
 }
@@ -154,6 +158,9 @@ pub struct FakeServer {
     pub port: u16,
     pub seen: Arc<Mutex<Seen>>,
     pub fs: Arc<Mutex<Fs>>,
+    /// Time taken before answering a compound that writes (SET_INFO), changed at will: a
+    /// server whose storage is saturated (J8.8).
+    pub pause: Arc<Mutex<Duration>>,
     handle: Option<JoinHandle<()>>,
 }
 
@@ -169,26 +176,31 @@ impl FakeServer {
         let port = listener.local_addr().unwrap().port();
         let seen = Arc::new(Mutex::new(Seen::default()));
         let fs = Arc::new(Mutex::new(fs));
-        let (s, f) = (Arc::clone(&seen), Arc::clone(&fs));
+        let pause = Arc::new(Mutex::new(Duration::ZERO));
+        let (s, f, p) = (Arc::clone(&seen), Arc::clone(&fs), Arc::clone(&pause));
         let handle = std::thread::spawn(move || {
-            let (stream, _) = listener.accept().unwrap();
-            Server {
-                stream,
-                grant,
-                config,
-                seen: s,
-                fs: f,
-                keys: None,
-                hash: [0; 64],
-                opens: HashMap::new(),
-                next_id: 1,
+            for _ in 0..config.connections {
+                let (stream, _) = listener.accept().unwrap();
+                Server {
+                    stream,
+                    grant,
+                    config,
+                    seen: Arc::clone(&s),
+                    fs: Arc::clone(&f),
+                    pause: Arc::clone(&p),
+                    keys: None,
+                    hash: [0; 64],
+                    opens: HashMap::new(),
+                    next_id: 1,
+                }
+                .serve();
             }
-            .serve();
         });
         FakeServer {
             port,
             seen,
             fs,
+            pause,
             handle: Some(handle),
         }
     }
@@ -213,7 +225,8 @@ fn write_frame(stream: &mut TcpStream, frame: &[u8]) {
     let len = frame.len() as u32;
     let mut out = vec![0, (len >> 16) as u8, (len >> 8) as u8, len as u8];
     out.extend_from_slice(frame);
-    stream.write_all(&out).unwrap();
+    // A client that gave up waiting may have closed the connection.
+    let _ = stream.write_all(&out);
 }
 
 fn error_body() -> Vec<u8> {
@@ -366,6 +379,7 @@ struct Server {
     config: Config,
     seen: Arc<Mutex<Seen>>,
     fs: Arc<Mutex<Fs>>,
+    pause: Arc<Mutex<Duration>>,
     keys: Option<SessionKeys>,
     hash: [u8; 64],
     opens: HashMap<u64, Open>,
@@ -476,6 +490,10 @@ impl Server {
                 let sign = h.command == command::SESSION_SETUP
                     || (!encrypted && h.flags & flag::SIGNED != 0 && !self.config.unsigned);
                 replies.push((reply, sign));
+            }
+            if requests.iter().any(|(h, _)| h.command == command::SET_INFO) {
+                let pause = *self.pause.lock().unwrap();
+                std::thread::sleep(pause);
             }
             // Signed once padded and chained: the signature covers the padding.
             let out = chain(replies, |m| self.signed(m));

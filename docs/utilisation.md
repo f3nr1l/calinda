@@ -14,7 +14,7 @@ SQLite, déjà présentes sur le système. Il n'existe pas encore de dépôt ;
 reçu, ou celui qu'on a construit soi-même (README, section « Construire le RPM ») :
 
 ```sh
-sudo dnf install ./calinda-1.3.0-1.fc44.x86_64.rpm
+sudo dnf install ./calinda-1.3.1-1.fc44.x86_64.rpm
 ```
 
 L'application apparaît sous le nom « Calinda » dans le menu des applications ; en terminal, la

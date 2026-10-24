@@ -32,7 +32,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
-use std::time::{Duration, SystemTime};
+use std::time::{Duration, Instant, SystemTime};
 
 use annuaire_codecs::sd::SecurityDescriptor;
 use annuaire_codecs::sid::Sid;
@@ -49,7 +49,43 @@ use crate::sysvol::{
 /// Folder of the backups, under the state of the application.
 pub const DIR: &str = "propagations";
 /// Elements read, saved and written together: the step at which a request to stop is seen.
+/// At most: smaller on a slow server (`Pace`).
 pub const BATCH: usize = 256;
+/// The smallest batch of a slow server.
+pub const MIN_BATCH: usize = 16;
+/// A batch slower than this halves the next one; one faster than `FAST` doubles it, up to
+/// `BATCH` (J8.8): on a server whose storage is saturated, a request to stop is seen, and the
+/// backup written, every few seconds, not every few minutes.
+const SLOW: Duration = Duration::from_secs(8);
+const FAST: Duration = Duration::from_secs(2);
+
+/// The size of the batches of a propagation, adapted to the time the server takes (J8.8).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Pace {
+    size: usize,
+}
+
+impl Default for Pace {
+    fn default() -> Self {
+        Self { size: BATCH }
+    }
+}
+
+impl Pace {
+    pub fn size(self) -> usize {
+        self.size
+    }
+
+    /// A batch of `n` elements took `elapsed`: the size of the next one.
+    pub fn record(&mut self, n: usize, elapsed: Duration) {
+        // A last batch, smaller, tells nothing of the server when it is fast.
+        if elapsed >= SLOW {
+            self.size = (n.min(self.size) / 2).max(MIN_BATCH);
+        } else if elapsed < FAST && n >= self.size {
+            self.size = (self.size * 2).min(BATCH);
+        }
+    }
+}
 /// Version of the backups written; those of version 1 (J8.4: the DACL only) are still read.
 const VERSION: u64 = 2;
 
@@ -571,10 +607,13 @@ pub fn saved_count(path: &Path) -> Result<usize> {
     Ok(lines.saturating_sub(1))
 }
 
-/// The next batch of `elements` (empty at the end).
-fn next_batch(elements: &mut impl Iterator<Item = Result<Saved>>) -> Result<Vec<Saved>> {
-    let mut batch = Vec::with_capacity(BATCH);
-    for saved in elements.by_ref().take(BATCH) {
+/// The next batch of `size` elements (empty at the end).
+fn next_batch(
+    elements: &mut impl Iterator<Item = Result<Saved>>,
+    size: usize,
+) -> Result<Vec<Saved>> {
+    let mut batch = Vec::with_capacity(size);
+    for saved in elements.by_ref().take(size) {
         batch.push(saved?);
     }
     Ok(batch)
@@ -887,6 +926,7 @@ pub fn propagate(
         sacl: parts.sacl.is_some(),
     };
     let mut level: Vec<(String, SecurityDescriptor, Below)> = vec![(root, root_sd, first)];
+    let mut pace = Pace::default();
     while !level.is_empty() {
         let mut next: Vec<(String, SecurityDescriptor, Below)> = Vec::new();
         for folders in level.chunks(BATCH) {
@@ -900,11 +940,15 @@ pub fn propagate(
                     Err(s) => control.refuse(path, Reason::Unlisted(s)),
                 }
             }
-            for batch in elements.chunks(BATCH) {
+            let mut rest = elements.as_slice();
+            while !rest.is_empty() {
                 if control.halt() {
                     control.finish();
                     return Ok(());
                 }
+                let (batch, after) = rest.split_at(pace.size().min(rest.len()));
+                rest = after;
+                let begun = Instant::now();
                 let paths: Vec<String> = batch.iter().map(|(e, _)| e.path.clone()).collect();
                 let read = session.descriptors(&paths, parts.read())?;
                 let mut pending = Vec::new();
@@ -1011,6 +1055,7 @@ pub fn propagate(
                 }
                 next.extend(kept);
                 control.examined(batch.len());
+                pace.record(batch.len(), begun.elapsed());
             }
         }
         level = next;
@@ -1033,14 +1078,16 @@ pub fn rewrite(
 ) -> Result<()> {
     control.start(total);
     let mut saved = saved.into_iter();
+    let mut pace = Pace::default();
     loop {
         if control.halt() {
             break;
         }
-        let batch = next_batch(&mut saved)?;
+        let batch = next_batch(&mut saved, pace.size())?;
         if batch.is_empty() {
             break;
         }
+        let begun = Instant::now();
         let paths: Vec<String> = batch.iter().map(|s| s.path.clone()).collect();
         let read = session.descriptors(&paths, parts.read())?;
         let mut pending = Vec::new();
@@ -1120,6 +1167,7 @@ pub fn rewrite(
         }
         write_batch(session, &pending, parts, control)?;
         control.examined(batch.len());
+        pace.record(batch.len(), begun.elapsed());
     }
     control.finish();
     Ok(())
@@ -1143,7 +1191,7 @@ pub fn rewritten(
     let (mut telling, mut untouched, mut differing) = (0, 0, false);
     let mut saved = saved.into_iter();
     loop {
-        let batch = next_batch(&mut saved)?;
+        let batch = next_batch(&mut saved, BATCH)?;
         if batch.is_empty() {
             break;
         }
@@ -1809,6 +1857,136 @@ mod tests {
         session.close();
         server.join();
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn pace_halves_on_a_slow_server_and_grows_back() {
+        let mut pace = Pace::default();
+        assert_eq!(pace.size(), BATCH);
+        pace.record(BATCH, Duration::from_secs(4));
+        assert_eq!(pace.size(), BATCH);
+        pace.record(BATCH, Duration::from_secs(30));
+        assert_eq!(pace.size(), 128);
+        for _ in 0..10 {
+            pace.record(pace.size(), Duration::from_secs(9));
+        }
+        assert_eq!(pace.size(), MIN_BATCH);
+        // A last batch, smaller and fast, tells nothing.
+        pace.record(3, Duration::from_millis(10));
+        assert_eq!(pace.size(), MIN_BATCH);
+        pace.record(MIN_BATCH, Duration::from_millis(500));
+        assert_eq!(pace.size(), 2 * MIN_BATCH);
+        for _ in 0..10 {
+            pace.record(pace.size(), Duration::from_millis(500));
+        }
+        assert_eq!(pace.size(), BATCH);
+    }
+
+    /// The incident of J8.8: the server writes a batch but answers after the delay. The
+    /// session times out and is not used again; what was written is in the backup, and the
+    /// undo, on a new session, puts it back.
+    #[test]
+    fn timed_out_then_undone_on_a_new_session() {
+        use crate::smb::fake_server::{Config, FakeAuth};
+        let dir = scratch("delai");
+        let backup = backup_path("essai", Some(&dir));
+        let config = Config {
+            connections: 2,
+            ..Config::default()
+        };
+        let (server, mut session) = share_with(false, config);
+        let sd = |text: &str| {
+            annuaire_codecs::sddl::sd_from_sddl(text, None, false)
+                .unwrap()
+                .encode()
+                .unwrap()
+        };
+        let original = server
+            .fs
+            .lock()
+            .unwrap()
+            .get("a\\f.txt")
+            .unwrap()
+            .descriptor
+            .clone();
+        server
+            .fs
+            .lock()
+            .unwrap()
+            .nodes
+            .get_mut("a")
+            .unwrap()
+            .descriptor = sd("O:SYG:SYD:PAI(A;OICI;FA;;;BA)(A;OICI;0x1301bf;;;BU)");
+        let header = Header {
+            server: "127.0.0.1".into(),
+            share: "Commun".into(),
+            root: "a".into(),
+            replace: false,
+            parts: Parts::default(),
+        };
+        session.set_timeout(Duration::from_millis(150));
+        *server.pause.lock().unwrap() = Duration::from_millis(700);
+        let control = Control::default();
+        let cut = propagate(&mut session, &header, &backup, 3, &control);
+        assert!(
+            matches!(&cut, Err(Error::Smb(SysvolError::Session(e))) if e.kind == crate::smb::ErrorKind::Timeout),
+            "{cut:?}"
+        );
+        assert!(!session.usable());
+        let (_, saved) = read_backup(&backup).unwrap();
+        assert_eq!(
+            saved.iter().map(|s| s.path.as_str()).collect::<Vec<_>>(),
+            ["a\\f.txt"]
+        );
+        *server.pause.lock().unwrap() = Duration::ZERO;
+        session.close();
+        // The server wrote all the same.
+        let written = server
+            .fs
+            .lock()
+            .unwrap()
+            .get("a\\f.txt")
+            .unwrap()
+            .descriptor
+            .clone();
+        assert_ne!(written, original);
+        let options = crate::smb::Options {
+            port: server.port,
+            ..crate::smb::Options::default()
+        };
+        let client =
+            crate::smb::Client::connect("127.0.0.1", "Commun", &options, &mut FakeAuth::default())
+                .unwrap();
+        let mut fresh = Session::from_client("127.0.0.1", client);
+        let (_, elements) = open_backup(&backup).unwrap();
+        let control = Control::default();
+        rewrite(
+            &mut fresh,
+            elements,
+            1,
+            &header.parts,
+            Direction::Undo,
+            &control,
+        )
+        .unwrap();
+        assert_eq!(control.progress().written, 1);
+        let back = SecurityDescriptor::decode(
+            &server
+                .fs
+                .lock()
+                .unwrap()
+                .get("a\\f.txt")
+                .unwrap()
+                .descriptor,
+        )
+        .unwrap();
+        assert!(ntfs::same_permissions(
+            &back,
+            &SecurityDescriptor::decode(&original).unwrap()
+        ));
+        fresh.close();
+        server.join();
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

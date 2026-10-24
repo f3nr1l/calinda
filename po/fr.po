@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calinda\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 23:23-0400\n"
+"POT-Creation-Date: 2026-10-23 09:19-0400\n"
 "PO-Revision-Date: 2026-10-15 20:00-0400\n"
 "Last-Translator: René Onier <f3nr1l@me.com>\n"
 "Language-Team: French\n"
@@ -104,6 +104,7 @@ msgstr "Aperçu des modifications"
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
 #: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-lier.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-nom.blp
@@ -268,6 +269,7 @@ msgid "No account or group chosen"
 msgstr "Aucun compte ni groupe choisi"
 
 #: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
 msgid "Name or logon name of the account or group"
 msgstr "Nom ou identifiant du compte ou du groupe"
 
@@ -290,8 +292,8 @@ msgstr "Identités prises en compte"
 #: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
 #: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/sante-dns.blp
 #: rust/annuaire-app/src/attributes.rs rust/annuaire-app/src/gpo.rs
-#: rust/annuaire-app/src/sheet.rs rust/annuaire-app/src/window/domain.rs
-#: rust/annuaire-app/src/writes.rs
+#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/window/domain.rs rust/annuaire-app/src/writes.rs
 msgid "Close"
 msgstr "Fermer"
 
@@ -411,6 +413,7 @@ msgid "Search for the delegated group or account"
 msgstr "Rechercher le groupe ou le compte délégué"
 
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-principaux.blp
 #: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
@@ -564,6 +567,35 @@ msgstr "Cocher ou décocher un droit ramène les autorisations au niveau qui lui
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 msgid "OK"
 msgstr "Valider"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/data/ui/securite.blp
+msgid "Owner"
+msgstr "Propriétaire"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+msgid "Select a User or Group"
+msgstr "Sélectionner un utilisateur ou un groupe"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+msgid "Myself"
+msgstr "Moi-même"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/security_views.rs
+msgid "Administrators"
+msgstr "Administrateurs"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+msgid "Another Account or Group"
+msgstr "Un autre compte ou groupe"
+
+#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
+msgid "Search for the account or group that becomes the owner"
+msgstr "Chercher le compte ou le groupe qui devient propriétaire"
 
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
 #: rust/annuaire-app/data/ui/gpo.blp
@@ -961,12 +993,6 @@ msgid "Authenticated Users"
 msgstr "Utilisateurs authentifiés"
 
 #: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-#: rust/annuaire-app/src/security_views.rs
-msgid "Administrators"
-msgstr "Administrateurs"
-
-#: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Name or logon name of the group or account to add"
@@ -998,14 +1024,6 @@ msgstr "Le chemin local du dossier sur le serveur (C:\\Partages\\Commun, ou celu
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 msgid "Options"
 msgstr "Options"
-
-#: rust/annuaire-app/src/shares.rs
-msgid "Samba hides the share from the accounts its permissions refuse."
-msgstr "Samba masque le partage aux comptes que ses autorisations refusent."
-
-#: rust/annuaire-app/src/shares.rs
-msgid "Samba takes the options of this share from smb.conf and keeps them: a change made here is then reported as not applied."
-msgstr "Samba prend les options de ce partage dans smb.conf et les garde : une modification faite ici est alors signalée comme non appliquée."
 
 #: rust/annuaire-app/data/ui/dialogue-partage.blp
 msgid "Limit the number of connections"
@@ -1719,9 +1737,12 @@ msgid "Logon name"
 msgstr "Identifiant"
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-#: rust/annuaire-app/data/ui/securite.blp
-msgid "Owner"
-msgstr "Propriétaire"
+msgid "Change…"
+msgstr "Modifier…"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Change the owner"
+msgstr "Modifier le propriétaire"
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Inheritance"
@@ -1740,6 +1761,35 @@ msgid "No entry: nobody but the owner can open this element."
 msgstr "Aucune entrée : personne d'autre que le propriétaire ne peut ouvrir cet élément."
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/data/ui/securite.blp
+msgid "Auditing"
+msgstr "Audit"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Each entry has the server write an event in its Security log when the access it names succeeds or fails."
+msgstr "Chaque entrée fait écrire au serveur un événement dans son journal Sécurité quand l'accès qu'elle nomme réussit ou échoue."
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Inheritance of the Auditing Entries"
+msgstr "Héritage des entrées d'audit"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Auditing entries"
+msgstr "Entrées d'audit"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "No auditing entry."
+msgstr "Aucune entrée d'audit."
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Kind of Entry"
+msgstr "Type d'entrée"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Permission"
+msgstr "Autorisation"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 #: rust/annuaire-app/src/search.rs rust/annuaire-app/src/security_views.rs
 msgid "Users"
 msgstr "Utilisateurs"
@@ -1753,8 +1803,16 @@ msgid "Subfolders and Files"
 msgstr "Sous-dossiers et fichiers"
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Replace owner on subcontainers and objects"
+msgstr "Remplacer le propriétaire des sous-conteneurs et des objets"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Replace all child object permission entries with inheritable permission entries from this object"
 msgstr "Remplacer toutes les entrées d'autorisation des objets enfants par des entrées d'autorisation pouvant être héritées de cet objet"
+
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Replace all child object auditing entries with inheritable auditing entries from this object"
+msgstr "Remplacer toutes les entrées d'audit des objets enfants par des entrées d'audit pouvant être héritées de cet objet"
 
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 msgid "Add this setting to the changes to save (Ctrl+Enter)"
@@ -2728,6 +2786,10 @@ msgstr "Comparer les SYSVOL des DC"
 msgid "Undo this change"
 msgstr "Annuler cette modification"
 
+#: rust/annuaire-app/data/ui/historique.blp rust/annuaire-app/src/history.rs
+msgid "Backups of propagations"
+msgstr "Sauvegardes des propagations"
+
 #: rust/annuaire-app/data/ui/historique.blp
 msgid "Read the log again"
 msgstr "Relire le journal"
@@ -3093,10 +3155,6 @@ msgid "Inherited from a parent object; they are changed where they are defined."
 msgstr "Transmises par un objet parent ; elles se modifient là où elles sont définies."
 
 #: rust/annuaire-app/data/ui/securite.blp
-msgid "Auditing"
-msgstr "Audit"
-
-#: rust/annuaire-app/data/ui/securite.blp
 msgid "ACEs and SDDL"
 msgstr "ACE et SDDL"
 
@@ -3268,7 +3326,8 @@ msgstr "Droits illisibles"
 msgid "Searching…"
 msgstr "Recherche…"
 
-#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/gpo_security.rs
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/file_security.rs
+#: rust/annuaire-app/src/gpo_security.rs
 msgid "Choose"
 msgstr "Choisir"
 
@@ -3987,6 +4046,29 @@ msgstr[1] "{n} éléments sous le dossier examinés"
 #: rust/annuaire-app/src/catalog.rs
 msgid "The permissions of every descendant are replaced by the inherited ones (explicit entries removed, inheritance turned on again)."
 msgstr "Les autorisations de chaque descendant sont remplacées par celles qu'il hérite (entrées explicites retirées, héritage réactivé)."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Replace the owner under {chemin}"
+msgstr "Remplacer le propriétaire sous {chemin}"
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "owner of every element under the folder: {proprietaire}"
+msgstr "propriétaire de chaque élément sous le dossier : {proprietaire}"
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Propagate the auditing entries under {chemin}"
+msgstr "Propager les entrées d'audit sous {chemin}"
+
+#: rust/annuaire-app/src/catalog.rs
+msgid "auditing entries inherited computed again"
+msgstr "entrées d'audit héritées recalculées"
+
+#: rust/annuaire-app/src/catalog.rs
+msgid "auditing entries of every descendant replaced by the inherited ones"
+msgstr "entrées d'audit de chaque descendant remplacées par celles héritées"
 
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
@@ -5303,6 +5385,10 @@ msgstr "sauvegarde : {a}"
 #: rust/annuaire-app/src/codec_texts.rs
 msgid "propagation: direction"
 msgstr "propagation : sens"
+
+#: rust/annuaire-app/src/codec_texts.rs
+msgid "propagation: owner"
+msgstr "propagation : propriétaire"
 
 #: rust/annuaire-app/src/codec_texts.rs
 #, rust-format
@@ -7324,6 +7410,39 @@ msgstr "Le SYSVOL a refusé l'opération sur « {chemin} » (0x{statut:08X})."
 
 #: rust/annuaire-app/src/errors.rs
 #, rust-format
+msgid "The server refuses this account to take ownership of “{chemin}”: it needs the “Take ownership” permission on the element, or the “Take ownership of files or other objects” privilege (SeTakeOwnershipPrivilege) on the server; on Windows, the “Restore files and directories” privilege (SeRestorePrivilege) also gives it."
+msgstr "Le serveur refuse à ce compte de s'approprier « {chemin} » : il lui faut l'autorisation « Appropriation » sur l'élément, ou le privilège « Prendre possession de fichiers ou d'autres objets » (SeTakeOwnershipPrivilege) sur le serveur ; sous Windows, le privilège « Restaurer des fichiers et des répertoires » (SeRestorePrivilege) le permet aussi."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The server refuses this owner for “{chemin}”: giving ownership to another account, or to a group the account is not a member of, needs the “Restore files and directories” privilege (SeRestorePrivilege) on the server."
+msgstr "Le serveur refuse ce propriétaire pour « {chemin} » : donner la propriété à un autre compte, ou à un groupe dont le compte n'est pas membre, demande le privilège « Restaurer des fichiers et des répertoires » (SeRestorePrivilege) sur le serveur."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The server refuses to change the owner of “{chemin}”: the account does not hold the privilege it needs (SeTakeOwnershipPrivilege or SeRestorePrivilege)."
+msgstr "Le serveur refuse de changer le propriétaire de « {chemin} » : le compte n'a pas le privilège nécessaire (SeTakeOwnershipPrivilege ou SeRestorePrivilege)."
+
+#: rust/annuaire-app/src/errors.rs
+msgid "The server refused to change the owner of “{chemin}” (0x{statut:08X})."
+msgstr "Le serveur a refusé de changer le propriétaire de « {chemin} » (0x{statut:08X})."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The server refuses the auditing entries of “{chemin}” to this account: it needs the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server."
+msgstr "Le serveur refuse à ce compte les entrées d'audit de « {chemin} » : il lui faut le privilège « Gérer le journal d'audit et de sécurité » (SeSecurityPrivilege) sur le serveur."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The server refuses to write the auditing entries of “{chemin}”: besides SeSecurityPrivilege, the account needs the “Change permissions” permission on the element."
+msgstr "Le serveur refuse d'écrire les entrées d'audit de « {chemin} » : outre SeSecurityPrivilege, il faut au compte l'autorisation « Modification des autorisations » sur l'élément."
+
+#: rust/annuaire-app/src/errors.rs
+msgid "The server refused the auditing entries of “{chemin}” (0x{statut:08X})."
+msgstr "Le serveur a refusé les entrées d'audit de « {chemin} » (0x{statut:08X})."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
 msgid "The SYSVOL of {dc} is not responding."
 msgstr "Le SYSVOL de {dc} ne répond pas."
 
@@ -7366,6 +7485,11 @@ msgstr "Aucun ticket Kerberos valide pour ouvrir le partage sur {serveur}."
 #, rust-format
 msgid "{serveur} cannot encrypt the SMB session (SMB 3 required, or SMB 2 with signing allowed in the domain profile)."
 msgstr "{serveur} ne peut pas chiffrer la session SMB (SMB 3 exigé, ou SMB 2 avec signature autorisé dans le profil du domaine)."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "{serveur} only offers SMB 2, which cannot encrypt the session. For an older server, enable “Allow SMB 2 with signing only” in the domain profile."
+msgstr "{serveur} ne propose que SMB 2, qui ne peut pas chiffrer la session. Pour un serveur ancien, activez « Autoriser SMB 2 avec signature seule » dans le profil du domaine."
 
 #: rust/annuaire-app/src/errors.rs
 #, rust-format
@@ -7435,11 +7559,6 @@ msgstr "{serveur} ne sait pas chiffrer la session SMB (SMB 3 requis)."
 
 #: rust/annuaire-app/src/errors.rs
 #, rust-format
-msgid "{serveur} only offers SMB 2, which cannot encrypt the session. For an older server, enable “Allow SMB 2 with signing only” in the domain profile."
-msgstr "{serveur} ne propose que SMB 2, qui ne peut pas chiffrer la session. Pour un serveur ancien, activez « Autoriser SMB 2 avec signature seule » dans le profil du domaine."
-
-#: rust/annuaire-app/src/errors.rs
-#, rust-format
 msgid "{serveur} refuses this account the list of its shares."
 msgstr "{serveur} refuse à ce compte la liste de ses partages."
 
@@ -7452,6 +7571,18 @@ msgstr "Impossible de lire les partages de {serveur}."
 #, rust-format
 msgid "{serveur} does not answer as a file server (share service)."
 msgstr "{serveur} ne répond pas comme un serveur de fichiers (service des partages)."
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "The auditing entries cannot be read: the account does not hold the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server. The permissions and the owner can still be changed."
+msgstr "Les entrées d'audit ne peuvent pas être lues : le compte n'a pas le privilège « Gérer le journal d'audit et de sécurité » (SeSecurityPrivilege) sur le serveur. Les autorisations et le propriétaire restent modifiables."
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "The server refuses the auditing entries to this account (0x{statut:08X}). The permissions and the owner can still be changed."
+msgstr "Le serveur refuse les entrées d'audit à ce compte (0x{statut:08X}). Les autorisations et le propriétaire restent modifiables."
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "The server did not give the auditing entries."
+msgstr "Le serveur n'a pas donné les entrées d'audit."
 
 #: rust/annuaire-app/src/file_security.rs
 msgid "Permissions cannot be read"
@@ -7470,6 +7601,11 @@ msgstr "Modifier"
 #: rust/annuaire-app/src/shares.rs
 msgid "Remove"
 msgstr "Retirer"
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid "{action}: auditing of {principal}"
+msgstr "{action} : audit de {principal}"
 
 #: rust/annuaire-app/src/file_security.rs
 msgid "Enable Inheritance"
@@ -7492,8 +7628,8 @@ msgid "Disable Inheritance"
 msgstr "Désactiver l'héritage"
 
 #: rust/annuaire-app/src/file_security.rs
-msgid "What should become of the entries inherited from the parent folder?"
-msgstr "Que faire des entrées héritées du dossier parent ?"
+msgid "What should become of the auditing entries inherited from the parent folder?"
+msgstr "Que faire des entrées d'audit héritées du dossier parent ?"
 
 #: rust/annuaire-app/src/file_security.rs
 msgid "Remove All Inherited Entries"
@@ -7502,6 +7638,10 @@ msgstr "Supprimer toutes les entrées héritées"
 #: rust/annuaire-app/src/file_security.rs
 msgid "Convert into Explicit Entries"
 msgstr "Convertir en entrées explicites"
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "What should become of the entries inherited from the parent folder?"
+msgstr "Que faire des entrées héritées du dossier parent ?"
 
 #: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_dialogs.rs
 #: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/shares.rs
@@ -7535,6 +7675,21 @@ msgstr "Les autorisations héritées des {dossiers} dossiers et {fichiers} fichi
 
 #: rust/annuaire-app/src/file_security.rs
 #, rust-format
+msgid "The auditing entries of the {dossiers} folders and {fichiers} files under {chemin} will be replaced by those they inherit."
+msgstr "Les entrées d'audit des {dossiers} dossiers et {fichiers} fichiers sous {chemin} seront remplacées par celles dont ils héritent."
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid "The inherited auditing entries of the {dossiers} folders and {fichiers} files under {chemin} will be computed again."
+msgstr "Les entrées d'audit héritées des {dossiers} dossiers et {fichiers} fichiers sous {chemin} seront recalculées."
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid "The owner of the {dossiers} folders and {fichiers} files under {chemin} will be {proprietaire}."
+msgstr "Le propriétaire des {dossiers} dossiers et {fichiers} fichiers sous {chemin} sera {proprietaire}."
+
+#: rust/annuaire-app/src/file_security.rs
+#, rust-format
 msgid "Before an element is written, its descriptor is saved in {dossier}. The writing can be stopped: what is written stays written and saved. Ctrl+Z writes the saved descriptors back."
 msgstr "Avant qu'un élément soit écrit, son descripteur est sauvegardé dans {dossier}. L'écriture peut être arrêtée : ce qui est écrit reste écrit et sauvegardé. Ctrl+Z réécrit les descripteurs sauvegardés."
 
@@ -7548,12 +7703,38 @@ msgid "NTFS permissions of {chemin}; the permissions of the share do not change.
 msgstr "Droits NTFS de {chemin} ; les droits du partage ne changent pas."
 
 #: rust/annuaire-app/src/file_security.rs
+#, rust-format
+msgid "The owner of {chemin} becomes {proprietaire}."
+msgstr "Le propriétaire de {chemin} devient {proprietaire}."
+
+#: rust/annuaire-app/src/file_security.rs
 msgid "The propagation can be stopped from this window while it writes; what is written stays saved."
 msgstr "La propagation peut être arrêtée depuis cette fenêtre pendant l'écriture ; ce qui est écrit reste sauvegardé."
 
 #: rust/annuaire-app/src/file_security.rs
 msgid "Nobody but the owner will be able to open this element."
 msgstr "Personne d'autre que le propriétaire ne pourra ouvrir cet élément."
+
+#. As the « Auditing Entry » of Windows: success, failure, or both.
+#: rust/annuaire-app/src/file_security.rs
+msgid "Auditing Entry"
+msgstr "Entrée d'audit"
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/share_views.rs
+msgid "Success"
+msgstr "Réussite"
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/share_views.rs
+msgid "Failure"
+msgstr "Échec"
+
+#: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/share_views.rs
+msgid "All (auditing)"
+msgstr "Tout"
+
+#: rust/annuaire-app/src/file_security.rs
+msgid "The account in use cannot be read in the directory."
+msgstr "Le compte utilisé ne peut pas être lu dans l'annuaire."
 
 #: rust/annuaire-app/src/folders.rs
 #, rust-format
@@ -9541,8 +9722,48 @@ msgid "Undo of “{titre}”"
 msgstr "Annulation de « {titre} »"
 
 #: rust/annuaire-app/src/history.rs
+msgid "Cannot read the backups"
+msgstr "Impossible de lire les sauvegardes"
+
+#: rust/annuaire-app/src/history.rs
+#, rust-format
+msgid "{n} backup ({taille} MB) is named by the log: Ctrl+Z, the history and resuming read it, it is kept."
+msgid_plural "{n} backups ({taille} MB) are named by the log: Ctrl+Z, the history and resuming read them, they are kept."
+msgstr[0] "{n} sauvegarde ({taille} Mo) est nommée par le journal : Ctrl+Z, l'historique et la reprise la lisent, elle est gardée."
+msgstr[1] "{n} sauvegardes ({taille} Mo) sont nommées par le journal : Ctrl+Z, l'historique et la reprise les lisent, elles sont gardées."
+
+#: rust/annuaire-app/src/history.rs
+#, rust-format
+msgid "{n} backup ({taille} MB) is no longer named by the log (its older entries are gone) and can be removed."
+msgid_plural "{n} backups ({taille} MB) are no longer named by the log (its older entries are gone) and can be removed."
+msgstr[0] "{n} sauvegarde ({taille} Mo) n'est plus nommée par le journal (ses entrées les plus anciennes ont disparu) et peut être retirée."
+msgstr[1] "{n} sauvegardes ({taille} Mo) ne sont plus nommées par le journal (ses entrées les plus anciennes ont disparu) et peuvent être retirées."
+
+#: rust/annuaire-app/src/history.rs
+msgid "Remove the backups no longer named"
+msgstr "Retirer les sauvegardes qui ne sont plus nommées"
+
+#: rust/annuaire-app/src/history.rs
+#, rust-format
+msgid "{n} backup removed ({taille} MB)."
+msgid_plural "{n} backups removed ({taille} MB)."
+msgstr[0] "{n} sauvegarde retirée ({taille} Mo)."
+msgstr[1] "{n} sauvegardes retirées ({taille} Mo)."
+
+#: rust/annuaire-app/src/history.rs
+msgid "Cannot remove the backups"
+msgstr "Impossible de retirer les sauvegardes"
+
+#: rust/annuaire-app/src/history.rs
 msgid "Cannot resume"
 msgstr "Reprise impossible"
+
+#: rust/annuaire-app/src/history.rs
+#, rust-format
+msgid "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} element. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved."
+msgid_plural "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} elements. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved."
+msgstr[0] "La propagation sous {chemin} a été coupée par un arrêt de l'application ; sa sauvegarde contient {n} élément. « Terminer » propage de nouveau et n'écrit que ce qui n'est pas encore comme il doit être ; « Annuler ce qui a été fait » réécrit ce qui a été sauvegardé."
+msgstr[1] "La propagation sous {chemin} a été coupée par un arrêt de l'application ; sa sauvegarde contient {n} éléments. « Terminer » propage de nouveau et n'écrit que ce qui n'est pas encore comme il doit être ; « Annuler ce qui a été fait » réécrit ce qui a été sauvegardé."
 
 #: rust/annuaire-app/src/history.rs
 #, rust-format
@@ -10397,6 +10618,31 @@ msgstr "suppression du fichier {c}"
 
 #: rust/annuaire-app/src/preview_views.rs
 #, rust-format
+msgid "creation of share {c}"
+msgstr "création du partage {c}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "modification of share {c}"
+msgstr "modification du partage {c}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "deletion of share {c}"
+msgstr "suppression du partage {c}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "propagation of inheritance under {c}"
+msgstr "propagation de l'héritage sous {c}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "permissions written back from the backup of a propagation under {c}"
+msgstr "autorisations réécrites depuis la sauvegarde d'une propagation sous {c}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
 msgid "permissions of {c}"
 msgstr "autorisations de {c}"
 
@@ -10441,6 +10687,11 @@ msgstr "Échec à l'opération {k} sur {n} : {message}"
 
 #: rust/annuaire-app/src/preview_views.rs
 #, rust-format
+msgid "The {k} operation(s) already performed have been undone: the server is back to its previous state."
+msgstr "Les {k} opération(s) déjà faites ont été défaites : le serveur est revenu à son état d'avant."
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
 msgid "The {k} operation(s) already performed have been undone: the directory is back to its previous state."
 msgstr "Les {k} opération(s) déjà faites ont été défaites : l'annuaire est revenu à son état d'avant."
 
@@ -10452,6 +10703,11 @@ msgstr "Le retour arrière a échoué : {message} Un autre administrateur a peut
 #: rust/annuaire-app/src/preview_views.rs
 msgid "Still applied:"
 msgstr "Restent appliquées :"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "Uncertain effect, to be checked on the server: {op}."
+msgstr "Effet incertain, à vérifier sur le serveur : {op}."
 
 #: rust/annuaire-app/src/preview_views.rs
 #, rust-format
@@ -11944,14 +12200,6 @@ msgstr "Le nom dépasse 80 caractères."
 msgid "The name contains a character that Windows refuses."
 msgstr "Le nom contient un caractère que Windows refuse."
 
-#: rust/annuaire-app/src/shares.rs
-msgid "Domain member, operating system not declared"
-msgstr "Membre du domaine, système non déclaré"
-
-#: rust/annuaire-app/src/shares.rs
-msgid "Opened before"
-msgstr "Déjà ouvert"
-
 #: rust/annuaire-app/src/shares.rs rust/annuaire-app/src/views.rs
 msgid "Domain controller"
 msgstr "Contrôleur de domaine"
@@ -11960,6 +12208,14 @@ msgstr "Contrôleur de domaine"
 #, rust-format
 msgid "{systeme}, domain controller"
 msgstr "{systeme}, contrôleur de domaine"
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Domain member, operating system not declared"
+msgstr "Membre du domaine, système non déclaré"
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Opened before"
+msgstr "Déjà ouvert"
 
 #: rust/annuaire-app/src/shares.rs
 msgid "No file server known yet: type its name."
@@ -11995,6 +12251,14 @@ msgstr "Suppression du partage {partage} : le dossier {chemin} et son contenu re
 #: rust/annuaire-app/src/shares.rs
 msgid "The open connections to the share are cut. Undoing recreates the share with its permissions and options."
 msgstr "Les connexions ouvertes au partage sont coupées. L'annulation recrée le partage avec ses droits et ses options."
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Samba hides the share from the accounts its permissions refuse."
+msgstr "Samba masque le partage aux comptes que ses autorisations refusent."
+
+#: rust/annuaire-app/src/shares.rs
+msgid "Samba takes the options of this share from smb.conf and keeps them: a change made here is then reported as not applied."
+msgstr "Samba prend les options de ce partage dans smb.conf et les garde : une modification faite ici est alors signalée comme non appliquée."
 
 #: rust/annuaire-app/src/shares.rs
 msgid "A share cannot be renamed: create another one and delete this one."
@@ -12804,9 +13068,21 @@ msgid "its folder cannot be listed ({statut})"
 msgstr "son dossier ne peut pas être listé ({statut})"
 
 #: rust/annuaire-app/src/writes.rs
+msgid "its auditing entries cannot be read: the account does not hold SeSecurityPrivilege"
+msgstr "ses entrées d'audit ne peuvent pas être lues : le compte n'a pas SeSecurityPrivilege"
+
+#: rust/annuaire-app/src/writes.rs
 #, rust-format
 msgid "its permissions cannot be read ({statut})"
 msgstr "ses autorisations ne peuvent pas être lues ({statut})"
+
+#: rust/annuaire-app/src/writes.rs
+msgid "the server refused the owner: giving ownership to another account needs SeRestorePrivilege"
+msgstr "le serveur a refusé le propriétaire : donner la propriété à un autre compte demande SeRestorePrivilege"
+
+#: rust/annuaire-app/src/writes.rs
+msgid "the server refused the auditing entries: the account does not hold SeSecurityPrivilege"
+msgstr "le serveur a refusé les entrées d'audit : le compte n'a pas SeSecurityPrivilege"
 
 #: rust/annuaire-app/src/writes.rs
 #, rust-format
@@ -12822,233 +13098,9 @@ msgid "changed since the propagation, left as it is"
 msgstr "modifié depuis la propagation, laissé tel quel"
 
 #: rust/annuaire-app/src/writes.rs
-msgid "Change not proposed"
-msgstr "Modification non proposée"
-
-#: rust/annuaire-app/data/ui/historique.blp
-#: rust/annuaire-app/src/history.rs
-msgid "Backups of propagations"
-msgstr "Sauvegardes des propagations"
-
-#: rust/annuaire-app/src/history.rs
-msgid "Cannot read the backups"
-msgstr "Impossible de lire les sauvegardes"
-
-#: rust/annuaire-app/src/history.rs
-msgid "Cannot remove the backups"
-msgstr "Impossible de retirer les sauvegardes"
-
-#: rust/annuaire-app/src/history.rs
-msgid "Remove the backups no longer named"
-msgstr "Retirer les sauvegardes qui ne sont plus nommées"
-
-#: rust/annuaire-app/src/history.rs
-#, rust-format
-msgid "{n} backup ({taille} MB) is named by the log: Ctrl+Z, the history and resuming read it, it is kept."
-msgid_plural "{n} backups ({taille} MB) are named by the log: Ctrl+Z, the history and resuming read them, they are kept."
-msgstr[0] "{n} sauvegarde ({taille} Mo) est nommée par le journal : Ctrl+Z, l'historique et la reprise la lisent, elle est gardée."
-msgstr[1] "{n} sauvegardes ({taille} Mo) sont nommées par le journal : Ctrl+Z, l'historique et la reprise les lisent, elles sont gardées."
-
-#: rust/annuaire-app/src/history.rs
-#, rust-format
-msgid "{n} backup ({taille} MB) is no longer named by the log (its older entries are gone) and can be removed."
-msgid_plural "{n} backups ({taille} MB) are no longer named by the log (its older entries are gone) and can be removed."
-msgstr[0] "{n} sauvegarde ({taille} Mo) n'est plus nommée par le journal (ses entrées les plus anciennes ont disparu) et peut être retirée."
-msgstr[1] "{n} sauvegardes ({taille} Mo) ne sont plus nommées par le journal (ses entrées les plus anciennes ont disparu) et peuvent être retirées."
-
-#: rust/annuaire-app/src/history.rs
-#, rust-format
-msgid "{n} backup removed ({taille} MB)."
-msgid_plural "{n} backups removed ({taille} MB)."
-msgstr[0] "{n} sauvegarde retirée ({taille} Mo)."
-msgstr[1] "{n} sauvegardes retirées ({taille} Mo)."
-
-#: rust/annuaire-app/src/history.rs
-#, rust-format
-msgid "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} element. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved."
-msgid_plural "The propagation under {chemin} was cut by a stop of the application; its backup holds {n} elements. « Complete » propagates again and writes only what is not yet as it must be; « Undo what was done » writes back what was saved."
-msgstr[0] "La propagation sous {chemin} a été coupée par un arrêt de l'application ; sa sauvegarde contient {n} élément. « Terminer » propage de nouveau et n'écrit que ce qui n'est pas encore comme il doit être ; « Annuler ce qui a été fait » réécrit ce qui a été sauvegardé."
-msgstr[1] "La propagation sous {chemin} a été coupée par un arrêt de l'application ; sa sauvegarde contient {n} éléments. « Terminer » propage de nouveau et n'écrit que ce qui n'est pas encore comme il doit être ; « Annuler ce qui a été fait » réécrit ce qui a été sauvegardé."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The owner of the {dossiers} folders and {fichiers} files under {chemin} will be {proprietaire}."
-msgstr "Le propriétaire des {dossiers} dossiers et {fichiers} fichiers sous {chemin} sera {proprietaire}."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The owner of {chemin} becomes {proprietaire}."
-msgstr "Le propriétaire de {chemin} devient {proprietaire}."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The account in use cannot be read in the directory."
-msgstr "Le compte utilisé ne peut pas être lu dans l'annuaire."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refuses this account to take ownership of “{chemin}”: it needs the “Take ownership” permission on the element, or the “Take ownership of files or other objects” privilege (SeTakeOwnershipPrivilege) on the server; on Windows, the “Restore files and directories” privilege (SeRestorePrivilege) also gives it."
-msgstr "Le serveur refuse à ce compte de s'approprier « {chemin} » : il lui faut l'autorisation « Appropriation » sur l'élément, ou le privilège « Prendre possession de fichiers ou d'autres objets » (SeTakeOwnershipPrivilege) sur le serveur ; sous Windows, le privilège « Restaurer des fichiers et des répertoires » (SeRestorePrivilege) le permet aussi."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refuses this owner for “{chemin}”: giving ownership to another account, or to a group the account is not a member of, needs the “Restore files and directories” privilege (SeRestorePrivilege) on the server."
-msgstr "Le serveur refuse ce propriétaire pour « {chemin} » : donner la propriété à un autre compte, ou à un groupe dont le compte n'est pas membre, demande le privilège « Restaurer des fichiers et des répertoires » (SeRestorePrivilege) sur le serveur."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refuses to change the owner of “{chemin}”: the account does not hold the privilege it needs (SeTakeOwnershipPrivilege or SeRestorePrivilege)."
-msgstr "Le serveur refuse de changer le propriétaire de « {chemin} » : le compte n'a pas le privilège nécessaire (SeTakeOwnershipPrivilege ou SeRestorePrivilege)."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refused to change the owner of “{chemin}” (0x{statut:08X})."
-msgstr "Le serveur a refusé de changer le propriétaire de « {chemin} » (0x{statut:08X})."
-
-#: rust/annuaire-app/src/catalog.rs
-msgid "Replace the owner under {chemin}"
-msgstr "Remplacer le propriétaire sous {chemin}"
-
-#: rust/annuaire-app/src/catalog.rs
-msgid "owner of every element under the folder: {proprietaire}"
-msgstr "propriétaire de chaque élément sous le dossier : {proprietaire}"
-
-#: rust/annuaire-app/src/writes.rs
-msgid "the server refused the owner: giving ownership to another account needs SeRestorePrivilege"
-msgstr "le serveur a refusé le propriétaire : donner la propriété à un autre compte demande SeRestorePrivilege"
-
-#: rust/annuaire-app/src/codec_texts.rs
-msgid "propagation: owner"
-msgstr "propagation : propriétaire"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Change…"
-msgstr "Modifier…"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Change the owner"
-msgstr "Modifier le propriétaire"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Replace owner on subcontainers and objects"
-msgstr "Remplacer le propriétaire des sous-conteneurs et des objets"
-
-#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
-msgid "Select a User or Group"
-msgstr "Sélectionner un utilisateur ou un groupe"
-
-#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
-msgid "Myself"
-msgstr "Moi-même"
-
-#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
-msgid "Another Account or Group"
-msgstr "Un autre compte ou groupe"
-
-#: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
-msgid "Search for the account or group that becomes the owner"
-msgstr "Chercher le compte ou le groupe qui devient propriétaire"
-
-#: rust/annuaire-app/src/writes.rs
 msgid "its permissions could not be read before its owner was replaced: there is nothing to write back"
 msgstr "ses autorisations n'ont pas pu être lues avant que son propriétaire soit remplacé : il n'y a rien à réécrire"
 
-#: rust/annuaire-app/src/file_security.rs
-msgid "The auditing entries cannot be read: the account does not hold the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server. The permissions and the owner can still be changed."
-msgstr "Les entrées d'audit ne peuvent pas être lues : le compte n'a pas le privilège « Gérer le journal d'audit et de sécurité » (SeSecurityPrivilege) sur le serveur. Les autorisations et le propriétaire restent modifiables."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The server refuses the auditing entries to this account (0x{statut:08X}). The permissions and the owner can still be changed."
-msgstr "Le serveur refuse les entrées d'audit à ce compte (0x{statut:08X}). Les autorisations et le propriétaire restent modifiables."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The server did not give the auditing entries."
-msgstr "Le serveur n'a pas donné les entrées d'audit."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "{action}: auditing of {principal}"
-msgstr "{action} : audit de {principal}"
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "What should become of the auditing entries inherited from the parent folder?"
-msgstr "Que faire des entrées d'audit héritées du dossier parent ?"
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The auditing entries of the {dossiers} folders and {fichiers} files under {chemin} will be replaced by those they inherit."
-msgstr "Les entrées d'audit des {dossiers} dossiers et {fichiers} fichiers sous {chemin} seront remplacées par celles dont ils héritent."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "The inherited auditing entries of the {dossiers} folders and {fichiers} files under {chemin} will be computed again."
-msgstr "Les entrées d'audit héritées des {dossiers} dossiers et {fichiers} fichiers sous {chemin} seront recalculées."
-
-#: rust/annuaire-app/src/file_security.rs
-msgid "Auditing Entry"
-msgstr "Entrée d'audit"
-
-#: rust/annuaire-app/src/file_security.rs
-#: rust/annuaire-app/src/share_views.rs
-msgid "Success"
-msgstr "Réussite"
-
-#: rust/annuaire-app/src/file_security.rs
-#: rust/annuaire-app/src/share_views.rs
-msgid "Failure"
-msgstr "Échec"
-
-#: rust/annuaire-app/src/file_security.rs
-#: rust/annuaire-app/src/share_views.rs
-msgid "All (auditing)"
-msgstr "Tout"
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refuses the auditing entries of “{chemin}” to this account: it needs the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server."
-msgstr "Le serveur refuse à ce compte les entrées d'audit de « {chemin} » : il lui faut le privilège « Gérer le journal d'audit et de sécurité » (SeSecurityPrivilege) sur le serveur."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refuses to write the auditing entries of “{chemin}”: besides SeSecurityPrivilege, the account needs the “Change permissions” permission on the element."
-msgstr "Le serveur refuse d'écrire les entrées d'audit de « {chemin} » : outre SeSecurityPrivilege, il faut au compte l'autorisation « Modification des autorisations » sur l'élément."
-
-#: rust/annuaire-app/src/errors.rs
-msgid "The server refused the auditing entries of “{chemin}” (0x{statut:08X})."
-msgstr "Le serveur a refusé les entrées d'audit de « {chemin} » (0x{statut:08X})."
-
-#: rust/annuaire-app/src/catalog.rs
-msgid "Propagate the auditing entries under {chemin}"
-msgstr "Propager les entrées d'audit sous {chemin}"
-
-#: rust/annuaire-app/src/catalog.rs
-msgid "auditing entries inherited computed again"
-msgstr "entrées d'audit héritées recalculées"
-
-#: rust/annuaire-app/src/catalog.rs
-msgid "auditing entries of every descendant replaced by the inherited ones"
-msgstr "entrées d'audit de chaque descendant remplacées par celles héritées"
-
 #: rust/annuaire-app/src/writes.rs
-msgid "its auditing entries cannot be read: the account does not hold SeSecurityPrivilege"
-msgstr "ses entrées d'audit ne peuvent pas être lues : le compte n'a pas SeSecurityPrivilege"
-
-#: rust/annuaire-app/src/writes.rs
-msgid "the server refused the auditing entries: the account does not hold SeSecurityPrivilege"
-msgstr "le serveur a refusé les entrées d'audit : le compte n'a pas SeSecurityPrivilege"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Each entry has the server write an event in its Security log when the access it names succeeds or fails."
-msgstr "Chaque entrée fait écrire au serveur un événement dans son journal Sécurité quand l'accès qu'elle nomme réussit ou échoue."
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Inheritance of the Auditing Entries"
-msgstr "Héritage des entrées d'audit"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Auditing entries"
-msgstr "Entrées d'audit"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "No auditing entry."
-msgstr "Aucune entrée d'audit."
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Kind of Entry"
-msgstr "Type d'entrée"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Permission"
-msgstr "Autorisation"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Replace all child object auditing entries with inheritable auditing entries from this object"
-msgstr "Remplacer toutes les entrées d'audit des objets enfants par des entrées d'audit pouvant être héritées de cet objet"
+msgid "Change not proposed"
+msgstr "Modification non proposée"

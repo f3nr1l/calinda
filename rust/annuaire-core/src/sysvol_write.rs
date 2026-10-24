@@ -245,7 +245,13 @@ impl SysvolSession {
         session
     }
 
+    /// The session, opened at the first need, and again after an error of the session (J8.8).
     pub fn client(&mut self) -> sysvol::Result<&mut Session> {
+        if self.client.as_ref().is_some_and(|c| !c.usable())
+            && let Some(abandoned) = self.client.take()
+        {
+            abandoned.close();
+        }
         if self.client.is_none() {
             self.client = Some((self.opener)(&self.dc)?);
         }

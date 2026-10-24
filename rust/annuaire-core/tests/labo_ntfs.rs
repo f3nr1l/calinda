@@ -33,7 +33,13 @@
 //! 7. a propagation cut by a stop of the application (J8.7): its intention journaled, the
 //!    propagation run without the writer and stopped on the way, no report; the journal offers
 //!    it to resume, the backup settles it as applied, the completion propagates again with a
-//!    backup of its own and the tree is as Windows makes it; both undone, the tree is back.
+//!    backup of its own and the tree is as Windows makes it; both undone, the tree is back;
+//! 8. bis (J8.8) a propagation cut by a server too slow to answer: a change of the root and
+//!    its propagation by the writer, one batch of writes not waited for
+//!    (`smb::client::time_out_write_batch`: the server writes it, the session times out, as on
+//!    the slow Windows 2008 R2 of the incident); the writer fails, its rollback goes through a
+//!    new session, writes back from the backup what the propagation wrote, then the root: the
+//!    tree is as before.
 //!
 //! Windows propagates for the twin: on wdc1 itself (PowerShell over ssh,
 //! `ANNUAIRE_LABO_SSH_WDC1`), on fs1 from the Windows workstation joined to LAB.TEST as
@@ -933,7 +939,95 @@ fn cases(trial: &Trial, lab: &Lab, server: &Server, made: &mut Made) -> Result<(
     kdc.destroy("cc-a");
     kdc.destroy("cc-r");
     cut_by_a_stop(trial, server, made, &mut s, &readers)?;
+    cut_by_a_timeout(trial, server, made, &mut s, &readers)?;
     s.close();
+    Ok(())
+}
+
+/// Step 8 bis (J8.8): a propagation cut by a timeout, rolled back on a new session.
+fn cut_by_a_timeout(
+    trial: &Trial,
+    server: &Server,
+    made: &mut Made,
+    s: &mut Session,
+    readers: &Sid,
+) -> Result<()> {
+    println!("8 bis. a propagation cut by a timeout, rolled back on a new session");
+    let start_tree = snapshot(s, OURS)?;
+    let (before, root) = read_one(s, OURS)?;
+    let mut explicit = ntfs::explicit_aces(&root);
+    explicit.extend(ntfs::dacl_of(
+        &sddl::sd_from_sddl(&format!("D:(A;OICI;0x1200a9;;;{readers})"), None, false)
+            .map_err(debug)?,
+    ));
+    let changed = ntfs::composed(&root, &explicit, &[], ntfs::is_protected(&root));
+    let id = propagation::new_id();
+    made.backups.push(id.clone());
+    let operations = vec![
+        Operation::set_file_descriptor(
+            &server.name,
+            &server.share,
+            OURS,
+            before.clone(),
+            changed.encode().map_err(debug)?,
+        ),
+        Operation::propagate_inheritance(&server.name, &server.share, OURS, false, &id, ELEMENTS),
+    ];
+    let control = propagation::control(&id);
+    // The root is the first batch of writes, the propagation writes about twenty elements
+    // per batch: cut after some two hundred.
+    annuaire_core::smb::client::time_out_write_batch(10);
+    let start = Instant::now();
+    let outcome = trial.outcome(&changeset(operations), None, None);
+    annuaire_core::smb::client::time_out_write_batch(0);
+    let report = outcome?.report;
+    let progress = control.progress();
+    propagation::forget(&id);
+    println!(
+        "  {:?} in {:.2} s, {} written back by the rollback; error: {:?}; rollback error: {:?}",
+        report.issue,
+        start.elapsed().as_secs_f64(),
+        progress.written,
+        report.error.as_ref().map(|e| &e.message),
+        report.rollback_error.as_ref().map(|e| &e.message),
+    );
+    check(
+        report
+            .error
+            .as_ref()
+            .is_some_and(|e| e.message.contains("not waited for")),
+        "the propagation failed on the timeout",
+    )?;
+    check(
+        progress.written > 0 && progress.examined < ELEMENTS,
+        &format!("cut on the way, written back by the rollback ({progress:?})"),
+    )?;
+    check(
+        report.applied.len() == 1
+            && report.rollback.as_ref().is_some_and(|r| {
+                matches!(
+                    r.operations.first(),
+                    Some(Operation::PropagateInheritance {
+                        direction: propagation::Direction::Undo,
+                        ..
+                    })
+                ) && r.operations.len() == 2
+            })
+            && report.rollback_applied.len() == 2,
+        "the rollback writes back the propagation, then the root",
+    )?;
+    check(
+        report.issue == Issue::Cancelled && report.rollback_error.is_none(),
+        "the rollback goes through (a new session)",
+    )?;
+    let (n, shown) = differences(&start_tree, &snapshot(s, OURS)?, false);
+    for line in &shown {
+        println!("    {line}");
+    }
+    check(
+        n == 0,
+        &format!("rolled back: the tree is as before ({n} differences)"),
+    )?;
     Ok(())
 }
 

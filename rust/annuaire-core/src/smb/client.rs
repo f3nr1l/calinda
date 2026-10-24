@@ -12,6 +12,7 @@
 use std::collections::{HashMap, VecDeque};
 use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpStream, ToSocketAddrs};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex, PoisonError};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
@@ -29,6 +30,37 @@ use super::wire::{Writer, bytes_at};
 pub const MAX_IN_FLIGHT: u32 = 60;
 /// Credits asked for with each request.
 const CREDIT_REQUEST: u16 = 64;
+/// The delay allowed for the responses of a batch grows by an eighth of the base delay for
+/// each compound beyond the first, up to `MAX_ALLOWANCE` times the base (J8.8): a compound
+/// answers when all its requests are done, and a server with saturated storage takes them
+/// one after the other.
+const ALLOWANCE_STEP: u32 = 8;
+const MAX_ALLOWANCE: u32 = 4;
+
+/// Trials of the lab (J8.8): the batch of writes, counted from 1, that is not waited for.
+static WRITE_BATCH_NOT_WAITED: AtomicU64 = AtomicU64::new(0);
+
+/// Trials of the lab (J8.8): the `n`-th batch of writes (`SET_INFO`) sent from now on, by any
+/// session of the process, is not waited for: its requests reach the server, which writes
+/// them, and the session times out as with a server too slow to answer. Once; 0 cancels it.
+/// Not for the unit tests, which run side by side (the fake server has its `pause`).
+#[doc(hidden)]
+pub fn time_out_write_batch(n: u64) {
+    WRITE_BATCH_NOT_WAITED.store(n, Ordering::SeqCst);
+}
+
+/// Is this batch of writes the one not to wait for? (`time_out_write_batch`)
+fn not_waited() -> bool {
+    let mut n = WRITE_BATCH_NOT_WAITED.load(Ordering::SeqCst);
+    while n > 0 {
+        match WRITE_BATCH_NOT_WAITED.compare_exchange(n, n - 1, Ordering::SeqCst, Ordering::SeqCst)
+        {
+            Ok(_) => return n == 1,
+            Err(now) => n = now,
+        }
+    }
+    false
+}
 const PORT: u16 = 445;
 
 /// What went wrong, as `sysvol._traduire` sorts it.
@@ -266,6 +298,9 @@ pub struct Client {
     pub max_write: u32,
     /// Batches sent (one round trip each) since the session opened.
     pub round_trips: u64,
+    /// An error of the session (time, connection, protocol) left requests without their
+    /// responses: their message ids and credits are lost, the session is not used again.
+    broken: Option<String>,
 }
 
 impl std::fmt::Debug for Client {
@@ -348,6 +383,7 @@ impl Client {
             max_read: 65536,
             max_write: 65536,
             round_trips: 0,
+            broken: None,
         })
     }
 
@@ -367,6 +403,18 @@ impl Client {
 
     pub fn large_mtu(&self) -> bool {
         self.large_mtu
+    }
+
+    /// Can the session still be used? Not after an error of the session: a caller opens a
+    /// new one (J8.8).
+    pub fn usable(&self) -> bool {
+        self.broken.is_none()
+    }
+
+    /// The base delay of the responses from now on (probes and tests that make a server
+    /// look slow).
+    pub fn set_timeout(&mut self, timeout: Duration) {
+        self.timeout = timeout;
     }
 
     // -- Set-up ------------------------------------------------------------------------
@@ -574,7 +622,7 @@ impl Client {
     /// Sends one message and waits for its response.
     fn single(&mut self, message: &[u8], id: u64) -> Result<Response, SmbError> {
         self.write_frame(message)?;
-        self.wait(&[id])?;
+        self.wait(&[vec![id]])?;
         self.responses
             .remove(&id)
             .ok_or_else(|| SmbError::protocol("response lost"))
@@ -664,10 +712,21 @@ impl Client {
         self.stream.write_all(&out).map_err(|e| io_error(&e))
     }
 
-    /// Waits until a response to each id has arrived (interim responses are not one).
-    fn wait(&mut self, ids: &[u64]) -> Result<(), SmbError> {
-        let deadline = Instant::now() + self.timeout;
-        while !ids.iter().all(|id| self.responses.contains_key(id)) {
+    /// Waits until a response to each id of each compound has arrived (interim responses are
+    /// not one). The delay runs from the last frame received, not from the sending: a slow
+    /// server that answers one compound after the other is waited for, and it grows with the
+    /// compounds still awaited (`allowance`).
+    fn wait(&mut self, compounds: &[Vec<u64>]) -> Result<(), SmbError> {
+        let started = Instant::now();
+        let mut deadline = started + allowance(self.timeout, compounds.len());
+        loop {
+            let awaited = compounds
+                .iter()
+                .filter(|ids| !ids.iter().all(|id| self.responses.contains_key(id)))
+                .count();
+            if awaited == 0 {
+                return Ok(());
+            }
             let frame = {
                 let mut inbox = self
                     .shared
@@ -688,7 +747,13 @@ impl Client {
                     if now >= deadline {
                         return Err(SmbError::new(
                             ErrorKind::Timeout,
-                            format!("no response from {} in {:?}", self.server, self.timeout),
+                            format!(
+                                "no response from {} in {:?} ({awaited} of {} compound(s) awaited for {:?})",
+                                self.server,
+                                allowance(self.timeout, awaited),
+                                compounds.len(),
+                                now - started,
+                            ),
                         ));
                     }
                     inbox = self
@@ -700,8 +765,12 @@ impl Client {
                 }
             };
             self.receive(&frame)?;
+            let awaited = compounds
+                .iter()
+                .filter(|ids| !ids.iter().all(|id| self.responses.contains_key(id)))
+                .count();
+            deadline = Instant::now() + allowance(self.timeout, awaited);
         }
-        Ok(())
     }
 
     /// Decrypts and checks a frame, then files each response of its chain.
@@ -772,13 +841,37 @@ impl Client {
     /// each, in order. Compounds go in batches bounded by the credits and `MAX_IN_FLIGHT`,
     /// one round trip per batch. A refused request is a response with its status, not an
     /// error; errors are those of the session (connection, time, protocol).
+    ///
+    /// After an error of the session, the requests sent are left without their responses:
+    /// the session refuses any other exchange (`usable`).
     pub fn exchange(&mut self, compounds: &[Vec<Request>]) -> Result<Vec<Vec<Response>>, SmbError> {
+        if let Some(cause) = &self.broken {
+            return Err(SmbError::new(
+                ErrorKind::Unreachable,
+                format!(
+                    "session with {} abandoned after an error: {cause}",
+                    self.server
+                ),
+            ));
+        }
+        let exchanged = self.exchange_batches(compounds);
+        if let Err(e) = &exchanged {
+            self.broken = Some(e.to_string());
+        }
+        exchanged
+    }
+
+    fn exchange_batches(
+        &mut self,
+        compounds: &[Vec<Request>],
+    ) -> Result<Vec<Vec<Response>>, SmbError> {
         let mut results = Vec::with_capacity(compounds.len());
         let mut pending = compounds.iter().peekable();
         while pending.peek().is_some() {
             let budget = self.credits.clamp(1, MAX_IN_FLIGHT);
             let mut spent = 0u32;
             let mut batch: Vec<Vec<u64>> = Vec::new();
+            let mut writes = false;
             while let Some(requests) = pending.peek() {
                 let charge: u32 = requests.iter().map(|r| u32::from(r.credit_charge())).sum();
                 if !batch.is_empty() && spent + charge > budget {
@@ -791,14 +884,23 @@ impl Client {
                     )));
                 }
                 spent += charge;
+                writes |= requests.iter().any(|r| r.command == command::SET_INFO);
                 let (bytes, ids) = self.compound(requests)?;
                 self.write_frame(&bytes)?;
                 batch.push(ids);
                 pending.next();
             }
             self.round_trips += 1;
-            let all: Vec<u64> = batch.iter().flatten().copied().collect();
-            self.wait(&all)?;
+            if writes && not_waited() {
+                return Err(SmbError::new(
+                    ErrorKind::Timeout,
+                    format!(
+                        "no response from {} (trial: batch not waited for)",
+                        self.server
+                    ),
+                ));
+            }
+            self.wait(&batch)?;
             for ids in batch {
                 let mut responses = Vec::with_capacity(ids.len());
                 for id in ids {
@@ -836,6 +938,7 @@ impl Client {
         if self.reader.is_none() {
             return;
         }
+        // An abandoned session refuses the exchanges: the connection only is closed.
         if self.tree_id != 0 {
             let _ = self.exchange(&[vec![msg::tree_disconnect()]]);
             self.tree_id = 0;
@@ -848,6 +951,16 @@ impl Client {
             let _ = reader.join();
         }
     }
+}
+
+/// The delay allowed for the responses of `compounds` compounds still awaited: the base delay,
+/// one eighth more for each compound beyond the first, at most four times the base (J8.8).
+pub fn allowance(base: Duration, compounds: usize) -> Duration {
+    let extra = u32::try_from(compounds.saturating_sub(1)).unwrap_or(u32::MAX);
+    let steps = ALLOWANCE_STEP
+        .saturating_add(extra)
+        .min(ALLOWANCE_STEP * MAX_ALLOWANCE);
+    base.saturating_mul(steps) / ALLOWANCE_STEP
 }
 
 impl Drop for Client {
@@ -1057,6 +1170,113 @@ mod tests {
             (error.kind, error.detail.as_str()),
             (ErrorKind::Protocol, "response not signed")
         );
+        server.join();
+    }
+
+    #[test]
+    fn allowance_grows_with_the_compounds_and_is_capped() {
+        let base = Duration::from_secs(30);
+        assert_eq!(allowance(base, 0), base);
+        assert_eq!(allowance(base, 1), base);
+        assert_eq!(allowance(base, 9), Duration::from_secs(60));
+        // 20 compounds of three requests: what 60 credits in flight allow.
+        assert_eq!(allowance(base, 20), Duration::from_millis(101_250));
+        assert_eq!(allowance(base, 25), Duration::from_secs(120));
+        assert_eq!(allowance(base, 10_000), Duration::from_secs(120));
+    }
+
+    fn writing(path: &str) -> Vec<Request> {
+        vec![
+            msg::create(&Create {
+                path,
+                access: 0x0004_0000,
+                share: 7,
+                disposition: 1,
+                ..Create::default()
+            }),
+            msg::set_info(&RELATED_FILE_ID, msg::INFO_SECURITY, 0, 4, b"descriptor"),
+            msg::close(&RELATED_FILE_ID),
+        ]
+    }
+
+    /// A server that answers each write late, one compound after the other: the batch takes
+    /// far longer than the base delay, each response comes within it (J8.8).
+    #[test]
+    fn slow_server_waited_for_while_it_answers() {
+        let (server, mut client) = connect(64);
+        client.set_timeout(Duration::from_millis(400));
+        *server.pause.lock().unwrap() = Duration::from_millis(100);
+        let compounds: Vec<Vec<Request>> = (0..8).map(|_| writing("Policies\\GPT.INI")).collect();
+        let start = Instant::now();
+        let results = client.exchange(&compounds).unwrap();
+        assert!(start.elapsed() >= Duration::from_millis(800));
+        assert_eq!(client.round_trips, 1);
+        assert!(
+            results
+                .iter()
+                .flatten()
+                .all(|r| r.status() == status::SUCCESS)
+        );
+        assert!(client.usable());
+        client.close();
+        server.join();
+    }
+
+    /// A response later than the delay: the session times out and refuses any other exchange
+    /// (its credits and message ids are those of requests without responses); the server
+    /// wrote all the same. A new session works.
+    #[test]
+    fn session_abandoned_after_a_timeout() {
+        let server = FakeServer::start_with(
+            64,
+            fs(),
+            Config {
+                connections: 2,
+                ..Config::default()
+            },
+        );
+        let options = Options {
+            port: server.port,
+            ..Options::default()
+        };
+        let mut client =
+            Client::connect("127.0.0.1", "SYSVOL", &options, &mut FakeAuth::default()).unwrap();
+        client.set_timeout(Duration::from_millis(100));
+        *server.pause.lock().unwrap() = Duration::from_millis(600);
+        let error = client
+            .exchange(&[writing("Policies\\GPT.INI")])
+            .unwrap_err();
+        assert_eq!(error.kind, ErrorKind::Timeout);
+        assert!(error.detail.contains("1 of 1 compound(s)"), "{error}");
+        assert!(!client.usable());
+        let start = Instant::now();
+        let again = client.exchange(&[vec![open("Policies")]]).unwrap_err();
+        assert_eq!(again.kind, ErrorKind::Unreachable);
+        assert!(again.detail.contains("abandoned"), "{again}");
+        assert!(start.elapsed() < Duration::from_millis(50));
+        *server.pause.lock().unwrap() = Duration::ZERO;
+        drop(client);
+        let mut fresh =
+            Client::connect("127.0.0.1", "SYSVOL", &options, &mut FakeAuth::default()).unwrap();
+        let r = fresh
+            .exchange(&[vec![
+                open("Policies\\GPT.INI"),
+                msg::read(&RELATED_FILE_ID, 0, 65536),
+                msg::close(&RELATED_FILE_ID),
+            ]])
+            .unwrap();
+        assert_eq!(r[0][1].status(), status::SUCCESS);
+        assert_eq!(
+            server
+                .fs
+                .lock()
+                .unwrap()
+                .get("Policies\\GPT.INI")
+                .unwrap()
+                .descriptor,
+            b"descriptor"
+        );
+        fresh.close();
         server.join();
     }
 

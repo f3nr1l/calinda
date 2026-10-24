@@ -14,7 +14,7 @@ already on the system. There is no repository yet; install the file you received
 built yourself (README, section “Construire le RPM”):
 
 ```sh
-sudo dnf install ./calinda-1.3.0-1.fc44.x86_64.rpm
+sudo dnf install ./calinda-1.3.1-1.fc44.x86_64.rpm
 ```
 
 The application appears as “Calinda” in the application menu; from a terminal, the command is

@@ -1,3 +1,13 @@
+calinda (1.3.1-1) resolute; urgency=medium
+
+  * Nouvelle version amont, corrective : propagation de l'héritage sur un
+    serveur lent (délai qui suit les réponses, lots adaptés, retour arrière
+    complet depuis la sauvegarde).
+  * Écritures sur les partages nommées par leur chemin ; entrées NTFS
+    identiques fusionnées.
+
+ -- René Onier <f3nr1l@me.com>  Sat, 24 Oct 2026 12:00:00 -0400
+
 calinda (1.3.0-1) resolute; urgency=medium
 
   * Nouvelle version amont : partages des serveurs de fichiers et droits

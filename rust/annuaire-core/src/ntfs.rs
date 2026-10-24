@@ -159,6 +159,46 @@ fn add(out: &mut Vec<Ace>, ace: Ace) {
     }
 }
 
+/// An explicit ACE added to `out`: joined to one of the same principal, type and flags (its
+/// rights added), as the security editor of Windows does when an account already listed is
+/// added again (J8.8); otherwise appended. Only ACEs of the simple layout (mask, SID, nothing
+/// after) are joined; inherited ones are appended as they are.
+pub fn merge_into(out: &mut Vec<Ace>, ace: Ace) {
+    let joinable = |a: &Ace| {
+        !a.is_inherited()
+            && matches!(
+                a.ace_type,
+                sd::ACCESS_ALLOWED | sd::ACCESS_DENIED | sd::SYSTEM_AUDIT
+            )
+            && a.sid().is_some()
+            && a.data().is_empty()
+    };
+    if joinable(&ace)
+        && let Some(sid) = ace.sid()
+        && let Some(same) = out.iter_mut().find(|a| {
+            joinable(a)
+                && a.ace_type == ace.ace_type
+                && a.flags == ace.flags
+                && a.sid() == Some(sid)
+        })
+        && let Ok(joined) = Ace::simple(ace.ace_type, same.mask() | ace.mask(), &sid, ace.flags)
+    {
+        *same = joined;
+        return;
+    }
+    out.push(ace);
+}
+
+/// The explicit ACEs with those of the same principal, type and flags made one (`merge_into`):
+/// what is written, as Windows writes it.
+pub fn merged(aces: &[Ace]) -> Vec<Ace> {
+    let mut out = Vec::with_capacity(aces.len());
+    for ace in aces {
+        merge_into(&mut out, ace.clone());
+    }
+    out
+}
+
 /// The DACL in the order of Windows: explicit denials, explicit allowances (each in their
 /// order), then the inherited ACEs in their order.
 pub fn canonical(aces: &[Ace]) -> Vec<Ace> {
@@ -232,14 +272,14 @@ pub fn written(origin: &SecurityDescriptor, aces: Vec<Ace>, protected: bool) -> 
 }
 
 /// The descriptor of an element whose explicit ACEs, inherited ACEs and protection are those
-/// given: explicit ones in canonical order, then the inherited ones.
+/// given: explicit ones merged (`merged`) in canonical order, then the inherited ones.
 pub fn composed(
     origin: &SecurityDescriptor,
     explicit: &[Ace],
     inherited: &[Ace],
     protected: bool,
 ) -> SecurityDescriptor {
-    let mut aces = canonical(explicit);
+    let mut aces = canonical(&merged(explicit));
     aces.extend(inherited.iter().cloned());
     written(origin, aces, protected)
 }
@@ -392,7 +432,8 @@ pub fn inherited_sacl(descriptor: &SecurityDescriptor) -> Vec<Ace> {
 }
 
 /// `descriptor` with this SACL, as `SetSecurityInfo` writes it: present, automatically
-/// inherited, with `SE_SACL_AUTO_INHERIT_REQ`, protected or not; explicit entries first.
+/// inherited, with `SE_SACL_AUTO_INHERIT_REQ`, protected or not; explicit entries first,
+/// merged.
 pub fn with_sacl(
     descriptor: &SecurityDescriptor,
     explicit: &[Ace],
@@ -400,7 +441,7 @@ pub fn with_sacl(
     protected: bool,
 ) -> SecurityDescriptor {
     let mut out = descriptor.clone();
-    let mut aces = canonical(explicit);
+    let mut aces = canonical(&merged(explicit));
     aces.extend(inherited.iter().cloned());
     let revision = descriptor
         .sacl
@@ -707,6 +748,53 @@ mod tests {
         );
         assert!(!is_canonical(&a));
         assert!(is_canonical(&c));
+    }
+
+    /// The DACL of the incident of J8.8: the same account added twice with the same flags.
+    #[test]
+    fn same_principal_and_flags_merged() {
+        let user = "S-1-5-21-1-2-3-1106";
+        let twice = aces(&format!(
+            "(A;OICI;0x1f01ff;;;{user})(A;OICI;0x1f01ff;;;{user})(A;OICIID;FA;;;SY)"
+        ));
+        let origin = sd_of("O:BAG:SYD:AI");
+        let explicit: Vec<Ace> = twice
+            .iter()
+            .filter(|a| !a.is_inherited())
+            .cloned()
+            .collect();
+        let inherited: Vec<Ace> = twice.iter().filter(|a| a.is_inherited()).cloned().collect();
+        let written = composed(&origin, &explicit, &inherited, false);
+        assert_eq!(
+            text(&dacl_of(&written)),
+            format!("(A;OICI;FA;;;{user})(A;OICIID;FA;;;SY)")
+        );
+        // Added again with other rights: joined; with other flags, another type, or
+        // inherited: kept apart.
+        let mut out = aces(&format!("(A;OICI;FR;;;{user})"));
+        merge_into(
+            &mut out,
+            aces(&format!("(A;OICI;0x116;;;{user})"))[0].clone(),
+        );
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].mask(), 0x0012_0089 | 0x116);
+        for other in [
+            format!("(A;CI;FR;;;{user})"),
+            format!("(D;OICI;FR;;;{user})"),
+            format!("(A;OICIID;FR;;;{user})"),
+            "(A;OICI;FR;;;BU)".to_owned(),
+        ] {
+            merge_into(&mut out, aces(&other)[0].clone());
+        }
+        assert_eq!(out.len(), 5);
+        // The SACL the same way.
+        let audit = sd_of(&format!("S:(AU;OICISA;FW;;;{user})(AU;OICISA;FR;;;{user})"))
+            .sacl
+            .unwrap()
+            .aces;
+        let with = with_sacl(&origin, &audit, &[], false);
+        assert_eq!(sacl_of(&with).len(), 1);
+        assert_eq!(sacl_of(&with)[0].mask(), 0x0012_0116 | 0x0012_0089);
     }
 
     #[test]

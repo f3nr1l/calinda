@@ -752,13 +752,29 @@ pub fn problem_text(problem: &Problem) -> String {
     )
 }
 
+/// An operation of the SYSVOL by its path there; one of a file server by its UNC path
+/// (`\\server\share\path`), as the preview of the shares names it (J8.8).
 fn sysvol_title(op: &Operation) -> String {
-    let path = format!("SYSVOL\\{}", op.path().unwrap_or_default());
+    let path = if op.is_file_share() {
+        op.dn().to_owned()
+    } else {
+        format!("SYSVOL\\{}", op.path().unwrap_or_default())
+    };
     let template = match op {
         Operation::CreateFolder { .. } => tr("creation of folder {c}"),
         Operation::DeleteFolder { .. } => tr("deletion of folder {c}"),
         Operation::WriteFile { .. } => tr("writing of file {c}"),
         Operation::DeleteFile { .. } => tr("deletion of file {c}"),
+        Operation::AddShare { .. } => tr("creation of share {c}"),
+        Operation::ChangeShare { .. } => tr("modification of share {c}"),
+        Operation::DeleteShare { .. } => tr("deletion of share {c}"),
+        Operation::PropagateInheritance {
+            direction: annuaire_core::changes::Direction::Compute,
+            ..
+        } => tr("propagation of inheritance under {c}"),
+        Operation::PropagateInheritance { .. } => {
+            tr("permissions written back from the backup of a propagation under {c}")
+        }
         _ => tr("permissions of {c}"),
     };
     fill(&template, &[("c", &path)])
@@ -823,11 +839,23 @@ pub fn describe(report: &Report, problems: &[Problem]) -> String {
             }
         }
     }
+    // Operations on file servers only: the servers, not the directory (J8.8).
+    let servers_only = report
+        .changeset
+        .operations
+        .iter()
+        .all(Operation::is_file_share);
     if report.issue == Issue::Cancelled {
-        lines.push(fill(
-            &tr("The {k} operation(s) already performed have been undone: the directory is back to its previous state."),
-            &[("k", &report.applied.len().to_string())],
-        ));
+        let text = if servers_only {
+            tr(
+                "The {k} operation(s) already performed have been undone: the server is back to its previous state.",
+            )
+        } else {
+            tr(
+                "The {k} operation(s) already performed have been undone: the directory is back to its previous state.",
+            )
+        };
+        lines.push(fill(&text, &[("k", &report.applied.len().to_string())]));
     }
     if let Some(error) = &report.rollback_error {
         lines.push(fill(
@@ -852,10 +880,12 @@ pub fn describe(report: &Report, problems: &[Problem]) -> String {
         .into_iter()
         .flatten()
     {
-        lines.push(fill(
-            &tr("Uncertain effect, to be checked in the directory: {op}."),
-            &[("op", &title(&doubtful.operation))],
-        ));
+        let text = if doubtful.operation.is_file_share() {
+            tr("Uncertain effect, to be checked on the server: {op}.")
+        } else {
+            tr("Uncertain effect, to be checked in the directory: {op}.")
+        };
+        lines.push(fill(&text, &[("op", &title(&doubtful.operation))]));
     }
     lines.join("\n")
 }
@@ -1021,5 +1051,53 @@ mod tests {
         assert!(third.after.starts_with("+ "));
         assert_eq!(summary(&changeset), "1 operation on 1 object(s).");
         assert!(warnings(&changeset).is_empty());
+    }
+
+    /// The report of the incident of J8.8: the descriptor of the root of a share left applied
+    /// after a failed propagation is named by its UNC path, not as a path of the SYSVOL.
+    #[test]
+    fn share_operations_named_by_their_unc_path() {
+        let root = Operation::set_file_descriptor(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            b"avant".to_vec(),
+            b"apres".to_vec(),
+        );
+        let propagation = Operation::propagate_inheritance(
+            "fs1.lab.test",
+            "Commun",
+            "Compta",
+            false,
+            "20261023080000-0a1b2c3d",
+            4365,
+        );
+        assert_eq!(
+            title(&root),
+            "permissions of \\\\fs1.lab.test\\Commun\\Compta"
+        );
+        assert_eq!(
+            title(&propagation),
+            "propagation of inheritance under \\\\fs1.lab.test\\Commun\\Compta"
+        );
+        let undo = annuaire_core::changes::inverse_sysvol(&propagation);
+        assert!(title(&undo).starts_with("permissions written back"));
+        let share = Operation::add_share(
+            "fs1.lab.test",
+            annuaire_core::changes::ShareSpec {
+                name: "Essai".into(),
+                ..annuaire_core::changes::ShareSpec::default()
+            },
+        );
+        assert_eq!(title(&share), "creation of share \\\\fs1.lab.test\\Essai");
+        let folder = Operation::CreateFolder {
+            dn: "CN={1},CN=Policies".into(),
+            path: "lab.test\\Policies\\{1}".into(),
+            descriptor: None,
+        };
+        assert_eq!(
+            title(&folder),
+            "creation of folder SYSVOL\\lab.test\\Policies\\{1}"
+        );
     }
 }
