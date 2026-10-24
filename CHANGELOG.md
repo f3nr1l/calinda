@@ -2,6 +2,15 @@
 
 Ce journal retient ce qui change pour l'utilisateur d'une version à l'autre.
 
+## 1.3.2 — 2026-10-24
+
+Version corrective. Notes de version : [docs/notes-1.3.2.md](docs/notes-1.3.2.md).
+
+- Une modification à régler au démarrage peut être ignorée quand elle a été terminée ou défaite
+  hors de Calinda : après confirmation, elle n'est plus proposée, rien n'est modifié dans
+  l'annuaire ni sur les serveurs, et l'historique la montre « Ignorée » avec sa date et
+  l'utilisateur.
+
 ## 1.3.1 — 2026-10-24
 
 Version corrective. Notes de version : [docs/notes-1.3.1.md](docs/notes-1.3.1.md).

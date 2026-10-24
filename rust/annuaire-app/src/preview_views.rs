@@ -822,6 +822,11 @@ pub fn describe(report: &Report, problems: &[Problem]) -> String {
             }
             return lines.join("\n");
         }
+        Issue::Ignored => {
+            return tr(
+                "Marked as settled without writing anything: the change was finished or undone outside Calinda.",
+            );
+        }
         Issue::Interrupted => lines.push(fill(
             &tr("Application interrupted (abrupt stop) after {k} of {n} operation(s). The directory may be in an intermediate state: undo or complete it."),
             &[("k", &report.applied.len().to_string()), ("n", &n.to_string())],
@@ -952,6 +957,7 @@ fn issue_label(issue: Issue) -> String {
         Issue::Cancelled => tr("Failed, undone"),
         Issue::Incomplete => tr("Incomplete"),
         Issue::Interrupted => tr("Interrupted"),
+        Issue::Ignored => tr("Ignored"),
     }
 }
 
@@ -968,10 +974,20 @@ pub fn history_entries(reports: &[Report], domain: &str) -> Vec<HistoryEntry> {
                 .map(|d| crate::views::format_unix(d.to_unix()))
                 .filter(|t| !t.is_empty())
                 .unwrap_or_else(|| report.timestamp.clone());
+            let ignored = report.issue == Issue::Ignored;
+            let by = |id: &Option<String>| {
+                id.as_ref()
+                    .and_then(|id| reports.iter().find(|r| &r.id == id))
+            };
             let mut state = issue_label(report.issue);
-            if report.resumed_by.is_some() {
-                state = fill(&tr("{etat}, undone or resumed since"), &[("etat", &state)]);
-            } else if report.resumes.is_some() {
+            if let Some(later) = by(&report.resumed_by) {
+                let text = if later.issue == Issue::Ignored {
+                    tr("{etat}, ignored since")
+                } else {
+                    tr("{etat}, undone or resumed since")
+                };
+                state = fill(&text, &[("etat", &state)]);
+            } else if report.resumes.is_some() && !ignored {
                 state = fill(&tr("{etat} (undo or resume)"), &[("etat", &state)]);
             }
             let user = report
@@ -985,12 +1001,22 @@ pub fn history_entries(reports: &[Report], domain: &str) -> Vec<HistoryEntry> {
                 .collect::<Vec<_>>()
                 .join(" · ");
             let mut detail = changes::preview(&report.changeset, &AppCatalog).unwrap_or_default();
-            if report.issue != Issue::Applied {
+            let mut title = changeset_title(&report.changeset);
+            if ignored {
+                // What was ignored: the change it settles, if the journal still holds it.
+                detail = describe(report, &[]);
+                if let Some(settled) = by(&report.resumes) {
+                    title = fill(
+                        &tr("Ignored: {titre}"),
+                        &[("titre", &changeset_title(&settled.changeset))],
+                    );
+                }
+            } else if report.issue != Issue::Applied {
                 detail = format!("{}\n\n{detail}", describe(report, &[]));
             }
             HistoryEntry {
                 id: report.id.clone(),
-                title: changeset_title(&report.changeset),
+                title,
                 subtitle,
                 detail,
                 undoable: !report.remaining_indices().is_empty() && report.resumed_by.is_none(),

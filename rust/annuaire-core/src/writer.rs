@@ -2472,6 +2472,41 @@ pub fn to_resume(journal: &Journal) -> Vec<Report> {
         .collect()
 }
 
+/// Settles `report` without writing anything in the directory or on the servers, when the
+/// administrator finished or undid it outside Calinda: journals a report `Ignored` of an empty
+/// changeset that resumes it, with its domain, server and user. The report written is
+/// returned.
+pub fn ignore(journal: &Journal, report: &Report) -> std::io::Result<Report> {
+    let ignored = Report {
+        id: new_id(),
+        timestamp: timestamp(),
+        domain: report.domain.clone(),
+        dc: report.dc.clone(),
+        user: report.user.clone(),
+        changeset: Changeset {
+            operations: Vec::new(),
+            remarks: Vec::new(),
+        },
+        applied: Vec::new(),
+        issue: Issue::Ignored,
+        error: None,
+        rollback: None,
+        origins: Vec::new(),
+        rollback_applied: Vec::new(),
+        rollback_error: None,
+        doubtful: None,
+        doubtful_rollback: None,
+        resumes: Some(report.id.clone()),
+        resumed_by: None,
+    };
+    match changes::report_to_json(&ignored) {
+        Ok(Value::Object(map)) => journal.write(&map)?,
+        Ok(_) => return Err(std::io::Error::other("report: object expected")),
+        Err(e) => return Err(std::io::Error::other(e.to_string())),
+    }
+    Ok(ignored)
+}
+
 /// Did the operation take place? (true, false, or None if the directory or the SYSVOL does
 /// not tell), and the version of the object if it did (`_constater_une`). A SYSVOL that cannot
 /// be read leaves the operation doubtful.
@@ -2682,5 +2717,103 @@ mod tests {
         journal.write(&later).unwrap();
         assert!(to_resume(&journal).iter().all(|r| r.id != "a1"));
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// An incomplete report as 1.3.1 journals it: a share descriptor written, its rollback
+    /// failed.
+    fn incomplete_report() -> Report {
+        let op = Operation::set_file_descriptor(
+            "fs1.lab.test",
+            "Commun",
+            "",
+            b"avant".to_vec(),
+            b"apres".to_vec(),
+        );
+        let error = ErrorRecord {
+            // The journal reads every error back as `ErreurAnnuaire`.
+            class: "ErreurAnnuaire".into(),
+            message: "fs1.lab.test ne répond pas.".into(),
+            detail: String::new(),
+        };
+        Report {
+            id: "c3".into(),
+            timestamp: "2026-10-23T12:50:33+00:00".into(),
+            domain: "lab.test".into(),
+            dc: "fs1.lab.test".into(),
+            user: "u:LAB\\x".into(),
+            changeset: Changeset {
+                operations: vec![op.clone()],
+                remarks: Vec::new(),
+            },
+            applied: vec![Applied {
+                operation: op.clone(),
+                after: None,
+                before: None,
+            }],
+            issue: Issue::Incomplete,
+            error: Some(error.clone()),
+            rollback: Some(Changeset {
+                operations: vec![op],
+                remarks: Vec::new(),
+            }),
+            origins: vec![0],
+            rollback_applied: Vec::new(),
+            rollback_error: Some(error),
+            doubtful: None,
+            doubtful_rollback: None,
+            resumes: None,
+            resumed_by: None,
+        }
+    }
+
+    #[test]
+    fn ignored_report_is_settled() {
+        let dir = std::env::temp_dir().join(format!("annuaire-ignore-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let journal = Journal::new(Some(dir.join("changes.jsonl")), 1 << 20, 1);
+        let Ok(Value::Object(map)) = changes::report_to_json(&incomplete_report()) else {
+            panic!("report expected");
+        };
+        journal.write(&map).unwrap();
+        // An old journal reads as before.
+        let [old] = read_journal(&journal).try_into().expect("one report");
+        assert_eq!(old, incomplete_report());
+        let [pending] = to_resume(&journal)
+            .try_into()
+            .expect("one report to settle");
+        let ignored = ignore(&journal, &pending).unwrap();
+        assert!(to_resume(&journal).is_empty());
+        let [first, second] = read_journal(&journal).try_into().expect("two reports");
+        assert_eq!(first.resumed_by.as_deref(), Some(ignored.id.as_str()));
+        assert_eq!(second, ignored);
+        assert_eq!(second.issue, Issue::Ignored);
+        assert_eq!(second.resumes.as_deref(), Some("c3"));
+        assert_eq!(
+            (second.domain.as_str(), second.user.as_str()),
+            ("lab.test", "u:LAB\\x")
+        );
+        assert!(second.changeset.operations.is_empty() && second.remaining_indices().is_empty());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// The record of an ignored report, as written by hand for 1.3.1: read `Ignored` here, and
+    /// an application of nothing without its `ignoree` field, as 1.3.1 reads it.
+    #[test]
+    fn ignored_record_read_by_older_versions() {
+        let line = r#"{"version":1,"id":"d4","etape":"bilan","horodatage":"2026-10-24T08:00:00+00:00","domaine":"lab.test","dc":"fs1.lab.test","utilisateur":"u:LAB\\x","reprend":"c3","changeset":{"operations":[],"remarques":[]},"issue":"applique","ignoree":true,"appliquees":[],"erreur":null,"retour":null,"origines":[],"retour_appliquees":[],"erreur_retour":null,"douteuse":null,"douteuse_retour":null}"#;
+        let Ok(Value::Object(mut record)) = serde_json::from_str::<Value>(line) else {
+            panic!("object expected");
+        };
+        let read = changes::report_from_json(&Value::Object(record.clone())).unwrap();
+        assert_eq!(read.issue, Issue::Ignored);
+        assert_eq!(
+            changes::report_to_json(&read).unwrap(),
+            Value::Object(record.clone())
+        );
+        record.remove("ignoree");
+        let older = changes::report_from_json(&Value::Object(record)).unwrap();
+        assert_eq!(older.issue, Issue::Applied);
+        assert_eq!(older.resumes.as_deref(), Some("c3"));
+        assert!(older.remaining_indices().is_empty());
     }
 }

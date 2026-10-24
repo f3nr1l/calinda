@@ -14,7 +14,8 @@
 //! stop or left incomplete (`to_resume`), reads the directory to settle the doubtful
 //! operations (`ascertain`), then proposes to undo (`inverse`) or to complete
 //! (`completion`: a propagation cut by the stop starts again, then the operations not done);
-//! each choice goes through the preview.
+//! each choice goes through the preview. « Ignore », when the change was finished or undone
+//! outside Calinda, settles the application in the journal only (`writer::ignore`).
 
 use std::sync::Arc;
 
@@ -507,6 +508,7 @@ fn ask(window: &crate::window::Window, interrupted: &Report, report: Report) {
         Some(&body),
     );
     alert.add_response("plus-tard", &tr("Later"));
+    alert.add_response("ignorer", &tr("Ignore"));
     alert.add_response("annuler", &tr("Undo what was done"));
     alert.set_response_appearance("annuler", adw::ResponseAppearance::Destructive);
     if complete.is_some() {
@@ -517,6 +519,10 @@ fn ask(window: &crate::window::Window, interrupted: &Report, report: Report) {
     let weak = window.downgrade();
     alert.connect_response(None, move |_, response| {
         let Some(window) = weak.upgrade() else { return };
+        if response == "ignorer" {
+            confirm_ignore(&window, &report);
+            return;
+        }
         let changeset = match response {
             "annuler" => changes::inverse(&report, &[], &AppCatalog).ok(),
             "terminer" => complete.clone(),
@@ -532,6 +538,52 @@ fn ask(window: &crate::window::Window, interrupted: &Report, report: Report) {
                 },
             );
         }
+    });
+    alert.present(Some(window));
+}
+
+/// « Ignore »: after a confirmation, journals that the application is settled, without
+/// writing anything in the directory or on the servers.
+fn confirm_ignore(window: &crate::window::Window, report: &Report) {
+    let Some(context) = window.write_context() else {
+        return;
+    };
+    let alert = adw::AlertDialog::new(
+        Some(&tr("Ignore this change?")),
+        Some(&tr(
+            "The entry will no longer be offered; nothing is modified in the directory or on the servers.",
+        )),
+    );
+    alert.add_response("retour", &tr("Cancel"));
+    alert.add_response("ignorer", &tr("Ignore"));
+    alert.set_response_appearance("ignorer", adw::ResponseAppearance::Destructive);
+    alert.set_default_response(Some("retour"));
+    alert.set_close_response("retour");
+    let (weak, report) = (window.downgrade(), report.clone());
+    alert.connect_response(None, move |_, response| {
+        if response != "ignorer" {
+            return;
+        }
+        let (weak, report, context) = (weak.clone(), report.clone(), context.clone());
+        glib::spawn_future_local(async move {
+            let journal = context.journal.clone();
+            let written = gio::spawn_blocking(move || writer::ignore(&journal, &report)).await;
+            let Some(window) = weak.upgrade() else { return };
+            match written {
+                Ok(Ok(_)) => writes::announce(
+                    &window,
+                    &tr("Change ignored, it will no longer be offered."),
+                    None,
+                ),
+                Ok(Err(e)) => writes::show_error(
+                    &window,
+                    &tr("Cannot write the log"),
+                    &context.journal.path.display().to_string(),
+                    &e.to_string(),
+                ),
+                Err(_) => {}
+            }
+        });
     });
     alert.present(Some(window));
 }

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calinda\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-23 09:19-0400\n"
+"POT-Creation-Date: 2026-10-24 15:07-0400\n"
 "PO-Revision-Date: 2026-10-15 20:00-0400\n"
 "Last-Translator: René Onier <f3nr1l@me.com>\n"
 "Language-Team: French\n"
@@ -131,8 +131,8 @@ msgstr "Aperçu des modifications"
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 #: rust/annuaire-app/data/ui/recherche.blp
 #: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_editor.rs
-#: rust/annuaire-app/src/window.rs rust/annuaire-app/src/window/accounts.rs
-#: rust/annuaire-app/src/writes.rs
+#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/window.rs
+#: rust/annuaire-app/src/window/accounts.rs rust/annuaire-app/src/writes.rs
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -9780,12 +9780,32 @@ msgid "Later"
 msgstr "Plus tard"
 
 #: rust/annuaire-app/src/history.rs
+msgid "Ignore"
+msgstr "Ignorer"
+
+#: rust/annuaire-app/src/history.rs
 msgid "Undo what was done"
 msgstr "Annuler ce qui a été fait"
 
 #: rust/annuaire-app/src/history.rs
 msgid "Complete"
 msgstr "Terminer"
+
+#: rust/annuaire-app/src/history.rs
+msgid "Ignore this change?"
+msgstr "Ignorer cette modification ?"
+
+#: rust/annuaire-app/src/history.rs
+msgid "The entry will no longer be offered; nothing is modified in the directory or on the servers."
+msgstr "L'entrée ne sera plus proposée ; rien n'est modifié dans l'annuaire ni sur les serveurs."
+
+#: rust/annuaire-app/src/history.rs
+msgid "Change ignored, it will no longer be offered."
+msgstr "Modification ignorée, elle ne sera plus proposée."
+
+#: rust/annuaire-app/src/history.rs
+msgid "Cannot write the log"
+msgstr "Impossible d'écrire le journal"
 
 #: rust/annuaire-app/src/inputs.rs
 #, rust-format
@@ -10676,6 +10696,10 @@ msgid "Changeset refused."
 msgstr "Changeset refusé."
 
 #: rust/annuaire-app/src/preview_views.rs
+msgid "Marked as settled without writing anything: the change was finished or undone outside Calinda."
+msgstr "Réglée sans rien écrire : la modification a été terminée ou défaite hors de Calinda."
+
+#: rust/annuaire-app/src/preview_views.rs
 #, rust-format
 msgid "Application interrupted (abrupt stop) after {k} of {n} operation(s). The directory may be in an intermediate state: undo or complete it."
 msgstr "Application interrompue (arrêt brutal) après {k} opération(s) sur {n}. L'annuaire peut être dans un état intermédiaire : annulez ou terminez-la."
@@ -10736,6 +10760,15 @@ msgid "Interrupted"
 msgstr "Interrompue"
 
 #: rust/annuaire-app/src/preview_views.rs
+msgid "Ignored"
+msgstr "Ignorée"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "{etat}, ignored since"
+msgstr "{etat}, ignorée depuis"
+
+#: rust/annuaire-app/src/preview_views.rs
 #, rust-format
 msgid "{etat}, undone or resumed since"
 msgstr "{etat}, annulée ou reprise depuis"
@@ -10744,6 +10777,11 @@ msgstr "{etat}, annulée ou reprise depuis"
 #, rust-format
 msgid "{etat} (undo or resume)"
 msgstr "{etat} (annulation ou reprise)"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "Ignored: {titre}"
+msgstr "Ignorée : {titre}"
 
 #: rust/annuaire-app/src/pso.rs
 msgid "Policies cannot be read"

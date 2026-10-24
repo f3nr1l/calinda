@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calinda\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-23 09:19-0400\n"
+"POT-Creation-Date: 2026-10-24 15:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -139,8 +139,8 @@ msgstr ""
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 #: rust/annuaire-app/data/ui/recherche.blp
 #: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_editor.rs
-#: rust/annuaire-app/src/window.rs rust/annuaire-app/src/window/accounts.rs
-#: rust/annuaire-app/src/writes.rs
+#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/window.rs
+#: rust/annuaire-app/src/window/accounts.rs rust/annuaire-app/src/writes.rs
 msgid "Cancel"
 msgstr ""
 
@@ -10225,11 +10225,33 @@ msgid "Later"
 msgstr ""
 
 #: rust/annuaire-app/src/history.rs
+msgid "Ignore"
+msgstr ""
+
+#: rust/annuaire-app/src/history.rs
 msgid "Undo what was done"
 msgstr ""
 
 #: rust/annuaire-app/src/history.rs
 msgid "Complete"
+msgstr ""
+
+#: rust/annuaire-app/src/history.rs
+msgid "Ignore this change?"
+msgstr ""
+
+#: rust/annuaire-app/src/history.rs
+msgid ""
+"The entry will no longer be offered; nothing is modified in the directory or "
+"on the servers."
+msgstr ""
+
+#: rust/annuaire-app/src/history.rs
+msgid "Change ignored, it will no longer be offered."
+msgstr ""
+
+#: rust/annuaire-app/src/history.rs
+msgid "Cannot write the log"
 msgstr ""
 
 #: rust/annuaire-app/src/inputs.rs
@@ -11137,6 +11159,12 @@ msgid "Changeset refused."
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
+msgid ""
+"Marked as settled without writing anything: the change was finished or "
+"undone outside Calinda."
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
 #, rust-format
 msgid ""
 "Application interrupted (abrupt stop) after {k} of {n} operation(s). The "
@@ -11205,6 +11233,15 @@ msgid "Interrupted"
 msgstr ""
 
 #: rust/annuaire-app/src/preview_views.rs
+msgid "Ignored"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "{etat}, ignored since"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
 #, rust-format
 msgid "{etat}, undone or resumed since"
 msgstr ""
@@ -11212,6 +11249,11 @@ msgstr ""
 #: rust/annuaire-app/src/preview_views.rs
 #, rust-format
 msgid "{etat} (undo or resume)"
+msgstr ""
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "Ignored: {titre}"
 msgstr ""
 
 #: rust/annuaire-app/src/pso.rs

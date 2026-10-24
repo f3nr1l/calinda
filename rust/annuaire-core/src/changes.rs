@@ -1151,6 +1151,10 @@ pub enum Issue {
     Cancelled,
     Incomplete,
     Interrupted,
+    /// Settled by hand: the change was finished or undone outside Calinda, nothing was
+    /// written. Journaled as an `applique` report of an empty changeset with `ignoree`, which
+    /// the versions before 1.3.2 read as an application of nothing.
+    Ignored,
 }
 
 impl Issue {
@@ -1161,9 +1165,11 @@ impl Issue {
             Self::Cancelled => "annule",
             Self::Incomplete => "incomplet",
             Self::Interrupted => "interrompu",
+            Self::Ignored => "ignore",
         }
     }
 
+    /// The issue written in the journal; `Ignored` is told by its own field.
     pub fn from_name(name: &str) -> Option<Self> {
         [
             Self::Applied,
@@ -2435,7 +2441,12 @@ pub fn report_to_json(report: &Report) -> Result<Value, ChangeError> {
         report.resumes.clone().map_or(Value::Null, Value::String),
     );
     d.insert("changeset".into(), changeset_to_json(&report.changeset)?);
-    d.insert("issue".into(), report.issue.name().into());
+    if report.issue == Issue::Ignored {
+        d.insert("issue".into(), Issue::Applied.name().into());
+        d.insert("ignoree".into(), true.into());
+    } else {
+        d.insert("issue".into(), report.issue.name().into());
+    }
     d.insert(
         "appliquees".into(),
         Value::Array(report.applied.iter().map(applied_to_json).collect()),
@@ -2531,6 +2542,12 @@ pub fn report_from_json(value: &Value) -> Result<Report, ChangeError> {
         }
     };
     let issue_name = text_of(field(d, "issue")?);
+    let issue = if d.get("ignoree") == Some(&Value::Bool(true)) {
+        Issue::Ignored
+    } else {
+        Issue::from_name(&issue_name)
+            .ok_or_else(|| ChangeError::Journal(format!("unknown issue: {issue_name:?}")))?
+    };
     Ok(Report {
         id: text_of(field(d, "id")?),
         timestamp: text_of(field(d, "horodatage")?),
@@ -2539,8 +2556,7 @@ pub fn report_from_json(value: &Value) -> Result<Report, ChangeError> {
         user: text_of(field(d, "utilisateur")?),
         changeset,
         applied,
-        issue: Issue::from_name(&issue_name)
-            .ok_or_else(|| ChangeError::Journal(format!("unknown issue: {issue_name:?}")))?,
+        issue,
         error: error_from_json(d.get("erreur"))?,
         rollback,
         origins: match d.get("origines") {
