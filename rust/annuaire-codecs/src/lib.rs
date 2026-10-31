@@ -12,6 +12,7 @@
 #![cfg_attr(test, allow(clippy::indexing_slicing))]
 
 pub mod condition;
+pub mod csv;
 pub mod dns_property;
 pub mod dns_record;
 pub mod extensions;
@@ -19,6 +20,7 @@ pub mod gplink;
 pub mod gpt_tmpl;
 pub mod guid;
 pub mod integer;
+pub mod logon_hours;
 mod pytext;
 mod read;
 pub mod registry_pol;

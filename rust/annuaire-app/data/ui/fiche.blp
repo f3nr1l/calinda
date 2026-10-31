@@ -332,6 +332,14 @@ template $AnnuaireFiche: Adw.Dialog {
                       "property",
                     ]
                   }
+
+                  // Refus de supprimer à Tout le monde sur l'objet, refus de supprimer ses
+                  // enfants sur le parent, comme ADUC et ADAC (J9.3) ; lu après l'affichage.
+                  Adw.SwitchRow protection_switch {
+                    title: _("Protect object from accidental deletion");
+                    sensitive: false;
+                    notify::active => $protection_changed();
+                  }
                 }
               };
             }
@@ -362,6 +370,28 @@ template $AnnuaireFiche: Adw.Dialog {
                     styles [
                       "property",
                     ]
+                  }
+                }
+
+                // Heures en UTC dans l'annuaire, montrées en heure locale (J9.3).
+                Adw.PreferencesGroup restrictions_group {
+                  title: _("Logon restrictions");
+
+                  Adw.ActionRow logon_hours_row {
+                    title: _("Logon hours");
+                    subtitle-lines: 2;
+
+                    [suffix]
+                    Button logon_hours_button {
+                      label: _("Edit…");
+                      valign: center;
+                      clicked => $edit_logon_hours();
+                    }
+                  }
+
+                  Adw.EntryRow {
+                    name: "userWorkstations";
+                    title: _("Log on to (computer names separated by commas, empty: all)");
                   }
                 }
 
@@ -481,6 +511,180 @@ template $AnnuaireFiche: Adw.Dialog {
                   Adw.EntryRow {
                     name: "homeDirectory";
                     title: _("Home folder");
+                  }
+
+                  // Shown when the home folder is missing on its share (ADR 0027).
+                  Adw.ActionRow home_folder_row {
+                    title: _("The home folder does not exist on the server");
+                    subtitle-selectable: true;
+                    visible: false;
+
+                    [suffix]
+                    Button home_folder_button {
+                      label: _("Create Home Folder");
+                      valign: center;
+                      clicked => $create_home_folder();
+                    }
+                  }
+                }
+              };
+            }
+
+            // Onglet « Délégation » d'ADUC, délégation basée sur la ressource et noms de
+            // principaux de service (J9.3, ADR 0024) ; les listes sont remplies par
+            // account_tabs.rs.
+            Adw.ViewStackPage delegation_page {
+              name: "delegation";
+              title: _("Delegation");
+              icon-name: "emblem-shared-symbolic";
+
+              child: Adw.PreferencesPage {
+                Adw.PreferencesGroup delegation_group {
+                  title: _("Kerberos delegation");
+                  description: _("Delegation lets this service act on behalf of the users who connect to it.");
+
+                  Adw.ActionRow {
+                    title: _("Do not trust this account for delegation");
+                    activatable-widget: delegation_none;
+
+                    [prefix]
+                    CheckButton delegation_none {
+                      valign: center;
+                      toggled => $delegation_changed();
+                    }
+                  }
+
+                  Adw.ActionRow {
+                    title: _("Trust this account for delegation to any service (Kerberos only)");
+                    activatable-widget: delegation_any;
+
+                    [prefix]
+                    CheckButton delegation_any {
+                      valign: center;
+                      group: delegation_none;
+                      toggled => $delegation_changed();
+                    }
+                  }
+
+                  Adw.ActionRow {
+                    title: _("Trust this account for delegation to specified services only");
+                    activatable-widget: delegation_services;
+
+                    [prefix]
+                    CheckButton delegation_services {
+                      valign: center;
+                      group: delegation_none;
+                      toggled => $delegation_changed();
+                    }
+                  }
+
+                  Adw.ActionRow {
+                    title: _("Use Kerberos only");
+                    activatable-widget: protocol_kerberos;
+                    sensitive: bind delegation_services.active;
+
+                    [prefix]
+                    CheckButton protocol_kerberos {
+                      valign: center;
+                      margin-start: 24;
+                      toggled => $delegation_changed();
+                    }
+                  }
+
+                  Adw.ActionRow {
+                    title: _("Use any authentication protocol");
+                    activatable-widget: protocol_any;
+                    sensitive: bind delegation_services.active;
+
+                    [prefix]
+                    CheckButton protocol_any {
+                      valign: center;
+                      margin-start: 24;
+                      group: protocol_kerberos;
+                      toggled => $delegation_changed();
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup services_group {
+                  title: _("Services this account can delegate to");
+
+                  [header-suffix]
+                  Button add_services_button {
+                    icon-name: "list-add-symbolic";
+                    tooltip-text: _("Add Services…");
+                    valign: center;
+                    clicked => $add_services();
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  ListBox services_list {
+                    selection-mode: none;
+
+                    styles [
+                      "boxed-list",
+                    ]
+
+                    accessibility {
+                      label: _("Services this account can delegate to");
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup rbcd_group {
+                  title: _("Accounts allowed to delegate to this account");
+
+                  [header-suffix]
+                  Button add_rbcd_button {
+                    icon-name: "list-add-symbolic";
+                    tooltip-text: _("Add Accounts…");
+                    valign: center;
+                    clicked => $add_rbcd();
+
+                    styles [
+                      "flat",
+                    ]
+                  }
+
+                  ListBox rbcd_list {
+                    selection-mode: none;
+
+                    styles [
+                      "boxed-list",
+                    ]
+
+                    accessibility {
+                      label: _("Accounts allowed to delegate to this account");
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup spn_group {
+                  title: _("Service principal names");
+                  description: _("Each name is checked against the whole forest (global catalog) before it is added.");
+
+                  ListBox spn_list {
+                    selection-mode: none;
+
+                    styles [
+                      "boxed-list",
+                    ]
+
+                    accessibility {
+                      label: _("Service principal names");
+                    }
+                  }
+                }
+
+                Adw.PreferencesGroup spn_add_group {
+                  Adw.EntryRow spn_entry {
+                    title: _("Add a service principal name (service/host)");
+                    show-apply-button: true;
+                    apply => $add_spn();
+                    entry-activated => $add_spn();
                   }
                 }
               };
@@ -688,6 +892,26 @@ template $AnnuaireFiche: Adw.Dialog {
                   }
                 }
               };
+            }
+
+            Adw.ViewStackPage laps_page {
+              name: "laps";
+              title: _("LAPS");
+              icon-name: "dialog-password-symbolic";
+
+              // Mot de passe de l'administrateur local (J9.4, ADR 0025), lu sur le DC à la
+              // première présentation de l'onglet, jamais par la copie locale.
+              child: Adw.PreferencesPage laps_content {};
+            }
+
+            Adw.ViewStackPage bitlocker_page {
+              name: "bitlocker";
+              title: _("BitLocker");
+              icon-name: "drive-harddisk-symbolic";
+
+              // Mots de passe de récupération (J9.5, ADR 0025), lus sur le DC à la première
+              // présentation de l'onglet.
+              child: Adw.PreferencesPage bitlocker_content {};
             }
 
             Adw.ViewStackPage {

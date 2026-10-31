@@ -6,25 +6,34 @@
 //! and reads. No DCE/RPC authentication: on `ncacn_np` the SMB session authenticates and
 //! protects (encryption), as with Windows and Samba.
 
+pub mod authn;
+pub mod epm;
+pub mod gkdi;
 pub mod ndr;
+pub mod seal;
+pub mod tcp;
 
 use crate::smb::SmbError;
 use crate::smb::pipe::Pipe;
 
 /// Packet types (C706 12.6.4).
-mod ptype {
+pub(crate) mod ptype {
     pub const REQUEST: u8 = 0;
     pub const RESPONSE: u8 = 2;
     pub const FAULT: u8 = 3;
     pub const BIND: u8 = 11;
     pub const BIND_ACK: u8 = 12;
     pub const BIND_NAK: u8 = 13;
+    pub const ALTER_CONTEXT: u8 = 14;
+    pub const ALTER_CONTEXT_RESP: u8 = 15;
 }
-const PFC_FIRST_FRAG: u8 = 0x01;
-const PFC_LAST_FRAG: u8 = 0x02;
+pub(crate) const PFC_FIRST_FRAG: u8 = 0x01;
+pub(crate) const PFC_LAST_FRAG: u8 = 0x02;
+/// Offered on an authenticated bind; when the server echoes it, the PDU headers are signed.
+pub(crate) const PFC_SUPPORT_HEADER_SIGN: u8 = 0x04;
 /// Little-endian integers, ASCII, IEEE floats.
 const DREP: [u8; 4] = [0x10, 0, 0, 0];
-const HEADER_LEN: usize = 16;
+pub(crate) const HEADER_LEN: usize = 16;
 /// Fragment sizes offered at bind; the server may lower them.
 const MAX_FRAG: u16 = 4280;
 
@@ -69,6 +78,8 @@ pub enum RpcError {
     Fault(u32),
     /// A PDU or a stub that does not have its expected shape.
     Protocol(String),
+    /// Kerberos or the sealing of the authenticated transport failed.
+    Auth(String),
 }
 
 impl std::fmt::Display for RpcError {
@@ -78,6 +89,7 @@ impl std::fmt::Display for RpcError {
             Self::BindRefused(r) => write!(f, "RPC bind refused (reason {r})"),
             Self::Fault(s) => write!(f, "RPC fault 0x{s:08X}"),
             Self::Protocol(d) => write!(f, "RPC protocol: {d}"),
+            Self::Auth(d) => write!(f, "RPC authentication: {d}"),
         }
     }
 }
@@ -168,6 +180,22 @@ fn pdu(ptype: u8, flags: u8, call_id: u32, body: &[u8]) -> Vec<u8> {
     w
 }
 
+/// The body of a BIND for `interface` with `transfer` as the transfer syntax (NDR 2.0 on the
+/// pipe, NDR64 for MS-GKDI): the same whether the bind is authenticated or not; the
+/// authenticated path appends an auth verifier after it.
+pub(crate) fn bind_body(interface: Syntax, transfer: Syntax) -> Vec<u8> {
+    let mut body = Vec::new();
+    body.extend_from_slice(&MAX_FRAG.to_le_bytes());
+    body.extend_from_slice(&MAX_FRAG.to_le_bytes());
+    body.extend_from_slice(&0u32.to_le_bytes()); // new association group
+    body.extend_from_slice(&[1, 0, 0, 0]); // one context element
+    body.extend_from_slice(&0u16.to_le_bytes()); // context id
+    body.extend_from_slice(&[1, 0]); // one transfer syntax
+    interface.write(&mut body);
+    transfer.write(&mut body);
+    body
+}
+
 /// A bound connection to one interface.
 #[derive(Debug)]
 pub struct Rpc<T: Transport> {
@@ -178,16 +206,18 @@ pub struct Rpc<T: Transport> {
 
 impl<T: Transport> Rpc<T> {
     /// Binds `interface` (presentation context 0, NDR 2.0) on `transport`.
-    pub fn bind(mut transport: T, interface: Syntax) -> Result<Self, RpcError> {
-        let mut body = Vec::new();
-        body.extend_from_slice(&MAX_FRAG.to_le_bytes());
-        body.extend_from_slice(&MAX_FRAG.to_le_bytes());
-        body.extend_from_slice(&0u32.to_le_bytes()); // new association group
-        body.extend_from_slice(&[1, 0, 0, 0]); // one context element
-        body.extend_from_slice(&0u16.to_le_bytes()); // context id
-        body.extend_from_slice(&[1, 0]); // one transfer syntax
-        interface.write(&mut body);
-        NDR.write(&mut body);
+    pub fn bind(transport: T, interface: Syntax) -> Result<Self, RpcError> {
+        Self::bind_transfer(transport, interface, NDR)
+    }
+
+    /// Binds `interface` offering `transfer` as the transfer syntax (NDR64 for MS-GKDI and the
+    /// endpoint mapper requests that carry its tower).
+    pub fn bind_transfer(
+        mut transport: T,
+        interface: Syntax,
+        transfer: Syntax,
+    ) -> Result<Self, RpcError> {
+        let body = bind_body(interface, transfer);
         let call_id = 1;
         let answer = transport.transceive(&pdu(
             ptype::BIND,

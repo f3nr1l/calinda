@@ -14,7 +14,7 @@ already on the system. There is no repository yet; install the file you received
 built yourself (README, section “Construire le RPM”):
 
 ```sh
-sudo dnf install ./calinda-1.3.2-1.fc44.x86_64.rpm
+sudo dnf install ./calinda-1.5.0-1.fc44.x86_64.rpm
 ```
 
 The application appears as “Calinda” in the application menu; from a terminal, the command is
@@ -84,9 +84,15 @@ filters by type and state. Ready-made queries find accounts inactive for N days,
 locked out accounts, passwords that never expire, administrators through recursive membership
 and conflicting objects; you can add your own.
 
-The “New” button creates a user, a group or an organizational unit. The actions menu works on
-the selection: enable, disable, unlock, reset the password, move, rename (F2), delete (Delete),
-protect an OU from accidental deletion.
+The “New” button creates a user, a group, an organizational unit, a contact or a computer, or
+imports objects from a CSV file (see below). The “New User” dialog also takes the profile path,
+the drive and the home folder; the folder is created with the account, in the same write. A new
+computer is created as in the console, with the account or group allowed to join it to the
+domain.
+
+The actions menu works on the selection: enable, disable, unlock, reset the password or, for a
+computer, the account, move, rename (F2), delete (Delete), protect an OU from accidental
+deletion, change in bulk, export the list to CSV.
 
 The bottom of the sidebar leads to the domain's other windows, each with its shortcut: DNS
 (Ctrl+D), DNS Health (Shift+Ctrl+D), Group Policy (Ctrl+G), Password Policies (Ctrl+M), Shares
@@ -101,12 +107,35 @@ members or “Member Of” tabs and, depending on the object:
 - “Attributes”: every attribute the schema allows, editable when the account has the right;
   “Auxiliary Classes…” adds or removes an auxiliary class offered by the schema, with the
   attributes it brings;
+- “Account”: besides the name and options, the logon hours (a grid in local time; the
+  directory keeps them in UTC and the offset is shown) and the computers the user may log on
+  to; “Create Home Folder” when the folder entered does not exist on the server;
+- “Profile”: profile path and home folder, local or a drive connected to a
+  `\\server\share\…` folder, with `%username%` replaced by the account name as in the
+  console; the folder is created if it does not exist, with full control for the account and
+  the administrators, after the preview;
+- “Delegation”: none, any service, or services chosen among those of the directory, with
+  Kerberos only or any protocol, as in the console, and the accounts allowed to delegate to this
+  one (resource-based delegation). On a Samba DC the latter can be read but not written, and the
+  tab says so;
+- “LAPS” (computer): the local administrator password kept by Windows LAPS or by the legacy
+  Microsoft LAPS, read from the controller when the tab opens and shown on request; the copy is
+  cleared from the clipboard after 30 seconds. It is kept neither in the local copy nor in the
+  history. “Expire Now…” makes the computer change the password on its next pass. A password
+  encrypted by Windows LAPS (`msLAPS-EncryptedPassword`) is read the same way: Calinda asks the
+  controller for the group key (MS-GKDI) and decrypts it, as long as the account is allowed to
+  read it; otherwise it stays reported as “encrypted”;
+- “BitLocker” (computer): the recovery passwords backed up in the directory, with their
+  identifier and date, shown on request. “Find BitLocker Recovery Password…”, in the main menu,
+  finds one anywhere in the domain from the first eight characters of the identifier shown by
+  the recovery screen;
 - “Policy”: the GPOs applied to the account or computer, by precedence, and those that do not
   apply, with the reason. For a computer, the tab shows its loopback processing; for a user, it
   computes the policy on the computer you enter, loopback processing included (merge or
   replace).
 
-Changes accumulate in the properties and are sent together with “Apply…”.
+The “General” tab has “Protect object from accidental deletion”, for any object. Changes
+accumulate in the properties and are sent together with “Apply…”.
 
 **Common preview.** Every write, whatever the window, goes through the same preview, which
 shows each object, attribute or file before and after. “Apply” first checks that nothing has
@@ -119,8 +148,42 @@ undone.
 **History.** Ctrl+H, or “Change History”, opens the local log of every write made from this
 computer (`$XDG_STATE_HOME/calinda/changes.jsonl`), with “Undo this change”. Ctrl+Z offers to
 undo the last change, through the preview; pressing Ctrl+Z again offers the one before, even on
-the same object, as long as nobody else has changed it in the meantime. A deletion can only be
-undone by recreating a new object, with a new SID and GUID; the preview says so beforehand.
+the same object, as long as nobody else has changed it in the meantime. Undoing a deletion
+restores the object from the deleted objects while it is there, with the same SID and GUID;
+otherwise the object is recreated and what the deletion lost is written back from the log,
+except the password. The preview says beforehand which of the two will happen.
+
+**Deleted objects.** Shift+Ctrl+Delete, or “Deleted Objects” in the main menu, lists the deleted
+objects of the domain, newest first, with what each one kept; they can be filtered by name,
+class, last parent, kind and period. “Restore…” brings the object back under its last parent or
+into another container, under its name or another one. A deleted parent comes back first, an OU
+can come back with the objects that were under it, and a name already in use is refused with a
+free name offered. With the AD Recycle Bin enabled the object comes back whole; without it, only
+with what the deletion kept (an account comes back without password or groups), and the preview
+says so. Samba 4.22 refuses to reanimate an object once the Recycle Bin is enabled: Calinda then
+shows it as not restorable.
+
+**Import, export and bulk changes.** “New › Import from CSV…” creates users, groups, contacts
+and computers from a UTF-8 CSV file. Columns are named by LDAP attribute, by the label in the
+properties or like the parameters of `New-ADUser`; the separator is detected from the first
+line. Every line is checked before anything is written, and the preview gives the report line
+by line. Generated passwords go to a file readable by you only, chosen before the start; they
+are neither shown nor logged.
+
+“Actions › Change in Bulk…”, on the objects selected in the table or on the members of a group,
+sets, adds to, removes or clears an attribute, adds to or removes from a group, enables,
+disables, moves, sets the account expiry, requires or not a password change. Objects already in
+the requested state are left aside and counted.
+
+Imports and bulk changes are written in batches of 100, each all or nothing. Between two
+batches, “Stop” suspends the series; “Resume without the Refused” continues it, and “Undo What
+Is Written” undoes the batches already done. When an object has changed since the preview, its
+batch is refused with the object's name; “Write over Their Changes” goes ahead after reading it
+again. Ctrl+Z and the history undo the whole series at once.
+
+“Actions › Export the List to CSV…” writes the contents of the table, or the selection, with the
+chosen attributes, as readable values (dates, SIDs, GUIDs) or raw ones, to a file Excel opens as
+is.
 
 **DNS.** Ctrl+D, or “DNS”, shows the directory-integrated zones, their names and records, and
 each zone's settings. Ctrl+N adds a record (A, AAAA, CNAME, PTR, MX, SRV, TXT; for an A record,

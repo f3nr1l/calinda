@@ -4,11 +4,12 @@ Calinda est un outil GNOME (GTK 4, libadwaita) d'administration Active Directory
 domaines Samba AD et Windows AD. Il est écrit en Rust. Son nom est celui de la calinda, une danse
 d'origine africaine passée par les Antilles, comme la samba en est une autre.
 
-La version 1.3.2 couvre les comptes, le DNS, la sécurité des objets, les stratégies de groupe
-jusqu'à leur contenu, et les partages des serveurs de fichiers avec les droits NTFS de leurs
-dossiers ; l'interface existe en anglais et en français. Jusqu'à la version 1.1,
-l'application s'appelait Annuaire. L'application est issue du port Rust d'une première version
-écrite en Python (1.0).
+La version 1.5.0 couvre les comptes, les ordinateurs et les contacts (objets supprimés et
+restauration, délégation, LAPS en clair et chiffré, BitLocker, import CSV et modifications en
+masse), le DNS, la sécurité des objets, les stratégies de groupe jusqu'à leur contenu, et les
+partages des serveurs de fichiers avec les droits NTFS de leurs dossiers ; l'interface existe en
+anglais et en français. Jusqu'à la version 1.1, l'application s'appelait Annuaire. L'application
+est issue du port Rust d'une première version écrite en Python (1.0).
 
 Le mode d'emploi est dans [docs/utilisation.md](docs/utilisation.md) (en anglais :
 [docs/utilisation.en.md](docs/utilisation.en.md)), les changements de chaque version dans

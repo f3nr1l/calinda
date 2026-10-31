@@ -93,6 +93,39 @@ impl Kerberos {
     }
 }
 
+/// `GSS_C_DCE_STYLE` (0x1000): not in the crate's `CtxFlags`, but DCE/RPC packet privacy
+/// needs it (three-leg handshake, DCE wrap tokens). Set through `from_bits_retain`.
+const GSS_C_DCE_STYLE: u32 = 0x1000;
+
+/// A Kerberos initiator context for `service/server@REALM` in DCE style, for an authenticated
+/// DCE/RPC connection (J9.6). Mutual authentication, integrity, confidentiality; the ticket
+/// comes from the credential cache like the SMB one.
+pub fn rpc_context(service: &str, server: &str, realm: &str) -> Result<ClientCtx, AuthError> {
+    let mut mechs = OidSet::new().map_err(|e| sort(&e))?;
+    mechs.add(&GSS_MECH_KRB5).map_err(|e| sort(&e))?;
+    let cred =
+        Cred::acquire(None, None, CredUsage::Initiate, Some(&mechs)).map_err(|e| sort(&e))?;
+    let target = format!(
+        "{}/{}@{}",
+        service,
+        server.to_lowercase(),
+        realm.to_uppercase()
+    );
+    let name = Name::new(target.as_bytes(), Some(&GSS_NT_KRB5_PRINCIPAL)).map_err(|e| sort(&e))?;
+    let flags = CtxFlags::GSS_C_MUTUAL_FLAG
+        | CtxFlags::GSS_C_REPLAY_FLAG
+        | CtxFlags::GSS_C_SEQUENCE_FLAG
+        | CtxFlags::GSS_C_CONF_FLAG
+        | CtxFlags::GSS_C_INTEG_FLAG
+        | CtxFlags::from_bits_retain(GSS_C_DCE_STYLE);
+    Ok(ClientCtx::new(
+        Some(cred),
+        name,
+        flags,
+        Some(&GSS_MECH_KRB5),
+    ))
+}
+
 impl Authenticator for Kerberos {
     fn step(&mut self, input: Option<&[u8]>) -> Result<Option<Vec<u8>>, AuthError> {
         if !self.started {

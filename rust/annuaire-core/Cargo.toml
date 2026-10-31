@@ -35,7 +35,8 @@ native-tls = "0.2"
 # linked through ldap3) and the SMB 3 primitives from the system OpenSSL (already linked by
 # native-tls): SHA-512, HMAC, CMAC, AES-GCM, AES-CCM.
 # `store`: a ticket obtained by password goes to the cache of the session (R4.2, `kinit`).
-libgssapi = { version = "0.9.1", default-features = false, features = ["store"] }
+# `iov`: seal and unseal DCE/RPC PDUs in place (J9.6, gss_wrap_iov in DCE style).
+libgssapi = { version = "0.9.1", default-features = false, features = ["store", "iov"] }
 openssl = "0.10"
 # Journal and journaled forms: JSON in the key order of Python (`json.dumps`).
 serde_json = { version = "1", features = ["preserve_order"] }

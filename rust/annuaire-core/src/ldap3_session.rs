@@ -422,6 +422,21 @@ impl Ldap3Dialer {
     /// Connects to `dc`, protects the connection as the profile says and binds by GSSAPI
     /// with the ticket cache of the session.
     pub fn connect(&self, dc: &str) -> Result<Dialed, LdapError> {
+        self.connect_port(dc, self.profile.mode.port())
+    }
+
+    /// As `connect`, to the global catalog of `dc` (3268, or 3269 in LDAPS): a search of the
+    /// whole forest (J9.3, SPN uniqueness).
+    pub fn connect_global_catalog(&self, dc: &str) -> Result<Dialed, LdapError> {
+        let port = if self.profile.mode == Mode::Ldaps {
+            3269
+        } else {
+            3268
+        };
+        self.connect_port(dc, port)
+    }
+
+    fn connect_port(&self, dc: &str, port: u16) -> Result<Dialed, LdapError> {
         let mode = self.profile.mode;
         let mut settings = LdapConnSettings::new().set_conn_timeout(self.delays.connect);
         if mode.tls() {
@@ -457,7 +472,7 @@ impl Ldap3Dialer {
                 .set_starttls(mode == Mode::StartTls);
         }
         let scheme = if mode == Mode::Ldaps { "ldaps" } else { "ldap" };
-        let url = format!("{scheme}://{dc}:{}", mode.port());
+        let url = format!("{scheme}://{dc}:{port}");
         // `ldap/<dc>@<REALM>`: a Kerberos name, never canonicalized (ADR 0016).
         let service = format!("{dc}@{}", self.profile.realm());
         let operation = self.delays.operation;

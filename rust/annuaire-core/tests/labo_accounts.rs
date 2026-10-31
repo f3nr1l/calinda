@@ -258,7 +258,7 @@ fn actions_trial(trial: &Trial, lab: &Lab, essais: &str, kdc: &labo::Kdc) -> Res
     let [ou, parent] = read.as_slice() else {
         return Err("OU and parent".into());
     };
-    let protection = actions::protect_ou(ou, parent).map_err(debug)?;
+    let protection = actions::protect(ou, parent).map_err(debug)?;
     check(protection.operations.len() == 2, "the OU and its parent")?;
     trial.apply(&protection)?;
     let read = trial.descriptors(&[&protected, essais])?;
@@ -267,7 +267,7 @@ fn actions_trial(trial: &Trial, lab: &Lab, essais: &str, kdc: &labo::Kdc) -> Res
     };
     check(
         actions::is_protected(ou).map_err(debug)?
-            && actions::protect_ou(ou, parent)
+            && actions::protect(ou, parent)
                 .map_err(debug)?
                 .operations
                 .is_empty(),
@@ -284,7 +284,7 @@ fn actions_trial(trial: &Trial, lab: &Lab, essais: &str, kdc: &labo::Kdc) -> Res
     )?;
     // The neighbour stays deletable: the refusal on the parent only hinders the protected OU.
     trial.apply(&actions::delete(&trial.read(&[&neighbour])?).map_err(debug)?)?;
-    trial.apply(&actions::unprotect_ou(ou).map_err(debug)?)?;
+    trial.apply(&actions::unprotect(ou).map_err(debug)?)?;
     check(
         !actions::is_protected(&trial.descriptors(&[&protected])?.pop().ok_or("OU")?)
             .map_err(debug)?,

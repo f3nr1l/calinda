@@ -32,6 +32,10 @@ impl Catalog for AppCatalog {
                 &tr("0x{octets}{suite} ({n} bytes)"),
                 &[("octets", bytes), ("suite", more), ("n", &n.to_string())],
             ),
+            Msg::LogonHours { allowed } => fill(
+                &tr("logon allowed {n} h of 168 per week"),
+                &[("n", &allowed.to_string())],
+            ),
             Msg::Never => tr("never"),
             Msg::Ttl { ttl } => fill(&tr("TTL {ttl}"), &[("ttl", &ttl.to_string())]),
             Msg::Serial { serial } => {
@@ -68,6 +72,14 @@ impl Catalog for AppCatalog {
             Msg::ChangeShare { unc } => fill(&tr("Change share {partage}"), &[("partage", unc)]),
             Msg::DeleteShare { unc } => fill(&tr("Delete share {partage}"), &[("partage", unc)]),
             Msg::DeleteShareKeepsFolder => tr("The folder and its content stay on the server."),
+            Msg::HomeFolderControl { account } => fill(
+                &tr(
+                    "full control for {compte} and the administrators: this folder, subfolders and files",
+                ),
+                &[("compte", account)],
+            ),
+            Msg::FolderInheritanceKept => tr("entries inherited from the parent folder kept"),
+            Msg::FolderDeletedIfEmpty => tr("deleted only if it is empty"),
             Msg::Propagate { path } => fill(
                 &tr("Propagate the inheritance under {chemin}"),
                 &[("chemin", path)],
@@ -134,7 +146,67 @@ impl Catalog for AppCatalog {
             ),
             Msg::Delete { dn } => fill(&tr("Delete {dn}"), &[("dn", dn)]),
             Msg::DeleteIrreversible => tr(
-                "Cannot be undone exactly: undoing recreates a new object (new objectGUID and objectSid, password and permissions not restored).",
+                "Undoing restores the object from the deleted objects while it is there (same objectGUID and objectSid); otherwise it recreates a new object (new objectGUID and objectSid, password and permissions not restored).",
+            ),
+            Msg::Restore { dn } => fill(&tr("Restore {dn}"), &[("dn", dn)]),
+            Msg::RestoredFrom { deleted, guid } => fill(
+                &tr("from {supprime} (objectGUID {guid})"),
+                &[("supprime", deleted), ("guid", guid)],
+            ),
+            Msg::RestoredWhole { dn } => fill(
+                &tr(
+                    "With the Recycle Bin, {dn} comes back as it was deleted: its attributes, and its links to the objects that exist (members, group memberships).",
+                ),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredPasswordKept { dn } => {
+                fill(&tr("{dn} keeps its password."), &[("dn", dn)])
+            }
+            Msg::RestoredStripped { dn, kept } => fill(
+                &tr(
+                    "Without the Recycle Bin, {dn} comes back with only what the deletion kept: {gardes}. Its other attributes are lost.",
+                ),
+                &[("dn", dn), ("gardes", kept)],
+            ),
+            Msg::RestoredBare { dn } => fill(
+                &tr(
+                    "Without the Recycle Bin, {dn} comes back with its name only: everything else is lost.",
+                ),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredAccountLosses { dn } => fill(
+                &tr(
+                    "{dn}: its password and its group memberships are lost; give it a new password and its groups back before using it.",
+                ),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredParentFirst { dn } => fill(
+                &tr("{dn} was deleted too: it is restored first."),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredChildrenLeft { dn, n } => fill(
+                &tr_n(
+                    "{n} deleted object that was under {dn} stays deleted.",
+                    "{n} deleted objects that were under {dn} stay deleted.",
+                    *n as u64,
+                ),
+                &[("dn", dn), ("n", &n.to_string())],
+            ),
+            Msg::RestoredFromJournal { dn } => fill(
+                &tr(
+                    "{dn} is still among the deleted objects: it is restored (same objectGUID and objectSid), not recreated.",
+                ),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredRefilled { dn } => fill(
+                &tr(
+                    "Without the Recycle Bin, what the deletion of {dn} lost is written back from the change log: its attributes, and its memberships of the groups that still exist.",
+                ),
+                &[("dn", dn)],
+            ),
+            Msg::RestoredPasswordLost { dn } => fill(
+                &tr("{dn}: its password is lost; give it a new one before using it."),
+                &[("dn", dn)],
             ),
             Msg::NoChange => tr("No change."),
             Msg::Remarks => tr("Notes:"),
@@ -524,6 +596,13 @@ impl WriteCatalog for AppCatalog {
             ),
             WriteMsg::OwnerRefused { path, status } => crate::errors::owner_refusal(*status, path),
             WriteMsg::AuditRefused { path, status } => crate::errors::audit_refusal(*status, path),
+            WriteMsg::FolderShareMissing { unc } => fill(
+                &tr("The share “{p}” does not exist: Calinda does not create shares."),
+                &[("p", unc)],
+            ),
+            WriteMsg::FolderParentMissing { path } => {
+                fill(&tr("The folder “{c}” does not exist."), &[("c", path)])
+            }
         }
     }
 

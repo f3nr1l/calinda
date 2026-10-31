@@ -18,6 +18,15 @@
 //! Policies » windows (R4.8, `gpo_trial`).
 //! `ANNUAIRE_ESSAI_PARTAGES=STEP;;STEP…` runs steps in the « Shares » window (J8.2, J8.3,
 //! J8.6, `shares_trial`).
+//! `ANNUAIRE_ESSAI_NOUVEL_UTILISATEUR=PARENT§NAME§DRIVE§HOME§PROFILE` fills and confirms the
+//! dialog « New User » and applies its preview (ADR 0027, `new_user_trial`); in the sheet, the
+//! input `dossier-personnel=1` presses « Create Home Folder ».
+//! `ANNUAIRE_ESSAI_CORBEILLE=STEP;;STEP…` (arguments separated by `§`) runs steps in the
+//! « Deleted Objects » window and the history (J9.1, `deleted_trial`).
+//! `ANNUAIRE_ESSAI_MASSE=STEP;;STEP…` (arguments separated by `§`) runs steps of the import,
+//! the export and the changes in bulk (J9.8, J9.9, `bulk_trial`); `ANNUAIRE_ESSAI_MASSE_ARRET=N`
+//! stops the first writing of a series after N batches, and the generated passwords go to
+//! `ANNUAIRE_ESSAI_MASSE_MOTS_DE_PASSE` instead of a file chooser.
 //! `ANNUAIRE_ESSAI_FOCUS=1` (with `ANNUAIRE_ESSAI_NOEUD`) opens the sheet of the first row
 //! from the table, closes it, then again with the table read anew while the sheet is open,
 //! and writes where the focus went back each time (R4.10, `clavier._Focus`).
@@ -68,6 +77,12 @@ pub fn arm(window: &crate::window::Window) {
             glib::ControlFlow::Break
         });
     }
+    if let Some(spec) = std::env::var("ANNUAIRE_ESSAI_NOUVEL_UTILISATEUR")
+        .ok()
+        .filter(|a| !a.is_empty())
+    {
+        new_user_trial(window, spec);
+    }
     if let Some(how) = std::env::var("ANNUAIRE_ESSAI_ANNULER")
         .ok()
         .filter(|a| !a.is_empty())
@@ -97,6 +112,18 @@ pub fn arm(window: &crate::window::Window) {
         .filter(|a| !a.is_empty())
     {
         shares_trial(window, steps.split(";;").map(str::to_owned).collect());
+    }
+    if let Some(steps) = std::env::var("ANNUAIRE_ESSAI_CORBEILLE")
+        .ok()
+        .filter(|a| !a.is_empty())
+    {
+        deleted_trial(window, steps.split(";;").map(str::to_owned).collect());
+    }
+    if let Some(steps) = std::env::var("ANNUAIRE_ESSAI_MASSE")
+        .ok()
+        .filter(|a| !a.is_empty())
+    {
+        bulk_trial(window, steps.split(";;").map(str::to_owned).collect());
     }
     if std::env::var_os("ANNUAIRE_ESSAI_FOCUS").is_some() {
         focus_trial(window);
@@ -244,11 +271,11 @@ fn run_step(window: &crate::window::Window, steps: Vec<String>, index: usize) {
                         let [ou, parent] = objects.as_slice() else {
                             return Err("absent".into());
                         };
-                        act::protect_ou(ou, parent).map_err(e)
+                        act::protect(ou, parent).map_err(e)
                     }
                     "deproteger" => {
                         let objects = read(vec![p(1)], true)?;
-                        act::unprotect_ou(objects.first().ok_or("absent")?).map_err(e)
+                        act::unprotect(objects.first().ok_or("absent")?).map_err(e)
                     }
                     "supprimer" => act::delete(&read(vec![p(1)], false)?).map_err(e),
                     // Remise en état du labo : le refus « supprimer des enfants » posé sur le parent.
@@ -453,6 +480,52 @@ fn write_trial(window: &crate::window::Window, action: String) {
     });
 }
 
+/// `PARENT§NAME§DRIVE§HOME§PROFILE` (`§`: `|` separates the gestures of the scenarios): the dialog « New User » filled and confirmed once the
+/// domain is open, its preview applied once checked; the problems and the issue written on the
+/// standard error (ADR 0027).
+fn new_user_trial(window: &crate::window::Window, spec: String) {
+    let weak = window.downgrade();
+    glib::timeout_add_local(Duration::from_millis(200), move || {
+        let Some(window) = weak.upgrade() else {
+            return glib::ControlFlow::Break;
+        };
+        let Some(context) = window.write_context() else {
+            return glib::ControlFlow::Continue;
+        };
+        let parts: Vec<&str> = spec.split('§').collect();
+        let field = |i: usize| parts.get(i).copied().unwrap_or_default();
+        let dialog = crate::accounts::UserDialog::new(field(0), &context.profile.domain);
+        adw::prelude::AdwDialogExt::present(&dialog, Some(&window));
+        dialog.trial_create(field(1), field(2), field(3), field(4));
+        let mut waited = 0;
+        glib::timeout_add_local(Duration::from_millis(50), move || {
+            let preview = gtk::Window::list_toplevels().into_iter().find_map(|w| {
+                crate::sheet::all_under(&w)
+                    .into_iter()
+                    .find_map(|w| w.downcast::<crate::writes::PreviewDialog>().ok())
+            });
+            let Some(preview) = preview.filter(crate::writes::PreviewDialog::trial_verified) else {
+                waited += 1;
+                if waited > 600 {
+                    eprintln!("essai nouvel utilisateur : pas d'aperçu");
+                    return glib::ControlFlow::Break;
+                }
+                return glib::ControlFlow::Continue;
+            };
+            eprintln!(
+                "essai nouvel utilisateur aperçu : {}",
+                preview.trial_problems()
+            );
+            eprintln!(
+                "essai nouvel utilisateur appliqué : {}",
+                preview.trial_apply()
+            );
+            glib::ControlFlow::Break
+        });
+        glib::ControlFlow::Break
+    });
+}
+
 /// The sheet of `dn` once the domain is open, on the tab `page` if given.
 fn open_sheet(window: &crate::window::Window, dn: String, page: Option<String>) {
     let weak = window.downgrade();
@@ -480,6 +553,7 @@ fn open_sheet(window: &crate::window::Window, dn: String, page: Option<String>) 
             .filter(|s| !s.is_empty());
         let apply = std::env::var("ANNUAIRE_ESSAI_APPLIQUER").unwrap_or_default();
         let mut waited = 0;
+        let mut apply_waits = false;
         glib::timeout_add_local(Duration::from_millis(10), move || {
             if !sheet.trial_shown() {
                 return glib::ControlFlow::Continue;
@@ -496,8 +570,9 @@ fn open_sheet(window: &crate::window::Window, dn: String, page: Option<String>) 
                 );
             }
             if let Some(spec) = inputs.as_deref() {
-                // The members are read after the display: the inputs wait for them.
-                if group && sheet.trial_members().is_none() {
+                // The members are read after the display: the inputs wait for them; so do
+                // they for the readings of the account tabs (protection, J9.3).
+                if group && sheet.trial_members().is_none() || sheet.trial_busy() {
                     return glib::ControlFlow::Continue;
                 }
                 if page.as_deref() == Some("attributs") && sheet.trial_attributes().is_none() {
@@ -508,9 +583,16 @@ fn open_sheet(window: &crate::window::Window, dn: String, page: Option<String>) 
                 }
                 sheet.trial_input(spec);
                 inputs = None;
-                if !apply.is_empty() {
-                    sheet.trial_apply();
+                apply_waits = !apply.is_empty();
+                return glib::ControlFlow::Continue;
+            }
+            if apply_waits {
+                // An SPN checked on the global catalog, the SID of an account read (J9.3).
+                if sheet.trial_busy() {
+                    return glib::ControlFlow::Continue;
                 }
+                apply_waits = false;
+                sheet.trial_apply();
                 return glib::ControlFlow::Continue;
             }
             if apply == "2" {
@@ -2202,5 +2284,309 @@ fn gpo_trial(window: &crate::window::Window, steps: Vec<String>) {
             }
         }
         eprintln!("essai gpo fin");
+    });
+}
+
+/// Steps in the « Deleted Objects » window (J9.1), arguments separated by `§`: `domaine§NAME`,
+/// `corbeille` (opened, banner and rows written), `filtre§TEXT`, `restaurer§TEXT§NAME,NAME`
+/// (rows filtered, chosen, dialog opened), `dialogue§TARGET§NAME§CHILDREN` (`-`: left as it
+/// is; `1`/`0`; then « Continue »), `message` (the banner of the dialog), `appliquer` (the
+/// preview applied once verified), `supprimer§DN` (the deletion of an object, applied),
+/// `historique` (the history opened on its first entry, its button written once the DC
+/// answered), `historique-annuler` (that entry undone, its preview applied), `pause§MS`.
+fn deleted_trial(window: &crate::window::Window, steps: Vec<String>) {
+    let weak = window.downgrade();
+    glib::spawn_future_local(async move {
+        let mut deleted: Option<crate::deleted::DeletedWindow> = None;
+        let rows = |w: &crate::deleted::DeletedWindow| {
+            for (i, line) in w.trial_rows().iter().enumerate().take(40) {
+                if i == 0 {
+                    eprintln!("essai corbeille bandeau : {line}");
+                } else {
+                    eprintln!("essai corbeille ligne : {}", line.replace('\n', " / "));
+                }
+            }
+        };
+        for step in steps {
+            let Some(window) = weak.upgrade() else { return };
+            let p: Vec<&str> = step.split('§').collect();
+            let arg = |i: usize| p.get(i).copied().unwrap_or_default();
+            let given = |i: usize| Some(arg(i)).filter(|a| !a.is_empty() && *a != "-");
+            let start = std::time::Instant::now();
+            match arg(0) {
+                "domaine" => {
+                    let _ = WidgetExt::activate_action(
+                        &window,
+                        "win.ouvrir-profil",
+                        Some(&arg(1).to_variant()),
+                    );
+                    if until(LIMIT, || window.source()).await.is_none() {
+                        eprintln!("essai corbeille : domaine non ouvert");
+                        return;
+                    }
+                }
+                "corbeille" => {
+                    deleted = window.open_deleted();
+                    let Some(w) = deleted.as_ref() else { return };
+                    let ready = until(LIMIT, || w.trial_ready().then_some(())).await;
+                    eprintln!(
+                        "essai corbeille fenêtre : {} en {:.3} s",
+                        ready.is_some(),
+                        start.elapsed().as_secs_f64()
+                    );
+                    rows(w);
+                }
+                "filtre" => {
+                    let Some(w) = deleted.as_ref() else { return };
+                    let _ = until(LIMIT, || w.trial_ready().then_some(())).await;
+                    w.trial_restore(arg(1), &[]);
+                    rows(w);
+                }
+                "restaurer" => {
+                    let Some(w) = deleted.as_ref() else { return };
+                    let _ = until(LIMIT, || w.trial_ready().then_some(())).await;
+                    let names: Vec<&str> = arg(2).split(',').collect();
+                    if !w.trial_restore(arg(1), &names) {
+                        eprintln!("essai corbeille : {} introuvable", arg(2));
+                        return;
+                    }
+                    if until(LIMIT, find::<crate::deleted::RestoreDialog>)
+                        .await
+                        .is_none()
+                    {
+                        eprintln!("essai corbeille : pas de dialogue");
+                        return;
+                    }
+                }
+                "dialogue" => {
+                    let Some(d) = find::<crate::deleted::RestoreDialog>() else {
+                        eprintln!("essai corbeille : pas de dialogue");
+                        return;
+                    };
+                    let children = given(3).map(|c| c == "1");
+                    d.trial(given(1), given(2), children);
+                }
+                "message" => {
+                    let message = until(LIMIT, || {
+                        find::<crate::deleted::RestoreDialog>()
+                            .map(|d| d.trial_message())
+                            .filter(|m| !m.is_empty())
+                    })
+                    .await;
+                    eprintln!(
+                        "essai corbeille message : {}",
+                        message.unwrap_or_default().replace('\n', " | ")
+                    );
+                }
+                "appliquer" => {
+                    if !confirm(start, "corbeille").await {
+                        return;
+                    }
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                    if let Some(w) = deleted.as_ref() {
+                        let _ = until(LIMIT, || w.trial_ready().then_some(())).await;
+                    }
+                }
+                "supprimer" => {
+                    let Some(context) = window.write_context() else {
+                        return;
+                    };
+                    let (connection, dn) = (context.connection.clone(), arg(1).to_owned());
+                    let read = gtk::gio::spawn_blocking(move || {
+                        annuaire_core::actions::read_objects(
+                            &connection,
+                            &[dn],
+                            &annuaire_core::actions::STATE_ATTRIBUTES,
+                        )
+                    })
+                    .await;
+                    let Ok(Ok(objects)) = read else {
+                        eprintln!("essai corbeille : {} illisible", arg(1));
+                        return;
+                    };
+                    let Ok(changeset) = annuaire_core::actions::delete(&objects) else {
+                        return;
+                    };
+                    crate::writes::propose(&window, changeset, crate::writes::Options::default());
+                    if !confirm(start, "supprimer").await {
+                        return;
+                    }
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                }
+                "historique" => {
+                    let _ = WidgetExt::activate_action(&window, "win.historique", None);
+                    let Some(h) = until(LIMIT, find::<crate::history::HistoryDialog>).await else {
+                        eprintln!("essai corbeille : pas d'historique");
+                        return;
+                    };
+                    h.trial_select_first();
+                    let label = until(Duration::from_secs(20), || {
+                        let l = h.trial_button();
+                        (l != crate::i18n::tr("Undo this change")).then_some(l)
+                    })
+                    .await
+                    .unwrap_or_else(|| h.trial_button());
+                    eprintln!("essai corbeille historique : bouton « {label} »");
+                }
+                "historique-annuler" => {
+                    let Some(h) = find::<crate::history::HistoryDialog>() else {
+                        eprintln!("essai corbeille : pas d'historique");
+                        return;
+                    };
+                    if !h.trial_undo_first() {
+                        eprintln!("essai corbeille : première entrée non annulable");
+                        return;
+                    }
+                    if !confirm(start, "historique-annuler").await {
+                        return;
+                    }
+                }
+                "pause" => {
+                    let ms = arg(1).parse().unwrap_or(1000);
+                    glib::timeout_future(Duration::from_millis(ms)).await;
+                }
+                other => eprintln!("essai corbeille : étape inconnue {other}"),
+            }
+        }
+        eprintln!("essai corbeille fin");
+    });
+}
+
+/// The steps of `ANNUAIRE_ESSAI_MASSE` (J9.8, J9.9): `domaine§NAME`, `noeud§PATH` (then the
+/// table read), `tout` (every row selected), `importer§FILE§PARENT` (checked, then its series
+/// shown), `exporter§FILE§COLUMNS`, `masse§CHANGE§ATTRIBUTE§VALUES§GROUP§TARGET§DATE` (`-`:
+/// left as is), `appliquer`, `reprendre`, `annuler-ecrit` (« Undo What Is Written »),
+/// `ctrl-z`, `pause§MS`. Each step waits for the end of the previous one.
+fn bulk_trial(window: &crate::window::Window, steps: Vec<String>) {
+    let weak = window.downgrade();
+    glib::spawn_future_local(async move {
+        let series = || crate::bulk::last_dialog().filter(|d| d.is_mapped());
+        let verified = || async {
+            let found = until(LIMIT, || {
+                series().filter(crate::bulk::SeriesDialog::trial_verified)
+            })
+            .await;
+            if let Some(d) = &found {
+                eprintln!("essai masse série : {} lignes", d.trial_rows());
+            }
+            found
+        };
+        let written = |d: crate::bulk::SeriesDialog| async move {
+            glib::timeout_future(Duration::from_millis(300)).await;
+            let _ = until(Duration::from_secs(600), || {
+                (!d.trial_writing()).then_some(())
+            })
+            .await;
+        };
+        for step in steps {
+            let Some(window) = weak.upgrade() else { return };
+            let p: Vec<&str> = step.split('§').collect();
+            let arg = |i: usize| p.get(i).copied().unwrap_or_default();
+            let start = std::time::Instant::now();
+            match arg(0) {
+                "domaine" => {
+                    let _ = WidgetExt::activate_action(
+                        &window,
+                        "win.ouvrir-profil",
+                        Some(&arg(1).to_variant()),
+                    );
+                    if until(LIMIT, || window.source()).await.is_none() {
+                        eprintln!("essai masse : domaine non ouvert");
+                        return;
+                    }
+                }
+                "noeud" => {
+                    let path = arg(1).to_owned();
+                    if until(LIMIT, || window.trial_select(&path).then_some(()))
+                        .await
+                        .is_none()
+                    {
+                        eprintln!("essai masse : nœud {path} introuvable");
+                        return;
+                    }
+                    glib::timeout_future(Duration::from_millis(3000)).await;
+                    eprintln!("essai masse table : {} lignes", window.table_dns().len());
+                }
+                "tout" => window.trial_select_all(),
+                "importer" => {
+                    let dialog = crate::bulk::ImportDialog::new(arg(2));
+                    adw::prelude::AdwDialogExt::present(&dialog, Some(&window));
+                    dialog.set_file(arg(1).into());
+                    dialog.check();
+                    if verified().await.is_none() {
+                        eprintln!("essai masse : pas de série");
+                        return;
+                    }
+                    eprintln!(
+                        "essai masse import vérifié en {:.3} s",
+                        start.elapsed().as_secs_f64()
+                    );
+                }
+                "exporter" => {
+                    let dialog = crate::bulk::ExportDialog::new(window.table_dns(), Vec::new());
+                    adw::prelude::AdwDialogExt::present(&dialog, Some(&window));
+                    dialog.trial_columns(arg(2));
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                    dialog.export_to(arg(1).into());
+                    let exists = until(LIMIT, || {
+                        std::path::Path::new(arg(1)).exists().then_some(())
+                    })
+                    .await;
+                    eprintln!("essai masse export : fichier {}", exists.is_some());
+                }
+                "masse" => {
+                    let group = None;
+                    let dialog = crate::bulk::ChangeDialog::new(window.trial_selected_dns(), group);
+                    adw::prelude::AdwDialogExt::present(&dialog, Some(&window));
+                    let fields: Vec<&str> = (2..7).map(arg).collect();
+                    dialog.trial_fill(arg(1), &fields);
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                    dialog.confirm();
+                    if verified().await.is_none() {
+                        eprintln!("essai masse : pas de série");
+                        return;
+                    }
+                }
+                "appliquer" => {
+                    let Some(d) = verified().await else { return };
+                    if !d.trial_apply() {
+                        eprintln!("essai masse : application impossible");
+                        return;
+                    }
+                    written(d).await;
+                    eprintln!(
+                        "essai masse écrit en {:.3} s",
+                        start.elapsed().as_secs_f64()
+                    );
+                }
+                "reprendre" => {
+                    let Some(d) = series() else {
+                        eprintln!("essai masse : pas de série à reprendre");
+                        return;
+                    };
+                    d.resume();
+                    written(d).await;
+                    eprintln!(
+                        "essai masse repris en {:.3} s",
+                        start.elapsed().as_secs_f64()
+                    );
+                }
+                "annuler-ecrit" => {
+                    let Some(d) = series() else { return };
+                    d.undo();
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                }
+                "ctrl-z" => {
+                    let _ = WidgetExt::activate_action(&window, "win.annuler-derniere", None);
+                    glib::timeout_future(Duration::from_millis(500)).await;
+                }
+                "pause" => {
+                    let ms = arg(1).parse().unwrap_or(1000);
+                    glib::timeout_future(Duration::from_millis(ms)).await;
+                }
+                other => eprintln!("essai masse : étape inconnue {other}"),
+            }
+        }
+        eprintln!("essai masse fin");
     });
 }

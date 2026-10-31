@@ -400,6 +400,9 @@ impl Window {
         if let Some(pso) = imp.pso.take() {
             pso.close();
         }
+        if let Some(deleted) = imp.deleted.take() {
+            deleted.close();
+        }
         self.stop_contents();
         imp.search.forget_domain();
         *imp.content.borrow_mut() = None;

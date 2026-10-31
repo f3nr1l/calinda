@@ -14,7 +14,7 @@ SQLite, déjà présentes sur le système. Il n'existe pas encore de dépôt ;
 reçu, ou celui qu'on a construit soi-même (README, section « Construire le RPM ») :
 
 ```sh
-sudo dnf install ./calinda-1.3.2-1.fc44.x86_64.rpm
+sudo dnf install ./calinda-1.5.0-1.fc44.x86_64.rpm
 ```
 
 L'application apparaît sous le nom « Calinda » dans le menu des applications ; en terminal, la
@@ -89,10 +89,15 @@ inactifs depuis N jours, désactivés ou verrouillés, les mots de passe sans ex
 administrateurs par appartenance récursive et les objets en conflit ; on peut y ajouter les
 siennes.
 
-Le bouton « Nouveau » crée un utilisateur, un groupe ou une unité d'organisation. Le menu des
-actions agit sur la sélection : activer, désactiver, déverrouiller, réinitialiser le mot de
-passe, déplacer, renommer (F2), supprimer (Suppr), protéger une OU contre la suppression
-accidentelle.
+Le bouton « Nouveau » crée un utilisateur, un groupe, une unité d'organisation, un contact ou
+un ordinateur, ou importe des objets depuis un fichier CSV (voir plus bas). Le dialogue « Nouvel
+utilisateur » porte aussi le chemin du profil, le lecteur et le dossier personnel ; le dossier
+est créé avec le compte, dans la même écriture. Un nouvel ordinateur se crée comme dans la
+console, avec le compte ou le groupe autorisé à le joindre au domaine.
+
+Le menu des actions agit sur la sélection : activer, désactiver, déverrouiller, réinitialiser le
+mot de passe ou, pour un ordinateur, le compte, déplacer, renommer (F2), supprimer (Suppr),
+protéger une OU contre la suppression accidentelle, modifier en masse, exporter la liste en CSV.
 
 Le bas de la barre latérale donne accès aux autres fenêtres du domaine, chacune avec son
 raccourci : DNS (Ctrl+D), Santé DNS (Maj+Ctrl+D), Stratégies de groupe (Ctrl+G), Stratégies de
@@ -108,12 +113,36 @@ membres ou « Membre de », et, selon l'objet :
 - « Attributs » : tous les attributs que prévoit le schéma, modifiables si le compte en a le
   droit ; « Classes auxiliaires… » ajoute ou retire une classe auxiliaire proposée par le
   schéma, avec les attributs qu'elle apporte ;
+- « Compte » : en plus du nom et des options, les horaires d'accès (grille en heure locale ;
+  l'annuaire les garde en UTC et le décalage est dit) et les ordinateurs auxquels l'utilisateur
+  peut se connecter ; « Créer le dossier personnel » quand le dossier renseigné n'existe pas sur
+  le serveur ;
+- « Profil » : chemin du profil et dossier personnel, local ou lecteur connecté à un dossier
+  `\\serveur\partage\…`, avec `%username%` remplacé par le nom du compte comme dans la
+  console ; le dossier est créé s'il n'existe pas, avec le contrôle total pour le compte et les
+  administrateurs, après l'aperçu ;
+- « Délégation » : aucune, tous les services, ou services choisis parmi ceux de l'annuaire, avec
+  Kerberos seul ou tout protocole, comme dans la console, et les comptes autorisés à déléguer
+  vers celui-ci (délégation basée sur la ressource). Sur un DC Samba, cette dernière se lit mais
+  ne s'écrit pas, et l'onglet le dit ;
+- « LAPS » (ordinateur) : le mot de passe de l'administrateur local gardé par Windows LAPS ou
+  par l'ancien LAPS de Microsoft, lu sur le contrôleur à l'ouverture de l'onglet et montré sur
+  demande ; la copie s'efface du presse-papiers après 30 secondes. Il n'est gardé ni dans la
+  copie locale ni dans l'historique. « Expirer maintenant… » fait changer le mot de passe par
+  l'ordinateur à son prochain passage. Un mot de passe chiffré par Windows LAPS (`msLAPS-EncryptedPassword`) est lu de la même
+  façon : Calinda demande la clé de groupe au contrôleur (MS-GKDI) et le déchiffre, du moment
+  que le compte a le droit de le lire ; sinon il reste signalé « chiffré » ;
+- « BitLocker » (ordinateur) : les mots de passe de récupération sauvegardés dans l'annuaire,
+  avec leur identifiant et leur date, montrés sur demande. « Rechercher un mot de passe de
+  récupération BitLocker… », dans le menu principal, le retrouve dans tout le domaine par les
+  huit premiers caractères de l'identifiant qu'affiche l'écran de récupération ;
 - « Stratégie » : les GPO appliquées au compte ou à l'ordinateur, par ordre de priorité, et
   celles qui ne s'appliquent pas, avec leur raison. Pour un ordinateur, la fiche indique son
   traitement en boucle ; pour un utilisateur, elle calcule la stratégie sur l'ordinateur saisi,
   traitement en boucle compris (fusion ou remplacement).
 
-Les modifications s'accumulent dans la fiche et partent ensemble par « Appliquer… ».
+L'onglet « Général » porte « Protéger l'objet des suppressions accidentelles », pour tout
+objet. Les modifications s'accumulent dans la fiche et partent ensemble par « Appliquer… ».
 
 **Aperçu commun.** Toute écriture, quelle que soit la fenêtre, passe par le même aperçu, qui
 montre chaque objet, attribut ou fichier avant et après. « Appliquer » vérifie d'abord que rien
@@ -127,8 +156,42 @@ tout : en cas d'échec, ce qui a déjà été écrit est défait.
 les écritures faites depuis ce poste (`$XDG_STATE_HOME/calinda/changes.jsonl`), avec « Annuler
 cette modification ». Ctrl+Z propose d'annuler la dernière modification, par l'aperçu ; un
 nouveau Ctrl+Z propose la précédente, même sur le même objet, tant que personne d'autre ne l'a
-modifié entre-temps. Une suppression ne peut se défaire qu'en recréant un objet neuf, avec de
-nouveaux SID et GUID ; l'aperçu le signale avant.
+modifié entre-temps. Annuler une suppression restaure l'objet depuis les objets supprimés tant
+qu'il y est, avec ses mêmes SID et GUID ; sinon, l'objet est recréé et ce que la suppression a
+fait perdre est réécrit depuis le journal, sauf le mot de passe. L'aperçu dit avant laquelle des
+deux voies sera prise.
+
+**Objets supprimés.** Maj+Ctrl+Suppr, ou « Objets supprimés » dans le menu principal, liste les
+objets supprimés du domaine, du plus récent au plus ancien, avec ce que chacun a gardé ; on les
+filtre par nom, classe, dernier parent, genre et période. « Restaurer… » rend l'objet sous son
+dernier parent ou dans un autre conteneur, sous son nom ou un autre. Un parent supprimé revient
+d'abord, une OU peut revenir avec les objets qui étaient dessous, un nom déjà pris est refusé
+avec un nom libre proposé. Avec la corbeille AD activée, l'objet revient entier ; sans elle, il
+ne revient qu'avec ce que la suppression a gardé (un compte revient sans mot de passe ni
+groupes), et l'aperçu le dit. Samba 4.22 refuse de réanimer un objet quand la corbeille est
+activée : Calinda le montre alors comme non restaurable.
+
+**Import, export et modifications en masse.** « Nouveau › Importer depuis un CSV… » crée des
+utilisateurs, des groupes, des contacts et des ordinateurs depuis un fichier CSV en UTF-8. Les
+colonnes se nomment par l'attribut LDAP, par le libellé de la fiche ou comme les paramètres de
+`New-ADUser` ; le séparateur est reconnu à la première ligne. Chaque ligne est vérifiée avant
+toute écriture, et l'aperçu donne le rapport ligne par ligne. Les mots de passe générés vont dans
+un fichier lisible par vous seul, choisi avant le début ; ils ne sont ni affichés ni journalisés.
+
+« Actions › Modifier en masse… », sur les objets choisis dans la table ou sur les membres d'un
+groupe, pose, complète, retire ou vide un attribut, ajoute à un groupe ou en retire, active,
+désactive, déplace, fixe l'expiration du compte, exige ou non le changement du mot de passe. Les
+objets déjà dans l'état demandé sont laissés de côté et comptés.
+
+L'import et la modification en masse s'écrivent par lots de 100, chacun en entier ou pas du tout.
+Entre deux lots, « Arrêter » suspend la série ; « Reprendre sans les refusés » la poursuit, et
+« Annuler ce qui est écrit » défait les lots déjà passés. Quand un objet a changé depuis
+l'aperçu, son lot est refusé avec le nom de l'objet ; « Écrire par-dessus leurs modifications »
+passe outre après relecture. Ctrl+Z et l'historique annulent la série entière en une fois.
+
+« Actions › Exporter la liste en CSV… » écrit le contenu de la table, ou la sélection, avec les
+attributs choisis, en valeurs lisibles (dates, SID, GUID) ou brutes, dans un fichier qu'Excel
+ouvre tel quel.
 
 **DNS.** Ctrl+D, ou « DNS », montre les zones intégrées à l'annuaire, leurs noms et leurs
 enregistrements, ainsi que les réglages de chaque zone. Ctrl+N ajoute un enregistrement (A,

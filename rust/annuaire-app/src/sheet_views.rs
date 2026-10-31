@@ -15,10 +15,12 @@ use annuaire_codecs::uac::{GroupType, Scope, UserAccountControl};
 use annuaire_core::changes::{AttributeMap, Change, Changeset, Operation, Values};
 use annuaire_core::connection::Connection;
 use annuaire_core::dn;
+use annuaire_core::home_folder;
 use annuaire_core::model::{Account, ActivitySource, DomainPolicy, LastActivity, Object};
 use annuaire_core::search;
 use annuaire_core::source::{Item, Survey, name_from_dn};
 use annuaire_core::writer::{self, PrepareError};
+use annuaire_core::{account_tabs, actions};
 use gtk::glib;
 
 use crate::countries::{self, Country};
@@ -26,7 +28,7 @@ use crate::i18n::{fill, tr, tr_ctx};
 use crate::views::{self, GROUP_ICON};
 
 /// Attributes that the sheet can change in place (`EDITABLES`), in lower case.
-pub const EDITABLE: [&str; 31] = [
+pub const EDITABLE: [&str; 32] = [
     "givenname",
     "initials",
     "sn",
@@ -52,6 +54,7 @@ pub const EDITABLE: [&str; 31] = [
     "homedrive",
     "info",
     "location",
+    "userworkstations",
     "c",
     "co",
     "countrycode",
@@ -84,6 +87,7 @@ pub const OPTIONS: [(&str, u32); 5] = [
 ];
 
 const FORBIDDEN_SAM: &str = "\"/\\[]:;|=,+*?<>@";
+const FORBIDDEN_NETBIOS: &str = "\\/:*?\"<>| ";
 
 // --- Location ----------------------------------------------------------------------------
 
@@ -291,6 +295,20 @@ pub fn check_input(attribute: &str, text: &str) -> Option<String> {
             ));
         }
     }
+    if lower == "userworkstations" {
+        let names: Vec<&str> = text.split(',').map(str::trim).collect();
+        if names.len() > 1 && names.iter().any(|n| n.is_empty()) {
+            return Some(tr("A computer name is missing between two commas."));
+        }
+        if names
+            .iter()
+            .any(|n| n.chars().count() > 15 || n.chars().any(|c| FORBIDDEN_NETBIOS.contains(c)))
+        {
+            return Some(tr(
+                "Computer names (NetBIOS) are at most 15 characters long, without spaces nor \\ / : * ? \" < > |",
+            ));
+        }
+    }
     if lower == "userprincipalname" && !text.is_empty() {
         let valid = text.split_once('@').is_some_and(|(name, suffix)| {
             !name.is_empty() && !suffix.is_empty() && !suffix.contains('@')
@@ -300,6 +318,16 @@ pub fn check_input(attribute: &str, text: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// `userWorkstations` as ADUC writes it: the names separated by a comma, without spaces
+/// (J9.3).
+pub fn normalize_workstations(text: &str) -> String {
+    text.split(',')
+        .map(str::trim)
+        .filter(|n| !n.is_empty())
+        .collect::<Vec<_>>()
+        .join(",")
 }
 
 /// A day as DD/MM/YYYY (`texte_jour`); empty without a day.
@@ -553,8 +581,12 @@ pub struct Draft {
     pub additions: Vec<ElementView>,
     /// Members to remove.
     pub removals: Vec<ElementView>,
-    /// Changes of the attribute editor (J4.4), by name in lower case.
+    /// Changes of the attribute editor (J4.4), by name in lower case; also those of the
+    /// account tabs (logon hours, services, RBCD, SPN, J9.3), on the same footing.
     pub edits: Vec<AttributeEdit>,
+    /// Protection against accidental deletion wanted, when it differs from the one read
+    /// (J9.3).
+    pub protect: Option<bool>,
 }
 
 fn remove_dn(list: &mut Vec<ElementView>, dn_text: &str) -> bool {
@@ -586,6 +618,13 @@ impl Draft {
         }
         let lower = attribute.to_lowercase();
         self.edits.retain(|e| e.attribute.to_lowercase() != lower);
+        let normalized;
+        let text = if lower == "userworkstations" {
+            normalized = normalize_workstations(text);
+            normalized.as_str()
+        } else {
+            text
+        };
         let same = text.trim() == self.origin_of(attribute).trim();
         match self.inputs.iter_mut().find(|(a, _)| a == attribute) {
             Some(_) if same => self.inputs.retain(|(a, _)| a != attribute),
@@ -674,7 +713,11 @@ impl Draft {
             .collect();
         attributes.sort_unstable();
         attributes.dedup();
-        attributes.len() + self.additions.len() + self.removals.len() + self.edits.len()
+        attributes.len()
+            + self.additions.len()
+            + self.removals.len()
+            + self.edits.len()
+            + usize::from(self.protect.is_some())
     }
 
     pub fn clear(&mut self) {
@@ -682,6 +725,14 @@ impl Draft {
         self.additions.clear();
         self.removals.clear();
         self.edits.clear();
+        self.protect = None;
+    }
+
+    /// The edit pending for `attribute` (any tab), if any.
+    pub fn edit_of(&self, attribute: &str) -> Option<&AttributeEdit> {
+        self.edits
+            .iter()
+            .find(|e| e.attribute.eq_ignore_ascii_case(attribute))
     }
 
     /// For `prepare_modification`: a single value, or an empty list (clear)
@@ -735,6 +786,44 @@ pub fn prepare_changeset(
         }
     }
     explicit.extend(draft.members_change());
+    // The home folder and the profile as ADUC saves them (ADR 0027): `%username%` replaced by
+    // the account's name in the value written.
+    let account = if wanted.iter().any(|(a, _)| is_home_attribute(a)) {
+        home_folder::read_account(connection, dn_text).map_err(PrepareError::Failure)?
+    } else {
+        None
+    };
+    if let Some(account) = &account {
+        for (attribute, values) in &mut wanted {
+            if attribute.eq_ignore_ascii_case("homeDirectory")
+                || attribute.eq_ignore_ascii_case("profilePath")
+            {
+                for value in values.iter_mut() {
+                    let text = String::from_utf8_lossy(value).into_owned();
+                    *value = home_folder::expand_username(&text, &account.sam).into_bytes();
+                }
+            }
+        }
+    }
+    let wanted_text = |attribute: &str, present: &str| -> String {
+        wanted
+            .iter()
+            .find(|(a, _)| a.eq_ignore_ascii_case(attribute))
+            .map_or_else(
+                || present.to_owned(),
+                |(_, v)| {
+                    v.first()
+                        .map(|v| String::from_utf8_lossy(v).into_owned())
+                        .unwrap_or_default()
+                },
+            )
+    };
+    let home = account.as_ref().map(|a| {
+        (
+            wanted_text("homeDrive", &a.home_drive),
+            wanted_text("homeDirectory", &a.home_directory),
+        )
+    });
     let modification = if wanted.is_empty() {
         None
     } else {
@@ -754,18 +843,141 @@ pub fn prepare_changeset(
             );
         }
     }
-    if changes.is_empty() {
+    let mut remarks = Vec::new();
+    check_spns(connection, dn_text, &changes, &mut remarks)?;
+    let protection = match draft.protect {
+        Some(wanted) => protection_operations(connection, dn_text, wanted)?,
+        None => Vec::new(),
+    };
+    if changes.is_empty() && protection.is_empty() {
         return Ok(None);
     }
     // A class added goes before the attributes it allows (Samba checks each addition against
     // the classes already set).
     changes.sort_by_key(|c| !c.adds_class());
-    let operation = Operation::modify(dn_text, changes, read)
-        .map_err(|e| PrepareError::Unsupported(e.to_string()))?;
-    Ok(Some(Changeset {
-        operations: vec![operation],
-        remarks: Vec::new(),
-    }))
+    let changed = |name: &str| {
+        changes
+            .iter()
+            .any(|c| c.attribute.eq_ignore_ascii_case(name))
+    };
+    let (directory_changed, drive_changed) = (changed("homeDirectory"), changed("homeDrive"));
+    let mut changeset = Changeset {
+        operations: Vec::new(),
+        remarks,
+    };
+    if !changes.is_empty() {
+        changeset.operations.push(
+            Operation::modify(dn_text, changes, read)
+                .map_err(|e| PrepareError::Unsupported(e.to_string()))?,
+        );
+    }
+    // The descriptors after the attributes: one changeset, journaled and undone together.
+    changeset.operations.extend(protection);
+    // A drive connected to a folder of a share: the folder created if absent, with the
+    // permissions ADUC gives it; left as it is, and said, if it exists.
+    if let (Some(account), Some((drive, directory))) = (&account, &home)
+        && (directory_changed || drive_changed)
+        && !drive.trim().is_empty()
+    {
+        match home_folder::plan(connection, account, directory).map_err(PrepareError::HomeFolder)? {
+            Some(home_folder::Plan::Create(op)) => changeset.operations.push(*op),
+            Some(home_folder::Plan::Exists { unc }) if directory_changed => {
+                changeset.remarks.push(folder_exists_remark(&unc));
+            }
+            _ => {}
+        }
+    }
+    Ok(Some(changeset))
+}
+
+/// The service principal names added must be free in the whole forest (global catalog); a
+/// global catalog out of reach does not stop the write (the DC still refuses a duplicate in
+/// its domain), the preview says it was not checked (J9.3).
+fn check_spns(
+    connection: &Connection,
+    dn_text: &str,
+    changes: &[Change],
+    remarks: &mut Vec<String>,
+) -> Result<(), PrepareError> {
+    let added = changes
+        .iter()
+        .filter(|c| c.attribute.eq_ignore_ascii_case(account_tabs::SPN))
+        .flat_map(|c| c.added.iter())
+        .map(|v| String::from_utf8_lossy(v).into_owned());
+    for spn in added {
+        match account_tabs::spn_owners(connection, &spn, dn_text) {
+            Ok(owners) if owners.is_empty() => {}
+            Ok(owners) => return Err(PrepareError::DuplicateSpn { spn, owners }),
+            Err(_) => remarks.push(fill(
+                &tr(
+                    "The global catalog could not be reached: the uniqueness of “{spn}” in the forest was not checked.",
+                ),
+                &[("spn", &spn)],
+            )),
+        }
+    }
+    Ok(())
+}
+
+/// The operations of the protection against accidental deletion, as ADUC writes them: on
+/// the object and on its parent to protect, on the object alone to unprotect (J9.3).
+fn protection_operations(
+    connection: &Connection,
+    dn_text: &str,
+    wanted: bool,
+) -> Result<Vec<Operation>, PrepareError> {
+    let mut dns = vec![dn_text.to_owned()];
+    if wanted {
+        dns.extend(annuaire_core::changes::parent_dn(dn_text).ok());
+    }
+    let read = actions::read_descriptors(connection, &dns).map_err(PrepareError::Failure)?;
+    let object = read
+        .iter()
+        .find(|o| o.dn.eq_ignore_ascii_case(dn_text))
+        .ok_or_else(|| PrepareError::Missing(dn_text.to_owned()))?;
+    let built = if wanted {
+        let parent = read
+            .iter()
+            .find(|o| !o.dn.eq_ignore_ascii_case(dn_text))
+            .ok_or_else(|| PrepareError::Missing(dns.last().cloned().unwrap_or_default()))?;
+        actions::protect(object, parent)
+    } else {
+        actions::unprotect(object)
+    };
+    Ok(built.map_err(PrepareError::Protection)?.operations)
+}
+
+/// The home folder `directory` of the account `dn` on its share, for « Create Home Folder »
+/// (ADR 0027): `%username%` expanded, then planned as when saving; with the path expanded.
+pub fn plan_home_folder(
+    connection: &Connection,
+    dn: &str,
+    directory: &str,
+) -> Result<Option<(String, home_folder::Plan)>, PrepareError> {
+    let account = home_folder::read_account(connection, dn)
+        .map_err(PrepareError::Failure)?
+        .ok_or_else(|| PrepareError::Missing(dn.to_owned()))?;
+    let expanded = home_folder::expand_username(directory.trim(), &account.sam);
+    Ok(home_folder::plan(connection, &account, &expanded)
+        .map_err(PrepareError::HomeFolder)?
+        .map(|plan| (expanded, plan)))
+}
+
+/// What the preview says of a home folder that exists already (ADR 0027): left as it is.
+pub fn folder_exists_remark(unc: &str) -> String {
+    fill(
+        &tr(
+            "The home folder “{p}” already exists: it is not created and its permissions are not changed. Make sure the account has the access it needs.",
+        ),
+        &[("p", unc)],
+    )
+}
+
+/// The attributes saved as ADUC saves them (ADR 0027).
+fn is_home_attribute(attribute: &str) -> bool {
+    ["homeDirectory", "homeDrive", "profilePath"]
+        .iter()
+        .any(|a| a.eq_ignore_ascii_case(attribute))
 }
 
 #[cfg(test)]

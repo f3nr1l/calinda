@@ -1,0 +1,100 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueContact: Adw.Dialog {
+  title: _("New Contact");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow given_name_entry {
+          title: _("First name");
+          changed => $names_changed();
+        }
+
+        Adw.EntryRow initials_entry {
+          title: _("Initials");
+        }
+
+        Adw.EntryRow name_entry {
+          title: _("Name");
+          changed => $names_changed();
+        }
+
+        Adw.EntryRow full_name_entry {
+          title: _("Full name (CN)");
+          changed => $full_name_changed();
+        }
+
+        Adw.EntryRow display_entry {
+          title: _("Display name");
+        }
+
+        Adw.ActionRow location_row {
+          title: _("Location");
+          subtitle-selectable: true;
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Contact");
+
+        Adw.EntryRow mail_entry {
+          title: _("Email");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow telephone_entry {
+          title: _("Telephone");
+          input-purpose: phone;
+        }
+
+        Adw.EntryRow street_entry {
+          title: _("Address");
+        }
+
+        Adw.EntryRow postal_code_entry {
+          title: _("ZIP/Postal code");
+        }
+
+        Adw.EntryRow city_entry {
+          title: _("City");
+        }
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+        }
+      }
+    };
+  };
+}

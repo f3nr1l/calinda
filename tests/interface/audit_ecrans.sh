@@ -12,7 +12,8 @@
 #     KRB5CCNAME=FILE:… tests/interface/audit_ecrans.sh SORTIE [SCÉNARIOS]
 #
 # Construction attendue dans build/, ou ANNUAIRE_BINAIRE=/usr/bin/calinda pour l'application
-# installée ; ticket d'administrateur du labo déjà dans KRB5CCNAME. Jamais dans la session de
+# installée ; ticket d'administrateur du labo déjà dans KRB5CCNAME. ANNUAIRE_AUDIT_DOMAINE
+# choisit le domaine du profil (lab.test par défaut ; win.test pour le DC Windows). Jamais dans la session de
 # l'utilisateur : le script lance la sienne. Les fenêtres sont fermées sans rien écrire.
 # Jusqu'à la bascule (1.1.0), le même script comparait l'application Python et l'application
 # Rust écran par écran (ADR 0019, R4.10c).
@@ -30,7 +31,7 @@ if [ -z "${ESSAI_DANS_SESSION:-}" ]; then
     mkdir -p -m 700 "$O"/run "$O"/cache "$O"/etat "$O"/config/glib-2.0/settings
     cat > "$O"/config/glib-2.0/settings/keyfile <<EOF
 [io/github/f3nr1l/Calinda]
-profils=[{"domaine": <"lab.test">, "mode": <"gssapi-scelle">, "lecture-seule": <false>, "cache": <false>}]
+profils=[{"domaine": <"${ANNUAIRE_AUDIT_DOMAINE:-lab.test}">, "mode": <"gssapi-scelle">, "lecture-seule": <false>, "cache": <false>}]
 window-maximized=true
 EOF
     export GSETTINGS_BACKEND=keyfile XDG_CACHE_HOME=$O/cache XDG_STATE_HOME=$O/etat \
@@ -92,7 +93,7 @@ while IFS= read -r ligne; do
     for g in "${gestes[@]}"; do
         case $g in
             env:*) ;;
-            dom) win ouvrir-profil '[<"lab.test">]' '{}'; sleep 6 ;;
+            dom) win ouvrir-profil "[<\"${ANNUAIRE_AUDIT_DOMAINE:-lab.test}\">]" '{}'; sleep 6 ;;
             win:*:*) x=${g#win:}; win "${x%%:*}" "[<\"${x#*:}\">]" '{}'; sleep 3 ;;
             win:*) win "${g#win:}" '[]' '{}'; sleep 3 ;;
             app:*) app "${g#app:}" '[]' '{}'; sleep 2 ;;

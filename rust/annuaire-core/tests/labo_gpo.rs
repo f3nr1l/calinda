@@ -465,6 +465,7 @@ fn gpo_writes() -> Result<()> {
         }),
         resumes: None,
         resumed_by: None,
+        series: None,
     };
     let settled = writer::ascertain(&trial.connection, &current).map_err(|e| format!("{e:?}"))?;
     check(

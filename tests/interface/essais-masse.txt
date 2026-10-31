@@ -1,0 +1,31 @@
+# Import, export et modifications en masse (J9.8, J9.9, ADR 0026), avec audit_ecrans.sh SORTIE
+# tests/interface/essais-masse.txt NOM : un scénario par appel (mutter sans affichage s'arrête
+# parfois entre deux scénarios d'une série), même dossier SORTIE (le journal des changements y
+# est gardé d'un scénario à l'autre). Préparation et constats par l'essai labo bulk_interface
+# (ANNUAIRE_LABO_MASSE=preparer avec ANNUAIRE_LABO_MASSE_CSV=/tmp/calinda-j98-ui/import.csv ;
+# importe après le scénario 6, annule après le 8, puis nettoyer) : OU=Essais-J98-UI,OU=Labo
+# vide, fichier de 252 lignes dont deux refusées. Étapes : en-tête de `bulk_trial`
+# (rust/annuaire-app/src/trial.rs).
+# 1. Le fichier vérifié : 250 lignes à importer, 2 refusées (relevé de l'aperçu de la série).
+masse-verification|env:ANNUAIRE_ESSAI_MASSE_MOTS_DE_PASSE=/tmp/calinda-j98-ui/mdp.csv|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;importer§/tmp/calinda-j98-ui/import.csv§OU=Essais-J98-UI,OU=Labo,DC=lab,DC=test|wait:25
+# 2. Import arrêté après le premier lot (relevé : « Reprendre », « Annuler ce qui est écrit »).
+masse-import-arret|env:ANNUAIRE_ESSAI_MASSE_ARRET=1|env:ANNUAIRE_ESSAI_MASSE_MOTS_DE_PASSE=/tmp/calinda-j98-ui/mdp.csv|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;importer§/tmp/calinda-j98-ui/import.csv§OU=Essais-J98-UI,OU=Labo,DC=lab,DC=test;;appliquer|wait:60
+# 3. Ctrl+Z : le lot écrit au scénario 2 annulé (relevé de l'aperçu de l'annulation), appliqué.
+masse-annuler-arret|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;ctrl-z;;appliquer|wait:60
+# 4. Import arrêté après le premier lot, puis repris dans le dialogue jusqu'au bout.
+masse-import|env:ANNUAIRE_ESSAI_MASSE_ARRET=1|env:ANNUAIRE_ESSAI_MASSE_MOTS_DE_PASSE=/tmp/calinda-j98-ui/mdp.csv|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;importer§/tmp/calinda-j98-ui/import.csv§OU=Essais-J98-UI,OU=Labo,DC=lab,DC=test;;appliquer;;pause§1000;;reprendre|wait:90
+# 5. Les 250 comptes choisis dans la table, description posée, arrêt après un lot, reprise.
+masse-modification|env:ANNUAIRE_ESSAI_MASSE_ARRET=1|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;noeud§Labo/Essais-J98-UI;;tout;;masse§poser§description§UI J9.9§-§-§-;;appliquer;;pause§1000;;reprendre|wait:60
+# 5 bis. Le dialogue d'une modification, avant l'écriture (relevé : une ligne par objet).
+masse-apercu|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;noeud§Labo/Essais-J98-UI;;tout;;masse§desactiver§-§-§-§-§-|wait:40
+# 5 ter. La même modification redemandée : rien à changer, dit dans le dialogue (relevé).
+masse-rien|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;noeud§Labo/Essais-J98-UI;;tout;;masse§poser§description§UI J9.9§-§-§-|wait:30
+# 5 quater. Les dialogues d'import et d'export ouverts par leurs actions (relevés).
+masse-dialogue-import|dom|win:importer|wait:3
+masse-dialogue-export|dom|wait:4|win:exporter|wait:3
+# 6. Export de la table en CSV.
+masse-export|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;noeud§Labo/Essais-J98-UI;;exporter§/tmp/calinda-j98-ui/export.csv§name, sAMAccountName, objectSid, whenCreated, description|wait:30
+# 7. Ctrl+Z : la modification annulée en une fois, ses trois lots.
+masse-ctrl-z|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;ctrl-z;;appliquer|wait:60
+# 8. Ctrl+Z encore : l'import annulé en une fois, ses trois lots (arrêt et reprise compris).
+masse-ctrl-z-import|env:ANNUAIRE_ESSAI_MASSE=domaine§lab.test;;ctrl-z;;appliquer|wait:60

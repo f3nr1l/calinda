@@ -81,6 +81,11 @@ jobs:
   rust:
     runs-on: ubuntu-latest
     container: fedora:44
+    # Un binaire de test par fichier labo, chacun avec ses infos de débogage complètes :
+    # target/ remplissait le disque de l'exécuteur (runs 1446-1449, « No space left »).
+    env:
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+      CARGO_PROFILE_TEST_DEBUG: line-tables-only
     defaults:
       run:
         working-directory: rust

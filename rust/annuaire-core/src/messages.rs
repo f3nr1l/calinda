@@ -27,6 +27,10 @@ pub enum Msg {
         more: String,
         n: usize,
     },
+    /// `logonHours`: hours of the week the logon is allowed (J9.3).
+    LogonHours {
+        allowed: usize,
+    },
     /// FILETIME 0 or maximum.
     Never,
     Ttl {
@@ -83,6 +87,13 @@ pub enum Msg {
         unc: String,
     },
     DeleteShareKeepsFolder,
+    /// A home folder created on a share (ADR 0027): full control for the account and for the
+    /// administrators, the inherited entries kept; its undo deletes it only if empty.
+    HomeFolderControl {
+        account: String,
+    },
+    FolderInheritanceKept,
+    FolderDeletedIfEmpty,
     /// Inheritance propagated under a folder of a share (ADR 0023 § 5).
     Propagate {
         path: String,
@@ -140,6 +151,46 @@ pub enum Msg {
         dn: String,
     },
     DeleteIrreversible,
+    /// A deleted object brought back (ADR 0024).
+    Restore {
+        dn: String,
+    },
+    RestoredFrom {
+        deleted: String,
+        guid: String,
+    },
+    RestoredWhole {
+        dn: String,
+    },
+    RestoredPasswordKept {
+        dn: String,
+    },
+    RestoredStripped {
+        dn: String,
+        kept: String,
+    },
+    RestoredBare {
+        dn: String,
+    },
+    RestoredAccountLosses {
+        dn: String,
+    },
+    RestoredParentFirst {
+        dn: String,
+    },
+    RestoredChildrenLeft {
+        dn: String,
+        n: usize,
+    },
+    RestoredFromJournal {
+        dn: String,
+    },
+    RestoredRefilled {
+        dn: String,
+    },
+    RestoredPasswordLost {
+        dn: String,
+    },
     NoChange,
     Remarks,
     SecretNotRestored {
@@ -281,6 +332,7 @@ impl Catalog for English {
             Msg::QuotedWithDate { text, date } => format!("“{text}” ({date})"),
             Msg::Quoted { text } => format!("“{text}”"),
             Msg::Hex { bytes, more, n } => format!("0x{bytes}{more} ({n} bytes)"),
+            Msg::LogonHours { allowed } => format!("logon allowed {allowed} h of 168 per week"),
             Msg::Never => "never".into(),
             Msg::Ttl { ttl } => format!("TTL {ttl}"),
             Msg::Serial { serial } => format!("serial {serial}"),
@@ -304,6 +356,11 @@ impl Catalog for English {
             Msg::ChangeShare { unc } => format!("Change the share {unc}"),
             Msg::DeleteShare { unc } => format!("Delete the share {unc}"),
             Msg::DeleteShareKeepsFolder => "The folder and its content stay on the server.".into(),
+            Msg::HomeFolderControl { account } => format!(
+                "full control for {account} and the administrators: this folder, subfolders and files"
+            ),
+            Msg::FolderInheritanceKept => "entries inherited from the parent folder kept".into(),
+            Msg::FolderDeletedIfEmpty => "deleted only if it is empty".into(),
             Msg::Propagate { path } => format!("Propagate the inheritance under {path}"),
             Msg::PropagationCount { n } => format!("{n} elements under the folder examined"),
             Msg::PropagationReplace => {
@@ -338,9 +395,48 @@ impl Catalog for English {
             Msg::Modify { dn } => format!("Modify {dn}"),
             Msg::Rename { dn, new_dn } => format!("Rename or move {dn} → {new_dn}"),
             Msg::Delete { dn } => format!("Delete {dn}"),
-            Msg::DeleteIrreversible => "Not reversible as it is: undoing creates a new object \
-(new objectGUID and objectSid, password and permissions not restored)."
+            Msg::DeleteIrreversible => "Undoing restores the object from the deleted objects \
+while it is there (same objectGUID and objectSid); otherwise it creates a new object (new \
+objectGUID and objectSid, password and permissions not restored)."
                 .into(),
+            Msg::Restore { dn } => format!("Restore {dn}"),
+            Msg::RestoredFrom { deleted, guid } => {
+                format!("from {deleted} (objectGUID {guid})")
+            }
+            Msg::RestoredWhole { dn } => format!(
+                "With the Recycle Bin, {dn} comes back as it was deleted: its attributes, and its \
+links to the objects that exist (members, group memberships)."
+            ),
+            Msg::RestoredPasswordKept { dn } => format!("{dn} keeps its password."),
+            Msg::RestoredStripped { dn, kept } => format!(
+                "Without the Recycle Bin, {dn} comes back with only what the deletion kept: \
+{kept}. Its other attributes are lost."
+            ),
+            Msg::RestoredBare { dn } => format!(
+                "Without the Recycle Bin, {dn} comes back with its name only: everything else is \
+lost."
+            ),
+            Msg::RestoredAccountLosses { dn } => format!(
+                "{dn}: its password and its group memberships are lost; give it a new password \
+and its groups back before using it."
+            ),
+            Msg::RestoredParentFirst { dn } => {
+                format!("{dn} was deleted too: it is restored first.")
+            }
+            Msg::RestoredChildrenLeft { dn, n } => {
+                format!("{n} deleted objects that were under {dn} stay deleted.")
+            }
+            Msg::RestoredFromJournal { dn } => format!(
+                "{dn} is still among the deleted objects: it is restored (same objectGUID and \
+objectSid), not recreated."
+            ),
+            Msg::RestoredRefilled { dn } => format!(
+                "Without the Recycle Bin, what the deletion of {dn} lost is written back from \
+the change log: its attributes, and its memberships of the groups that still exist."
+            ),
+            Msg::RestoredPasswordLost { dn } => {
+                format!("{dn}: its password is lost; give it a new one before using it.")
+            }
             Msg::NoChange => "No change.".into(),
             Msg::Remarks => "Remarks:".into(),
             Msg::SecretNotRestored { attribute } => {

@@ -348,7 +348,7 @@ impl Trial {
     }
 
     /// Removes `dn` and everything under it, leaves first, in one changeset; the protection
-    /// of OUs against deletion is removed first. Nothing if absent.
+    /// against deletion (OUs, accounts) is removed first. Nothing if absent.
     pub fn remove_tree(&self, dn: &str) -> Result<()> {
         if !self.exists(dn)? {
             return Ok(());
@@ -365,11 +365,9 @@ impl Trial {
         .collect();
         dns.sort_by_key(|d| std::cmp::Reverse(depth(d)));
         let names: Vec<&str> = dns.iter().map(String::as_str).collect();
-        for ou in self.descriptors(&names)? {
-            if ou.dn.to_uppercase().starts_with("OU=")
-                && actions::is_protected(&ou).map_err(debug)?
-            {
-                self.apply(&actions::unprotect_ou(&ou).map_err(debug)?)?;
+        for object in self.descriptors(&names)? {
+            if actions::is_protected(&object).map_err(debug)? {
+                self.apply(&actions::unprotect(&object).map_err(debug)?)?;
             }
         }
         self.apply(&actions::delete(&self.read(&names)?).map_err(debug)?)?;
@@ -598,9 +596,24 @@ pub fn showrepl(dc: &str) -> Result<String> {
     .to_owned())
 }
 
+/// As [`poste`], with a secret that the script reads as `'@MDP@'` (`--mdp --mdp-stdin`): the
+/// secret travels on the standard input of `poste.py`, first line, never in an argument.
+pub fn poste_secret(script: &str, secret: &str, options: &[&str]) -> Result<String> {
+    let mut all = vec!["--mdp", "--mdp-stdin"];
+    all.extend_from_slice(options);
+    poste_input(&format!("{secret}\n{script}"), &all, script)
+}
+
 /// PowerShell on a Windows machine of the lab by `labo/poste.py` (`options`: `--cible wdc`,
 /// `--domaine`, `--session`…), replayed when the guest agent answers too late.
 pub fn poste(script: &str, options: &[&str]) -> Result<String> {
+    poste_input(script, options, script)
+}
+
+/// `input` on the standard input of `poste.py`; `shown` is what an error repeats (never a
+/// secret).
+fn poste_input(input: &str, options: &[&str], shown: &str) -> Result<String> {
+    let script = input;
     let command = std::env::var("ANNUAIRE_LABO_POSTE")
         .unwrap_or_else(|_| "timeout 1800 python3 labo/poste.py".into());
     let mut last = String::new();
@@ -626,7 +639,7 @@ pub fn poste(script: &str, options: &[&str]) -> Result<String> {
             return Ok(String::from_utf8_lossy(&output.stdout).into_owned());
         }
         last = format!(
-            "{script}\n{}\n{stderr}",
+            "{shown}\n{}\n{stderr}",
             String::from_utf8_lossy(&output.stdout)
         );
         let agent = stderr.contains("qga") || stderr.contains("guest agent");

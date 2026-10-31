@@ -1,0 +1,17 @@
+# Objets supprimés (J9.1, ADR 0024), avec audit_ecrans.sh SORTIE tests/interface/essais-corbeille.txt,
+# sur LAB.TEST (sans corbeille). Préparation et constat par l'essai labo recycle_interface
+# (ANNUAIRE_LABO_CORBEILLE=preparer, puis verifier et nettoyer) : ui-user, ui-ou (avec ui-child)
+# et ui-pc supprimés dans OU=Essais-J91-UI, un groupe ui-pc à la place de ce dernier.
+# Étapes : en-tête de `deleted_trial` (rust/annuaire-app/src/trial.rs), arguments séparés par §.
+# 1. La fenêtre, filtrée sur « ui- » (relevé AT-SPI de la liste).
+corbeille-liste|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;corbeille;;filtre§ui-|wait:20
+# 2. Le dialogue de restauration de ui-ou (relevé).
+corbeille-dialogue|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;corbeille;;restaurer§ui-§ui-ou|wait:20
+# 3. ui-pc sous son dernier parent : nom pris, nom libre proposé dans le champ (relevé).
+corbeille-conflit|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;corbeille;;restaurer§ui-§ui-pc;;dialogue§-§-§-;;message|wait:25
+# 4. Restaurations appliquées : ui-user, ui-ou avec ui-child, ui-pc sous le nom libre.
+corbeille-restaurer|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;corbeille;;restaurer§ui-§ui-user;;dialogue§-§-§-;;appliquer;;restaurer§ui-§ui-ou;;dialogue§-§-§1;;appliquer;;restaurer§ui-§ui-pc;;dialogue§-§ui-pc (2)§-;;appliquer;;filtre§ui-|wait:60
+# 5. ui-group supprimé par Calinda : l'historique propose « Restaurer depuis les objets supprimés » (relevé).
+corbeille-historique|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;supprimer§CN=ui-group,OU=Essais-J91-UI,OU=Labo,DC=lab,DC=test;;historique|wait:30
+# 6. Cette entrée annulée : ui-group restauré, sa description réécrite depuis le journal.
+corbeille-historique-annuler|env:ANNUAIRE_ESSAI_CORBEILLE=domaine§lab.test;;historique;;historique-annuler;;pause§3000|wait:30

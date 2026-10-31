@@ -1608,6 +1608,7 @@ mod tests {
             doubtful_rollback: None,
             resumes: None,
             resumed_by: None,
+            series: None,
         };
         assert_eq!(values_added(&report), HashSet::from([a]));
     }

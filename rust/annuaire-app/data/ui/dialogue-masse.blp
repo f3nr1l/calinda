@@ -1,0 +1,102 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueMasse: Adw.Dialog {
+  title: _("Change in Bulk");
+  content-width: 560;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ActionRow objects_row {
+          title: _("Objects");
+          subtitle-selectable: true;
+        }
+
+        Adw.SwitchRow members_switch {
+          visible: false;
+          title: _("The members of the selected group");
+          subtitle: _("Instead of the group itself.");
+        }
+
+        Adw.ComboRow change_combo {
+          use-subtitle: true;
+          title: _("Change");
+          notify::selected => $change_chosen();
+
+          model: StringList {
+            strings [
+              _("Set an attribute"),
+              _("Add values to an attribute"),
+              _("Remove values from an attribute"),
+              _("Clear an attribute"),
+              _("Add to a group"),
+              _("Remove from a group"),
+              _("Enable the accounts"),
+              _("Disable the accounts"),
+              _("Move"),
+              _("Account expiration"),
+              _("User must change password at next logon"),
+              _("Password change not required at next logon"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        Adw.EntryRow attribute_entry {
+          title: _("Attribute (LDAP name)");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow values_entry {
+          title: _("Values, separated by |");
+        }
+
+        Adw.EntryRow group_entry {
+          title: _("Group (distinguished name or logon name)");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow target_entry {
+          title: _("Destination container (distinguished name)");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow date_entry {
+          title: _("Expires at the end of (DD/MM/YYYY, empty: never)");
+          input-hints: no_spellcheck;
+        }
+      }
+    };
+  };
+}

@@ -475,6 +475,57 @@ pub fn share_problem(error: &srvsvc::Error, server: &str) -> Problem {
     }
 }
 
+/// Why the home folder cannot be created (ADR 0027): nothing is written.
+pub fn home_folder_message(error: &annuaire_core::home_folder::PlanError, domain: &str) -> String {
+    use annuaire_core::home_folder::{PlanError, Refusal};
+    match error {
+        PlanError::Failure(f) => failure_problem(f, domain).message,
+        PlanError::Server { server, error } => file_problem(error, server).message,
+        PlanError::Refused { unc, refusal } => {
+            let text = match refusal {
+                Refusal::ShareMissing => tr(
+                    "The share of the home folder “{p}” does not exist. Calinda does not create shares: create it on the server, or correct the path.",
+                ),
+                Refusal::ParentMissing { .. } => tr(
+                    "The folder that is to contain the home folder “{p}” does not exist on its share.",
+                ),
+                Refusal::NotAFolder => tr(
+                    "“{p}” is a file on the server, not a folder: the home folder cannot be created.",
+                ),
+            };
+            fill(&text, &[("p", unc)])
+        }
+    }
+}
+
+/// Why a changeset could not be prepared (sheet): nothing is written.
+pub fn prepare_message(error: &annuaire_core::writer::PrepareError, domain: &str) -> String {
+    use annuaire_core::writer::PrepareError;
+    match error {
+        PrepareError::Failure(f) => failure_problem(f, domain).message,
+        PrepareError::Missing(dn) => fill(&tr("“{dn}” does not exist."), &[("dn", dn)]),
+        PrepareError::Unsupported(text) => crate::codec_texts::codec_message(text),
+        PrepareError::HomeFolder(e) => home_folder_message(e, domain),
+        PrepareError::DuplicateSpn { spn, owners } => fill(
+            &tr(
+                "The service principal name “{spn}” is already used in the forest by {comptes}: two accounts with the same name break Kerberos for this service.",
+            ),
+            &[
+                ("spn", spn),
+                (
+                    "comptes",
+                    &owners
+                        .iter()
+                        .map(|o| annuaire_core::source::name_from_dn(o))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                ),
+            ],
+        ),
+        PrepareError::Protection(e) => crate::account_views::action_error(e),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -271,6 +271,7 @@ mod tests {
             doubtful_rollback: None,
             resumes: None,
             resumed_by: None,
+            series: None,
         }
     }
 

@@ -20,7 +20,8 @@ use gtk::{gdk, gio, glib};
 use super::Window;
 use crate::account_views as av;
 use crate::accounts::{
-    GroupDialog, MoveDialog, OuDialog, PasswordDialog, RenameDialog, UserDialog,
+    ComputerDialog, ContactDialog, GroupDialog, MoveDialog, OuDialog, PasswordDialog, RenameDialog,
+    UserDialog,
 };
 use crate::errors;
 use crate::i18n::tr;
@@ -29,11 +30,13 @@ use crate::views::RowView;
 use crate::writes::{self, Options};
 
 /// Actions that act on the selection of the table.
-const ON_SELECTION: [&str; 9] = [
+const ON_SELECTION: [&str; 11] = [
+    "modifier-en-masse",
     "activer",
     "desactiver",
     "deverrouiller",
     "mot-de-passe",
+    "reinitialiser-compte",
     "deplacer",
     "renommer",
     "supprimer",
@@ -41,7 +44,15 @@ const ON_SELECTION: [&str; 9] = [
     "deproteger",
 ];
 
-const CREATION: [&str; 3] = ["nouvel-utilisateur", "nouveau-groupe", "nouvelle-ou"];
+const CREATION: [&str; 7] = [
+    "nouvel-utilisateur",
+    "nouveau-groupe",
+    "nouvelle-ou",
+    "nouvel-ordinateur",
+    "nouveau-contact",
+    "importer",
+    "exporter",
+];
 
 /// What builds the changeset from the objects read.
 type Build = Box<dyn FnOnce(&Window, Vec<ReadObject>) -> Option<Result<Changeset, ActionError>>>;
@@ -50,10 +61,16 @@ impl Window {
     /// Once, at the construction of the window (`installer`).
     pub(super) fn setup_accounts(&self) {
         type Handler = fn(&Window);
-        let handlers: [(&str, Handler); 12] = [
+        let handlers: [(&str, Handler); 18] = [
+            ("importer", Window::import_csv),
+            ("exporter", Window::export_csv),
+            ("modifier-en-masse", Window::change_in_bulk),
             ("nouvel-utilisateur", Window::new_user),
             ("nouveau-groupe", Window::new_group),
             ("nouvelle-ou", Window::new_ou),
+            ("nouvel-ordinateur", Window::new_computer),
+            ("nouveau-contact", Window::new_contact),
+            ("reinitialiser-compte", Window::reset_computers),
             ("activer", |w| w.enable(true)),
             ("desactiver", |w| w.enable(false)),
             ("deverrouiller", Window::unlock),
@@ -127,7 +144,8 @@ impl Window {
             "activer" | "desactiver" => accounts,
             "deverrouiller" => !kinds.is_empty() && kinds.iter().all(|k| k == Kind::User.name()),
             "mot-de-passe" => rows.len() == 1 && accounts,
-            "deplacer" | "supprimer" => !rows.is_empty(),
+            "reinitialiser-compte" => av::computers_only(&kinds),
+            "deplacer" | "supprimer" | "modifier-en-masse" => !rows.is_empty(),
             "renommer" => rows.len() == 1,
             "proteger" | "deproteger" => av::can_protect(&kinds),
             _ => false,
@@ -303,6 +321,51 @@ impl Window {
         writes::show_error(self, &tr("Nothing to do"), text, "");
     }
 
+    // --- Import, export, changes in bulk (J9.8, J9.9) -----------------------------------------
+
+    /// The DNs of every row of the table, in its order.
+    pub(crate) fn table_dns(&self) -> Vec<String> {
+        let store = &self.imp().content_store;
+        (0..store.n_items())
+            .filter_map(|i| store.item(i).and_downcast::<Row>())
+            .map(|r| r.view().dn.clone())
+            .collect()
+    }
+
+    /// Every row of the table selected (trials).
+    pub(crate) fn trial_select_all(&self) {
+        self.imp().selection.select_all();
+    }
+
+    pub(crate) fn trial_selected_dns(&self) -> Vec<String> {
+        self.selected_dns()
+    }
+
+    fn import_csv(&self) {
+        if let Some(parent) = self.container() {
+            crate::bulk::ImportDialog::new(&parent).present(Some(self));
+        }
+    }
+
+    fn export_csv(&self) {
+        let all = self.table_dns();
+        if all.is_empty() {
+            self.nothing_to_do(&tr("The list is empty."));
+            return;
+        }
+        crate::bulk::ExportDialog::new(all, self.selected_dns()).present(Some(self));
+    }
+
+    fn change_in_bulk(&self) {
+        let rows = self.selected_rows();
+        let group = match rows.as_slice() {
+            [one] if one.kind == Kind::Group.name() => Some(one.dn.clone()),
+            _ => None,
+        };
+        let dns = rows.into_iter().map(|r| r.dn).collect();
+        crate::bulk::ChangeDialog::new(dns, group).present(Some(self));
+    }
+
     // --- Creation ------------------------------------------------------------------------------
 
     fn new_user(&self) {
@@ -329,6 +392,91 @@ impl Window {
             }
         });
         OuDialog::new(&parent, protect).present(Some(self));
+    }
+
+    fn new_computer(&self) {
+        let (Some(parent), Some(source)) = (self.container(), self.source()) else {
+            return;
+        };
+        let weak = self.downgrade();
+        let allow: crate::accounts::AllowJoin = Rc::new(move |dn: &str, sid| {
+            if let Some(window) = weak.upgrade() {
+                window.read_then(
+                    vec![dn.to_owned()],
+                    true,
+                    Box::new(move |_, objects| {
+                        objects
+                            .first()
+                            .map(|o| annuaire_core::computers::allow_join(o, &sid))
+                    }),
+                );
+            }
+        });
+        ComputerDialog::new(&parent, source, allow).present(Some(self));
+    }
+
+    fn new_contact(&self) {
+        if let Some(parent) = self.container() {
+            ContactDialog::new(&parent).present(Some(self));
+        }
+    }
+
+    /// « Reset Account » of ADUC: the default password of each computer chosen, in one
+    /// changeset; a random one when the DC would refuse it (its policy), said by the preview.
+    fn reset_computers(&self) {
+        let Some(context) = self.write_context() else {
+            return;
+        };
+        let dns = self.selected_dns();
+        let (connection, weak) = (context.connection.clone(), self.downgrade());
+        glib::spawn_future_local(async move {
+            let rule =
+                gio::spawn_blocking(move || annuaire_core::computers::read_rule(&connection)).await;
+            let Some(window) = weak.upgrade() else { return };
+            let rule = match rule {
+                Ok(Ok(rule)) => rule,
+                Ok(Err(failure)) => {
+                    let problem = errors::failure_problem(&failure, &context.profile.domain);
+                    writes::show_error(
+                        &window,
+                        &tr("Action not possible"),
+                        &problem.message,
+                        &problem.detail,
+                    );
+                    return;
+                }
+                Err(_) => return,
+            };
+            window.read_then(
+                dns,
+                false,
+                Box::new(move |_, objects| {
+                    let mut operations = Vec::new();
+                    let mut random = false;
+                    for object in &objects {
+                        match annuaire_core::computers::reset_computer(object, &rule) {
+                            Ok((c, default)) => {
+                                random |= !default;
+                                operations.extend(c.operations);
+                            }
+                            Err(e) => return Some(Err(e)),
+                        }
+                    }
+                    let mut remarks = vec![tr(
+                        "Each computer loses its secure channel with the domain until it is joined again.",
+                    )];
+                    if random {
+                        remarks.push(tr(
+                            "The domain controller would refuse the default password (the name in lower case): its password policy applies to computer accounts. A random password is set instead; the computer must be joined again with an account allowed to join it.",
+                        ));
+                    }
+                    Some(Ok(Changeset {
+                        operations,
+                        remarks,
+                    }))
+                }),
+            );
+        });
     }
 
     // --- States --------------------------------------------------------------------------------
@@ -472,7 +620,7 @@ impl Window {
                         "The OU or its parent cannot be found.",
                     ))));
                 };
-                let built = actions::protect_ou(ou, parent);
+                let built = actions::protect(ou, parent);
                 if built.as_ref().is_ok_and(|c| c.operations.is_empty()) {
                     window.nothing_to_do(&tr("The OU is already protected."));
                     return None;
@@ -489,7 +637,7 @@ impl Window {
             true,
             Box::new(|window, objects| {
                 let ou = objects.first()?;
-                let built = actions::unprotect_ou(ou);
+                let built = actions::unprotect(ou);
                 if built.as_ref().is_ok_and(|c| c.operations.is_empty()) {
                     window.nothing_to_do(&tr("The OU is not protected."));
                     return None;

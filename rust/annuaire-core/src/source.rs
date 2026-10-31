@@ -668,6 +668,11 @@ impl DirectSource {
 
     /// The connection that reads `dn`: the one of the DC of the writes if the object was
     /// written there and the DC of reading did not show it up to date yet (`_pour`).
+    /// The connection that reads `dn`: the one of the writes for an object just written.
+    pub fn reader(&self, dn: &str) -> Arc<Connection> {
+        self.connection_for(dn)
+    }
+
     fn connection_for(&self, dn: &str) -> Arc<Connection> {
         let mut written = self.written.lock().unwrap_or_else(PoisonError::into_inner);
         written.purge();

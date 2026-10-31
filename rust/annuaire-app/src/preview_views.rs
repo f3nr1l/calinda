@@ -65,6 +65,7 @@ pub fn action(op: &Operation) -> String {
         Operation::Add { .. } => tr("Creation"),
         Operation::Modify { .. } => tr("Modification"),
         Operation::Delete { .. } => tr("Deletion"),
+        Operation::Restore { .. } => tr("Restoration"),
         Operation::Rename { parent: None, .. } => tr("Rename"),
         Operation::Rename { dn, rdn, .. } if same_rdn(dn, rdn) => tr("Move"),
         Operation::Rename { .. } => tr("Rename and move"),
@@ -77,6 +78,8 @@ pub fn action(op: &Operation) -> String {
             ..
         } => tr("Propagation of inheritance"),
         Operation::PropagateInheritance { .. } => tr("Permissions saved before a propagation"),
+        Operation::CreateShareFolder { .. } => tr("Folder creation"),
+        Operation::DeleteShareFolder { .. } => tr("Folder deletion"),
     }
 }
 
@@ -377,6 +380,28 @@ fn share_details(op: &Operation, names: &Names) -> Vec<Detail> {
             lines.push((tr("backup"), String::new(), file));
             lines
         }
+        // A home folder (ADR 0027): its explicit entries, then those it inherits, kept.
+        Operation::CreateShareFolder { descriptor, .. } => {
+            let sentence = |a: &Ace| shv::file_ace_sentence(a, true, Some(names));
+            let mut lines = vec![(tr("folder"), String::new(), tr("(created)"))];
+            lines.extend(ace_diff(
+                &tr("permissions"),
+                None,
+                Some(descriptor),
+                &sentence,
+            ));
+            lines.push((
+                tr("inheritance"),
+                String::new(),
+                tr("entries inherited from the parent folder kept"),
+            ));
+            lines
+        }
+        Operation::DeleteShareFolder { .. } => vec![(
+            tr("folder"),
+            String::new(),
+            tr("deleted only if it is empty"),
+        )],
         _ => Vec::new(),
     }
 }
@@ -596,6 +621,9 @@ fn details(op: &Operation, names: &Names) -> Vec<Detail> {
             lines
         }
         Operation::Delete { dn, .. } => vec![(tr("object"), dn.clone(), tr("(deleted)"))],
+        Operation::Restore { dn, deleted, .. } => {
+            vec![(tr("object"), deleted.clone(), dn.clone())]
+        }
         share if share.is_file_share() => share_details(share, names),
         _ => sysvol_details(op, names),
     }
@@ -613,6 +641,7 @@ fn descriptors(op: &Operation) -> Vec<&[u8]> {
         } => vec![d],
         Operation::SetDescriptor { before, after, .. }
         | Operation::SetFileDescriptor { before, after, .. } => vec![before, after],
+        Operation::CreateShareFolder { descriptor, .. } => vec![descriptor],
         Operation::AddShare { share, .. } | Operation::DeleteShare { share, .. } => {
             share.descriptor.as_deref().into_iter().collect()
         }
@@ -710,7 +739,8 @@ fn read_of(op: &Operation) -> Option<bool> {
     match op {
         Operation::Modify { read, .. }
         | Operation::Rename { read, .. }
-        | Operation::Delete { read, .. } => Some(read.is_some()),
+        | Operation::Delete { read, .. }
+        | Operation::Restore { read, .. } => Some(read.is_some()),
         _ => None,
     }
 }
@@ -724,7 +754,7 @@ pub fn warnings(changeset: &Changeset) -> Vec<String> {
         .any(|o| matches!(o, Operation::Delete { .. }))
     {
         texts.push(tr(
-            "A deletion cannot be undone exactly: undoing recreates a new object (new objectGUID and objectSid, password and permissions not restored).",
+            "Undoing a deletion restores the object from the deleted objects while it is there (same objectGUID and objectSid); otherwise it recreates a new object (new objectGUID and objectSid, password and permissions not restored).",
         ));
     }
     if changeset
@@ -761,8 +791,12 @@ fn sysvol_title(op: &Operation) -> String {
         format!("SYSVOL\\{}", op.path().unwrap_or_default())
     };
     let template = match op {
-        Operation::CreateFolder { .. } => tr("creation of folder {c}"),
-        Operation::DeleteFolder { .. } => tr("deletion of folder {c}"),
+        Operation::CreateFolder { .. } | Operation::CreateShareFolder { .. } => {
+            tr("creation of folder {c}")
+        }
+        Operation::DeleteFolder { .. } | Operation::DeleteShareFolder { .. } => {
+            tr("deletion of folder {c}")
+        }
         Operation::WriteFile { .. } => tr("writing of file {c}"),
         Operation::DeleteFile { .. } => tr("deletion of file {c}"),
         Operation::AddShare { .. } => tr("creation of share {c}"),
@@ -790,6 +824,7 @@ fn title(op: &Operation) -> String {
             &[("dn", dn), ("nouveau", &op.dn_after().unwrap_or_default())],
         ),
         Operation::Delete { dn, .. } => fill(&tr("deletion of {dn}"), &[("dn", dn)]),
+        Operation::Restore { dn, .. } => fill(&tr("restoration of {dn}"), &[("dn", dn)]),
         _ => sysvol_title(op),
     }
 }

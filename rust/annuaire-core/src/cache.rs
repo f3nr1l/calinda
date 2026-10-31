@@ -123,6 +123,9 @@ pub trait Source: Send + Sync + std::fmt::Debug {
     fn nomenclature(&self) -> Result<Arc<Nomenclature>, SchemaError>;
     /// The descriptor of an object and what explains it (blocking): always on the DC.
     fn security(&self, dn: &str) -> Result<Option<SecurityReading>, Failure>;
+    /// The connection that reads `dn` on the DC (the one of the writes if it was just
+    /// written): the account tabs read through it (J9.3).
+    fn reader(&self, dn: &str) -> Arc<Connection>;
     /// DNS zones of the three places (J3.3), read on the DC (blocking).
     fn dns_zones(&self) -> Result<Vec<Zone>, Failure>;
     /// Names of a zone (`dnsNode`) with their records, read on the DC, never in the local
@@ -193,6 +196,9 @@ impl Source for DirectSource {
     }
     fn security(&self, dn: &str) -> Result<Option<SecurityReading>, Failure> {
         DirectSource::security(self, dn)
+    }
+    fn reader(&self, dn: &str) -> Arc<Connection> {
+        DirectSource::reader(self, dn)
     }
     fn dns_zones(&self) -> Result<Vec<Zone>, Failure> {
         DirectSource::dns_zones(self)
@@ -609,6 +615,10 @@ impl Source for CacheSource {
     /// computed on the copy (`liens`), as in `cache.py`.
     fn record(&self, dn: &str, extra: &[&str]) -> Result<Option<Record>, Failure> {
         self.direct.record(dn, extra)
+    }
+
+    fn reader(&self, dn: &str) -> Arc<Connection> {
+        self.direct.reader(dn)
     }
 
     fn activity(&self, dn: &str, cancelled: &Cancelled) -> Result<Survey, SurveyError> {

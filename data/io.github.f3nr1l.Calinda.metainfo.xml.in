@@ -23,6 +23,27 @@
   <!-- translate="no" : notes de version et nom du développeur hors catalogue. Notes en
        anglais, la langue source depuis la bascule (1.1.0). -->
   <releases>
+    <release version="1.5.0" date="2026-10-30">
+      <description translate="no">
+        <p>Reading the encrypted LAPS password.</p>
+        <ul>
+          <li>The “LAPS” tab now reads an encrypted local administrator password (msLAPS-EncryptedPassword), not only the clear one: Calinda asks the domain controller for the group key (MS-GKDI over authenticated, sealed DCE/RPC) and decrypts the DPAPI-NG blob (DH or ECDH key agreement, AES), with the same safeguards as the clear password. It stays reported as “encrypted” only when the account is not allowed to decrypt it.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.4.0" date="2026-10-29">
+      <description translate="no">
+        <p>Deleted objects, computers and contacts, LAPS and BitLocker, CSV import and bulk changes.</p>
+        <ul>
+          <li>A “Deleted Objects” window (Shift+Ctrl+Delete) lists the deleted objects of the domain and restores them with the same GUID and SID; undoing a deletion now restores the object while it is there.</li>
+          <li>New computer and new contact as in the console; “Reset Account…” for computers.</li>
+          <li>Account properties: logon hours, computers the user may log on to, a “Delegation” tab, resource-based delegation, protection from accidental deletion, home folder created on the server as in the console.</li>
+          <li>“LAPS” tab: the local administrator password kept by Windows LAPS or the legacy LAPS, shown on request, with “Expire Now…”. “BitLocker” tab and a search by recovery key identifier.</li>
+          <li>CSV import of users, groups, contacts and computers, bulk changes on a selection or the members of a group, written in batches that can be stopped, resumed or undone; CSV export of the list.</li>
+          <li>Fixed: on Windows domain controllers, adding to a group an account created by the same change was refused.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.3.2" date="2026-10-24">
       <description translate="no">
         <p>Bug fix.</p>

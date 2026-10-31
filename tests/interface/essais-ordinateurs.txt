@@ -1,0 +1,14 @@
+# Ordinateurs, contacts et LAPS (J9.2, J9.4 ; ADR 0024 et 0025), avec
+# ANNUAIRE_AUDIT_DOMAINE=win.test audit_ecrans.sh SORTIE tests/interface/essais-ordinateurs.txt.
+# Le poste du labo doit avoir un mot de passe LAPS sur WIN.TEST (labo/README.md, « LAPS ») ; le
+# relevé ne voit que le masque, le mot de passe n'est montré que sur demande.
+# 1. Dialogue « Nouvel ordinateur » (relevé, fermé sans écrire).
+ordinateur-dialogue|dom|win:nouvel-ordinateur|wait:4
+# 2. Dialogue « Nouveau contact » (relevé, fermé sans écrire).
+contact-dialogue|dom|win:nouveau-contact|wait:4
+# 3. Onglet « LAPS » du poste : compte géré, mot de passe masqué, dates, « Expirer maintenant… ».
+laps-onglet|env:ANNUAIRE_ESSAI_FICHE=CN=ANNUAIRE-POSTE1,OU=LAPS-Essai,OU=Labo,DC=win,DC=test|env:ANNUAIRE_ESSAI_ONGLET=laps|dom|wait:10
+# 4. Onglet « BitLocker » du poste : identifiant, date, mot de passe de récupération masqué (J9.5).
+bitlocker-onglet|env:ANNUAIRE_ESSAI_FICHE=CN=ANNUAIRE-POSTE1,OU=LAPS-Essai,OU=Labo,DC=win,DC=test|env:ANNUAIRE_ESSAI_ONGLET=bitlocker|dom|wait:10
+# 5. Dialogue « Rechercher un mot de passe de récupération BitLocker » (relevé, vide).
+bitlocker-recherche|dom|win:bitlocker|wait:4

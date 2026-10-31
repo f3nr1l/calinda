@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueExport: Adw.Dialog {
+  title: _("Export to CSV");
+  content-width: 560;
+  default-widget: export_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button export_button {
+        label: _("Export…");
+        clicked => $export();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.ActionRow objects_row {
+          title: _("Objects");
+          subtitle-selectable: true;
+        }
+
+        Adw.SwitchRow selection_switch {
+          title: _("Only the selected objects");
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Columns");
+        description: _("LDAP names of the attributes, separated by commas; “dn” is the distinguished name. The header of the file repeats them, so that the import reads it back.");
+
+        Adw.EntryRow columns_entry {
+          title: _("Attributes");
+          input-hints: no_spellcheck;
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Format");
+
+        Adw.ComboRow separator_combo {
+          use-subtitle: true;
+          title: _("Field separator");
+
+          model: StringList {
+            strings [
+              _("Semicolon"),
+              _("Comma"),
+              _("Tab"),
+            ]
+          };
+        }
+
+        Adw.EntryRow values_entry {
+          title: _("Separator of the values of a multivalued attribute");
+          text: "|";
+        }
+
+        Adw.SwitchRow readable_switch {
+          title: _("Readable values");
+          subtitle: _("Dates in local time, SID and GUID as text, security descriptors in SDDL. Unchecked: the values as stored.");
+          active: true;
+        }
+
+        Adw.SwitchRow bom_switch {
+          title: _("UTF-8 with byte order mark");
+          subtitle: _("Excel needs it to read the accents.");
+          active: true;
+        }
+      }
+    };
+  };
+}

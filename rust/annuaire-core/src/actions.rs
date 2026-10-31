@@ -11,9 +11,10 @@
 //!
 //! Choices checked on the lab (Samba 4.22): a user is created in **one** add request with
 //! `unicodePwd`, `pwdLastSet=0` and `userAccountControl=512`; the reset of a password is a
-//! « replace » of `unicodePwd`; the protection of an OU against accidental deletion is the
-//! one of the Windows console: deny « delete » and « delete subtree » to Everyone on the OU,
-//! **and** deny « delete children » on its parent.
+//! « replace » of `unicodePwd`; the protection of an object against accidental deletion is the
+//! one of the Windows console (ADUC and ADAC, for an OU as for an account, J9.3): deny
+//! « delete » and « delete subtree » to Everyone on the object, **and** deny « delete
+//! children » on its parent.
 
 use annuaire_codecs::sd::{self, Ace, Acl, SecurityDescriptor};
 use annuaire_codecs::uac::{GroupType, Scope as GroupScope, UserAccountControl};
@@ -39,7 +40,7 @@ pub const STATE_ATTRIBUTES: [&str; 8] = [
 ];
 pub const SD: &str = "nTSecurityDescriptor";
 
-/// Deny « delete children » to Everyone, set on the parent of a protected OU.
+/// Deny « delete children » to Everyone, set on the parent of a protected object.
 pub fn parent_ace() -> Ace {
     Ace::simple(sd::ACCESS_DENIED, 0x0000_0002, &sd::everyone(), 0).unwrap_or(Ace {
         ace_type: sd::ACCESS_DENIED,
@@ -88,6 +89,9 @@ pub enum ActionError {
     NoTemplate,
     /// An inherited permission is removed on the object it comes from.
     InheritedRemoval,
+    /// The DC would refuse the default password of this computer (its password policy):
+    /// « pre-Windows 2000 » not possible (J9.2).
+    DefaultPasswordRefused(String),
     Change(String),
 }
 
@@ -204,6 +208,10 @@ pub struct NewUser {
     pub password: Option<String>,
     pub change_at_next_logon: bool,
     pub enable: bool,
+    /// The « Profile » tab of ADUC (ADR 0027): `%username%` replaced by the identifier.
+    pub profile_path: String,
+    pub home_drive: String,
+    pub home_directory: String,
 }
 
 /// A user account, in one creation (atomic). Without a password, the account stays disabled.
@@ -229,10 +237,15 @@ pub fn create_user(parent: &str, user: &NewUser) -> Result<Changeset, ActionErro
         ("sAMAccountName".into(), vec![bytes(identifier)]),
         ("displayName".into(), vec![bytes(user.full_name.trim())]),
     ];
+    let expanded = |v: &str| crate::home_folder::expand_username(v.trim(), identifier);
+    let (profile, directory) = (expanded(&user.profile_path), expanded(&user.home_directory));
     for (name, value) in [
         ("userPrincipalName", &user.upn),
         ("givenName", &user.given_name),
         ("sn", &user.surname),
+        ("profilePath", &profile),
+        ("homeDrive", &user.home_drive),
+        ("homeDirectory", &directory),
     ] {
         if !value.trim().is_empty() {
             attributes.push((name.into(), vec![bytes(value.trim())]));
@@ -287,7 +300,7 @@ pub fn create_group(
     })
 }
 
-/// An OU. Its protection is set afterwards (`protect_ou`): the descriptor the DC gave it must
+/// An OU. Its protection is set afterwards (`protect`): the descriptor the DC gave it must
 /// be read (`creer_ou`).
 pub fn create_ou(parent: &str, name: &str, description: &str) -> Result<Changeset, ActionError> {
     let mut attributes: AttributeMap = vec![(
@@ -350,14 +363,15 @@ pub fn is_protected(object: &ReadObject) -> Result<bool, ActionError> {
     Ok(descriptor(object)?.1.is_protected())
 }
 
-/// Deny of deletion on the OU, deny of deleting its children on the parent (`proteger_ou`).
-pub fn protect_ou(ou: &ReadObject, parent: &ReadObject) -> Result<Changeset, ActionError> {
+/// Deny of deletion on the object (an OU, an account…), deny of deleting its children on the
+/// parent (`proteger_ou`).
+pub fn protect(object: &ReadObject, parent: &ReadObject) -> Result<Changeset, ActionError> {
     let mut operations = Vec::new();
-    let protected = descriptor(ou)?
+    let protected = descriptor(object)?
         .1
         .protect()
         .map_err(|e| ActionError::Change(e.to_string()))?;
-    operations.extend(change_sd(ou, &protected)?);
+    operations.extend(change_sd(object, &protected)?);
     let (_, parent_sd) = descriptor(parent)?;
     if !parent_protected(&parent_sd)
         && let Some(dacl) = &parent_sd.dacl
@@ -379,12 +393,12 @@ pub fn protect_ou(ou: &ReadObject, parent: &ReadObject) -> Result<Changeset, Act
     })
 }
 
-/// Removes the deny set on the OU. The one of the parent stays, as under Windows
+/// Removes the deny set on the object. The one of the parent stays, as under Windows
 /// (`deproteger_ou`).
-pub fn unprotect_ou(ou: &ReadObject) -> Result<Changeset, ActionError> {
-    let new = descriptor(ou)?.1.unprotect();
+pub fn unprotect(object: &ReadObject) -> Result<Changeset, ActionError> {
+    let new = descriptor(object)?.1.unprotect();
     Ok(Changeset {
-        operations: change_sd(ou, &new)?.into_iter().collect(),
+        operations: change_sd(object, &new)?.into_iter().collect(),
         remarks: Vec::new(),
     })
 }
@@ -693,6 +707,51 @@ mod tests {
         assert_eq!(
             create_user("OU=X,DC=lab,DC=test", &active),
             Err(ActionError::ActiveWithoutPassword)
+        );
+    }
+
+    #[test]
+    fn user_created_with_its_profile() {
+        let user = NewUser {
+            full_name: "Alice Martin".into(),
+            identifier: "a.martin".into(),
+            profile_path: "\\\\srv\\Profils\\%USERNAME%".into(),
+            home_drive: "H:".into(),
+            home_directory: " \\\\srv\\Home\\%username% ".into(),
+            ..NewUser::default()
+        };
+        let changeset = create_user("OU=X,DC=lab,DC=test", &user).unwrap();
+        let Some(Operation::Add { attributes, .. }) = changeset.operations.first() else {
+            panic!("one creation expected");
+        };
+        for (name, value) in [
+            ("profilePath", "\\\\srv\\Profils\\a.martin"),
+            ("homeDrive", "H:"),
+            ("homeDirectory", "\\\\srv\\Home\\a.martin"),
+        ] {
+            assert!(
+                attributes.contains(&(name.into(), vec![bytes(value)])),
+                "{name}"
+            );
+        }
+        // Empty fields write nothing.
+        let plain = create_user(
+            "OU=X,DC=lab,DC=test",
+            &NewUser {
+                profile_path: String::new(),
+                home_drive: String::new(),
+                home_directory: String::new(),
+                ..user
+            },
+        )
+        .unwrap();
+        let Some(Operation::Add { attributes, .. }) = plain.operations.first() else {
+            panic!("one creation expected");
+        };
+        assert!(
+            !attributes
+                .iter()
+                .any(|(a, _)| a.starts_with("home") || a == "profilePath")
         );
     }
 

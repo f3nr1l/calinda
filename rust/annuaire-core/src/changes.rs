@@ -29,7 +29,7 @@ pub const JOURNAL_VERSION: i64 = 1;
 pub const MASKED_VALUE: &str = "<masqué>";
 
 /// Secrets: values never shown nor journaled, so never restored by an inverse.
-pub const SENSITIVE: [&str; 21] = [
+pub const SENSITIVE: [&str; 22] = [
     "unicodepwd",
     "userpassword",
     "cleartextpassword",
@@ -49,6 +49,7 @@ pub const SENSITIVE: [&str; 21] = [
     "mslaps-encryptedpassword",
     "mslaps-encryptedpasswordhistory",
     "mslaps-encrypteddsrmpassword",
+    "mslaps-encrypteddsrmpasswordhistory",
     "msfve-recoverypassword",
     "msfve-keypackage",
 ];
@@ -266,8 +267,8 @@ pub struct ShareSpec {
     pub registry: Option<Vec<(String, String)>>,
 }
 
-/// An operation of a changeset: four on LDAP, five on the SYSVOL (ADR 0012), four on the
-/// shares of a file server (ADR 0023).
+/// An operation of a changeset: five on LDAP, five on the SYSVOL (ADR 0012), seven on the
+/// shares of a file server (ADR 0023, ADR 0027).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operation {
     Add {
@@ -289,6 +290,15 @@ pub enum Operation {
         dn: String,
         read: Option<Read>,
         guards: Vec<String>,
+    },
+    /// A deleted object brought back (ADR 0024): `deleted` is its DN under `Deleted Objects`
+    /// as read, `guid` its `objectGUID`, `dn` the DN it gets back; `read` its version under
+    /// `Deleted Objects`.
+    Restore {
+        dn: String,
+        deleted: String,
+        guid: Guid,
+        read: Option<Read>,
     },
     CreateFolder {
         dn: String,
@@ -361,6 +371,31 @@ pub enum Operation {
         backup: String,
         direction: Direction,
         count: usize,
+    },
+    /// A folder created on a share (the home folder of an account, ADR 0027): `descriptor`
+    /// holds the explicit ACEs it receives; the entries inherited from its parent are those
+    /// the server gives it at its creation, kept. `account`: who the ACEs are for, as the
+    /// preview names it. `account_dn`: an account created by the same changeset, whose SID is
+    /// not known before the write; `descriptor` is then empty, and made at the write from the
+    /// SID read on the DC.
+    CreateShareFolder {
+        unc: String,
+        server: String,
+        share: String,
+        path: String,
+        descriptor: Vec<u8>,
+        account: String,
+        account_dn: Option<String>,
+    },
+    /// The inverse: the folder deleted, if it is empty.
+    DeleteShareFolder {
+        unc: String,
+        server: String,
+        share: String,
+        path: String,
+        descriptor: Vec<u8>,
+        account: String,
+        account_dn: Option<String>,
     },
 }
 
@@ -464,6 +499,46 @@ impl Operation {
         }
     }
 
+    /// The folder `path` of `\\server\share` created with the explicit ACEs of `descriptor`
+    /// (ADR 0027).
+    pub fn create_share_folder(
+        server: &str,
+        share: &str,
+        path: &str,
+        descriptor: Vec<u8>,
+        account: &str,
+    ) -> Self {
+        Self::CreateShareFolder {
+            unc: unc(server, share, path),
+            server: server.into(),
+            share: share.into(),
+            path: path.into(),
+            descriptor,
+            account: account.into(),
+            account_dn: None,
+        }
+    }
+
+    /// The home folder of the account `account_dn` created by the same changeset: its
+    /// explicit ACEs are made at the write, once the DC has given the account its SID.
+    pub fn create_share_folder_for(
+        server: &str,
+        share: &str,
+        path: &str,
+        account_dn: &str,
+        account: &str,
+    ) -> Self {
+        Self::CreateShareFolder {
+            unc: unc(server, share, path),
+            server: server.into(),
+            share: share.into(),
+            path: path.into(),
+            descriptor: Vec::new(),
+            account: account.into(),
+            account_dn: Some(account_dn.into()),
+        }
+    }
+
     /// An operation on a file server, not on the domain (ADR 0023).
     pub fn is_file_share(&self) -> bool {
         matches!(
@@ -473,6 +548,8 @@ impl Operation {
                 | Self::DeleteShare { .. }
                 | Self::SetFileDescriptor { .. }
                 | Self::PropagateInheritance { .. }
+                | Self::CreateShareFolder { .. }
+                | Self::DeleteShareFolder { .. }
         )
     }
 
@@ -488,7 +565,9 @@ impl Operation {
             | Self::ChangeShare { server, .. }
             | Self::DeleteShare { server, .. }
             | Self::SetFileDescriptor { server, .. }
-            | Self::PropagateInheritance { server, .. } => Some(server),
+            | Self::PropagateInheritance { server, .. }
+            | Self::CreateShareFolder { server, .. }
+            | Self::DeleteShareFolder { server, .. } => Some(server),
             _ => None,
         }
     }
@@ -557,12 +636,30 @@ impl Operation {
         })
     }
 
+    /// A deleted object brought back under `dn` (ADR 0024).
+    pub fn restore(
+        deleted: &str,
+        guid: Guid,
+        dn: &str,
+        read: Option<Read>,
+    ) -> Result<Self, ChangeError> {
+        check_dn(dn)?;
+        check_dn(deleted)?;
+        Ok(Self::Restore {
+            dn: dn.into(),
+            deleted: deleted.into(),
+            guid,
+            read,
+        })
+    }
+
     pub fn dn(&self) -> &str {
         match self {
             Self::Add { dn, .. }
             | Self::Modify { dn, .. }
             | Self::Rename { dn, .. }
             | Self::Delete { dn, .. }
+            | Self::Restore { dn, .. }
             | Self::CreateFolder { dn, .. }
             | Self::DeleteFolder { dn, .. }
             | Self::WriteFile { dn, .. }
@@ -573,7 +670,9 @@ impl Operation {
             | Self::ChangeShare { unc, .. }
             | Self::DeleteShare { unc, .. }
             | Self::SetFileDescriptor { unc, .. }
-            | Self::PropagateInheritance { unc, .. } => unc,
+            | Self::PropagateInheritance { unc, .. }
+            | Self::CreateShareFolder { unc, .. }
+            | Self::DeleteShareFolder { unc, .. } => unc,
         }
     }
 
@@ -621,19 +720,22 @@ impl Operation {
         }
     }
 
-    fn read(&self) -> Option<&Read> {
+    pub fn read(&self) -> Option<&Read> {
         match self {
-            Self::Modify { read, .. } | Self::Rename { read, .. } | Self::Delete { read, .. } => {
-                read.as_ref()
-            }
+            Self::Modify { read, .. }
+            | Self::Rename { read, .. }
+            | Self::Delete { read, .. }
+            | Self::Restore { read, .. } => read.as_ref(),
             _ => None,
         }
     }
 
-    fn with_read(&self, new: Option<Read>) -> Self {
+    pub fn with_read(&self, new: Option<Read>) -> Self {
         let mut op = self.clone();
-        if let Self::Modify { read, .. } | Self::Rename { read, .. } | Self::Delete { read, .. } =
-            &mut op
+        if let Self::Modify { read, .. }
+        | Self::Rename { read, .. }
+        | Self::Delete { read, .. }
+        | Self::Restore { read, .. } = &mut op
         {
             *read = new;
         }
@@ -750,8 +852,15 @@ pub fn show_value(
             return Ok(text);
         }
     }
-    if lower == "ntsecuritydescriptor" {
+    if lower == "ntsecuritydescriptor" || lower == "msds-allowedtoactonbehalfofotheridentity" {
         return descriptor_text(value, catalog);
+    }
+    if lower == "logonhours"
+        && let Ok(hours) = annuaire_codecs::logon_hours::LogonHours::decode(value)
+    {
+        return Ok(catalog.text(&Msg::LogonHours {
+            allowed: hours.allowed(),
+        }));
     }
     if lower == "objectsid" {
         if let Ok(sid) = Sid::decode(value) {
@@ -1061,6 +1170,24 @@ fn share_lines(
                 ),
             }
         }
+        Operation::CreateShareFolder {
+            descriptor,
+            account,
+            ..
+        } => (catalog.text(&Msg::CreateFolder { path: target }), {
+            let mut lines = vec![catalog.text(&Msg::HomeFolderControl {
+                account: account.clone(),
+            })];
+            if !descriptor.is_empty() {
+                lines.push(descriptor_text(descriptor, catalog)?);
+            }
+            lines.push(catalog.text(&Msg::FolderInheritanceKept));
+            lines
+        }),
+        Operation::DeleteShareFolder { .. } => (
+            catalog.text(&Msg::DeleteFolder { path: target }),
+            vec![catalog.text(&Msg::FolderDeletedIfEmpty)],
+        ),
         _ => unreachable!("only operations on shares"),
     })
 }
@@ -1109,6 +1236,16 @@ fn operation_lines(
             }),
             no_check(),
         ),
+        Operation::Restore {
+            dn, deleted, guid, ..
+        } => {
+            let mut details = vec![catalog.text(&Msg::RestoredFrom {
+                deleted: deleted.clone(),
+                guid: guid.to_string(),
+            })];
+            details.extend(no_check());
+            (catalog.text(&Msg::Restore { dn: dn.clone() }), details)
+        }
         _ => {
             let mut details = vec![catalog.text(&Msg::DeleteIrreversible)];
             details.extend(no_check());
@@ -1220,6 +1357,51 @@ pub struct Report {
     pub doubtful_rollback: Option<Applied>,
     pub resumes: Option<String>,
     pub resumed_by: Option<String>,
+    /// The place of this application in a series of batches (import, changes in bulk: ADR
+    /// 0026), None for a changeset applied alone.
+    pub series: Option<Series>,
+}
+
+/// An application among the batches of one change in bulk (J9.8, J9.9, ADR 0026): each batch
+/// is a changeset of its own, « all or nothing » (ADR 0006); the series groups them, so that
+/// the history shows them as one change and one undo takes them all. Journaled `serie` in the
+/// intention and the report: `{"id", "rang", "total", "titre"}`, `rang` from 1.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Series {
+    pub id: String,
+    pub rank: usize,
+    pub total: usize,
+    /// What the change is, for the history (« Import of users.csv »).
+    pub title: String,
+}
+
+pub fn series_to_json(series: &Series) -> Value {
+    json!({
+        "id": series.id,
+        "rang": series.rank,
+        "total": series.total,
+        "titre": series.title,
+    })
+}
+
+/// Inverse of [`series_to_json`]; a damaged form reads as no series.
+pub fn series_from_json(value: Option<&Value>) -> Option<Series> {
+    let d = value?.as_object()?;
+    let number = |k: &str| {
+        d.get(k)
+            .and_then(Value::as_u64)
+            .and_then(|n| usize::try_from(n).ok())
+    };
+    Some(Series {
+        id: d.get("id")?.as_str()?.to_owned(),
+        rank: number("rang")?,
+        total: number("total")?,
+        title: d
+            .get("titre")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_owned(),
+    })
 }
 
 impl Report {
@@ -1381,6 +1563,40 @@ pub fn inverse_sysvol(op: &Operation) -> Operation {
             direction: direction.inverse(),
             count,
         },
+        Operation::CreateShareFolder {
+            unc,
+            server,
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+        } => Operation::DeleteShareFolder {
+            unc,
+            server,
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+        },
+        Operation::DeleteShareFolder {
+            unc,
+            server,
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+        } => Operation::CreateShareFolder {
+            unc,
+            server,
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+        },
         other => other,
     }
 }
@@ -1501,7 +1717,7 @@ fn inverse_one(
     remarks: &mut Vec<Msg>,
 ) -> Result<Vec<Operation>, ChangeError> {
     match op {
-        Operation::Add { dn, .. } => Ok(vec![Operation::Delete {
+        Operation::Add { dn, .. } | Operation::Restore { dn, .. } => Ok(vec![Operation::Delete {
             dn: dn.clone(),
             read: after,
             guards: Vec::new(),
@@ -1551,6 +1767,19 @@ fn inverse_one(
     }
 }
 
+/// A deleted object brought back instead of recreated, by the undo of its deletion
+/// (ADR 0024): the operations in place of the recreation, those that go at the end of the
+/// inverse (values that name other objects brought back by the same undo), the remarks.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct Revived {
+    pub now: Vec<Operation>,
+    pub later: Vec<Operation>,
+    pub remarks: Vec<Msg>,
+}
+
+/// What brings back a deleted object, given the deletion applied; None: it is recreated.
+pub type Revive<'a> = dyn Fn(&Applied) -> Option<Revived> + 'a;
+
 /// Inverse of applied operations (original index, operation), and for each inverse
 /// operation the index of the one it undoes. Every inverse operation on one object carries
 /// the last known version (`known`, otherwise the one left by the last operation).
@@ -1559,8 +1788,20 @@ pub fn invert(
     known: Option<&HashMap<String, Option<Read>>>,
     catalog: &dyn Catalog,
 ) -> Result<(Changeset, Vec<usize>), ChangeError> {
+    invert_reviving(applied, known, catalog, &|_| None)
+}
+
+/// `invert`, a deletion undone by `revive` when it can bring the object back.
+pub fn invert_reviving(
+    applied: &[(usize, &Applied)],
+    known: Option<&HashMap<String, Option<Read>>>,
+    catalog: &dyn Catalog,
+    revive: &Revive<'_>,
+) -> Result<(Changeset, Vec<usize>), ChangeError> {
     let mut operations = Vec::new();
     let mut origins = Vec::new();
+    let mut later = Vec::new();
+    let mut later_origins = Vec::new();
     let mut remarks: Vec<Msg> = Vec::new();
     let mut last: HashMap<String, Option<Read>> = known.cloned().unwrap_or_default();
     for &(index, a) in applied.iter().rev() {
@@ -1568,13 +1809,21 @@ pub fn invert(
         let inverses = if !op.is_ldap() {
             vec![inverse_sysvol(op)]
         } else if let Operation::Delete { dn, guards, .. } = op {
-            last.insert(dn_key(dn)?, None); // recreated: no version to check
-            recreate(
-                dn,
-                a.before.as_ref().unwrap_or(&Vec::new()),
-                guards,
-                &mut remarks,
-            )?
+            last.insert(dn_key(dn)?, None); // brought back or recreated: no version to check
+            match revive(a) {
+                Some(revived) => {
+                    remarks.extend(revived.remarks);
+                    later_origins.extend(std::iter::repeat_n(index, revived.later.len()));
+                    later.extend(revived.later);
+                    revived.now
+                }
+                None => recreate(
+                    dn,
+                    a.before.as_ref().unwrap_or(&Vec::new()),
+                    guards,
+                    &mut remarks,
+                )?,
+            }
         } else {
             let version = match last.get(&dn_key(&op.dn_after()?)?) {
                 Some(v) => v.clone(),
@@ -1586,6 +1835,8 @@ pub fn invert(
         origins.extend(std::iter::repeat_n(index, inverses.len()));
         operations.extend(inverses);
     }
+    operations.extend(later);
+    origins.extend(later_origins);
     let mut texts: Vec<String> = Vec::new();
     for remark in &remarks {
         let text = catalog.text(remark);
@@ -1609,6 +1860,16 @@ pub fn inverse(
     journal: &[Report],
     catalog: &dyn Catalog,
 ) -> Result<Changeset, ChangeError> {
+    inverse_reviving(report, journal, catalog, &|_| None)
+}
+
+/// `inverse`, the deletions undone by `revive` when it can bring the objects back.
+pub fn inverse_reviving(
+    report: &Report,
+    journal: &[Report],
+    catalog: &dyn Catalog,
+    revive: &Revive<'_>,
+) -> Result<Changeset, ChangeError> {
     let remaining: Vec<(usize, &Applied)> = report
         .remaining_indices()
         .into_iter()
@@ -1619,7 +1880,7 @@ pub fn inverse(
     for (key, version) in versions_returned(report, journal)? {
         known.insert(key, Some(version));
     }
-    Ok(invert(&remaining, Some(&known), catalog)?.0)
+    Ok(invert_reviving(&remaining, Some(&known), catalog, revive)?.0)
 }
 
 struct Follow {
@@ -2039,6 +2300,18 @@ pub fn operation_to_json(op: &Operation) -> Result<Value, ChangeError> {
                 );
             }
         }
+        Operation::Restore {
+            dn,
+            deleted,
+            guid,
+            read,
+        } => {
+            d.insert("type".into(), "restaurer".into());
+            d.insert("dn".into(), dn.clone().into());
+            d.insert("supprime".into(), deleted.clone().into());
+            d.insert("guid".into(), guid.to_string().into());
+            d.insert("lecture".into(), read_to_json(read.as_ref()));
+        }
         other if other.is_file_share() => return Ok(share_to_json(other)),
         sysvol => return Ok(sysvol_to_json(sysvol)),
     }
@@ -2151,6 +2424,36 @@ pub fn share_to_json(op: &Operation) -> Value {
             d.insert("sens".into(), direction.name().into());
             d.insert("elements".into(), (*count).into());
         }
+        Operation::CreateShareFolder {
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+            ..
+        }
+        | Operation::DeleteShareFolder {
+            share,
+            path,
+            descriptor,
+            account,
+            account_dn,
+            ..
+        } => {
+            let kind = if matches!(op, Operation::CreateShareFolder { .. }) {
+                "creer_dossier_partage"
+            } else {
+                "supprimer_dossier_partage"
+            };
+            d.insert("type".into(), kind.into());
+            d.insert("partage".into(), share.clone().into());
+            d.insert("chemin".into(), path.clone().into());
+            d.insert("descripteur".into(), bytes_to_json(Some(descriptor)));
+            d.insert("compte".into(), account.clone().into());
+            if let Some(dn) = account_dn {
+                d.insert("compte_dn".into(), dn.clone().into());
+            }
+        }
         _ => {}
     }
     Value::Object(d)
@@ -2192,6 +2495,25 @@ fn share_from_json(d: &Map<String, Value>, kind: &str) -> Result<Operation, Chan
                     .as_u64()
                     .and_then(|n| usize::try_from(n).ok())
                     .unwrap_or(0),
+            }
+        }
+        "creer_dossier_partage" | "supprimer_dossier_partage" => {
+            let mut op = Operation::create_share_folder(
+                &server,
+                &text_of(field(d, "partage")?),
+                &text_of(field(d, "chemin")?),
+                bytes_from_json(d.get("descripteur"))?.unwrap_or_default(),
+                &d.get("compte").map(text_of).unwrap_or_default(),
+            );
+            if let (Operation::CreateShareFolder { account_dn, .. }, Some(dn)) =
+                (&mut op, d.get("compte_dn"))
+            {
+                *account_dn = Some(text_of(dn));
+            }
+            if kind == "creer_dossier_partage" {
+                op
+            } else {
+                inverse_sysvol(&op)
             }
         }
         _ => Operation::set_file_descriptor(
@@ -2350,11 +2672,20 @@ pub fn operation_from_json(value: &Value) -> Result<Operation, ChangeError> {
             };
             Operation::delete(&dn, read, guards)
         }
+        "restaurer" => {
+            let read = read_from_json(d.get("lecture"))?;
+            let guid = text_of(field(d, "guid")?)
+                .parse::<Guid>()
+                .map_err(|e| ChangeError::Journal(e.to_string()))?;
+            Operation::restore(&text_of(field(d, "supprime")?), guid, &dn, read)
+        }
         "creer_partage"
         | "supprimer_partage"
         | "modifier_partage"
         | "poser_descripteur_fichier"
-        | "propager_heritage" => share_from_json(d, &kind),
+        | "propager_heritage"
+        | "creer_dossier_partage"
+        | "supprimer_dossier_partage" => share_from_json(d, &kind),
         _ => sysvol_from_json(d),
     }
 }
@@ -2491,6 +2822,9 @@ pub fn report_to_json(report: &Report) -> Result<Value, ChangeError> {
             .as_ref()
             .map_or(Value::Null, applied_to_json),
     );
+    if let Some(series) = &report.series {
+        d.insert("serie".into(), series_to_json(series));
+    }
     Ok(Value::Object(d))
 }
 
@@ -2575,6 +2909,7 @@ pub fn report_from_json(value: &Value) -> Result<Report, ChangeError> {
             Some(r) => Some(text_of(r)),
         },
         resumed_by: None,
+        series: series_from_json(d.get("serie")),
     })
 }
 
@@ -2742,6 +3077,7 @@ mod tests {
             doubtful_rollback: None,
             resumes: None,
             resumed_by: None,
+            series: None,
         };
         // Still doubtful: nothing to complete.
         assert!(completion(&interrupted, &interrupted).is_err());
@@ -3029,5 +3365,87 @@ mod tests {
         assert_eq!(changes[0].added, bytes(&["-1"]));
         assert_eq!(changes[1].attribute, "objectClass");
         assert_eq!(changeset.remarks.len(), 1);
+    }
+
+    #[test]
+    fn restoration_journaled_and_undone() {
+        let guid: Guid = "259ab55b-ca5c-4fd1-9183-0838de78cf33".parse().unwrap();
+        let deleted =
+            "CN=x1\\0ADEL:259ab55b-ca5c-4fd1-9183-0838de78cf33,CN=Deleted Objects,DC=lab,DC=test";
+        let read = |usn| {
+            Some(Read {
+                dc: "dc1".into(),
+                usn,
+            })
+        };
+        let op = Operation::restore(deleted, guid, &format!("CN=x1,{OU}"), read(5)).unwrap();
+        let json = operation_to_json(&op).unwrap();
+        assert_eq!(json["type"], "restaurer");
+        assert_eq!(operation_from_json(&json).unwrap(), op);
+        let text = preview(
+            &Changeset {
+                operations: vec![op.clone()],
+                remarks: Vec::new(),
+            },
+            &English,
+        )
+        .unwrap();
+        assert!(
+            text.starts_with(&format!("1. Restore CN=x1,{OU}")),
+            "{text}"
+        );
+        assert!(text.contains("objectGUID 259ab55b"), "{text}");
+        // Its inverse deletes it again, at the version the restoration left.
+        let applied = [Applied {
+            operation: op,
+            after: read(9),
+            before: None,
+        }];
+        let pairs: Vec<(usize, &Applied)> = applied.iter().enumerate().collect();
+        let (changeset, _) = invert(&pairs, None, &English).unwrap();
+        assert_eq!(
+            changeset.operations,
+            [Operation::Delete {
+                dn: format!("CN=x1,{OU}"),
+                read: read(9),
+                guards: Vec::new(),
+            }]
+        );
+    }
+
+    #[test]
+    fn deletion_revived_instead_of_recreated() {
+        let dn = format!("CN=x1,{OU}");
+        let applied = [Applied {
+            operation: Operation::delete(&dn, None, Vec::new()).unwrap(),
+            after: None,
+            before: Some(vec![
+                ("objectClass".into(), bytes(&["top", "user"])),
+                ("memberOf".into(), bytes(&[&format!("CN=g,{OU}")])),
+            ]),
+        }];
+        let pairs: Vec<(usize, &Applied)> = applied.iter().enumerate().collect();
+        let revive = |_: &Applied| {
+            Some(Revived {
+                now: vec![Operation::Restore {
+                    dn: dn.clone(),
+                    deleted: "CN=x1\\0ADEL:0,CN=Deleted Objects,DC=lab,DC=test".into(),
+                    guid: Guid::NIL,
+                    read: None,
+                }],
+                later: vec![Operation::Modify {
+                    dn: format!("CN=g,{OU}"),
+                    changes: vec![Change::new("member", vec![], bytes(&[&dn])).unwrap()],
+                    read: None,
+                }],
+                remarks: vec![Msg::RestoredFromJournal { dn: dn.clone() }],
+            })
+        };
+        let (changeset, origins) = invert_reviving(&pairs, None, &English, &revive).unwrap();
+        assert!(matches!(changeset.operations[0], Operation::Restore { .. }));
+        assert!(matches!(changeset.operations[1], Operation::Modify { .. }));
+        assert_eq!(origins, [0, 0]);
+        assert_eq!(changeset.remarks.len(), 1);
+        assert!(changeset.remarks[0].contains("not recreated"));
     }
 }

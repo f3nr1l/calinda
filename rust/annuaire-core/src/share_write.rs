@@ -21,6 +21,7 @@ use std::collections::HashMap;
 use annuaire_codecs::sd::{self, Ace, Acl, SecurityDescriptor};
 
 use crate::changes::{ErrorRecord, Operation, ShareSpec};
+use crate::home_folder::{self, Found, Refusal};
 use crate::propagation::{self, Direction, Header};
 use crate::smb::client::Options;
 use crate::srvsvc::{self, Share, Srvsvc, werror};
@@ -670,8 +671,98 @@ pub(crate) fn check(
                 .err()
                 .map(|file| (ProblemKind::Missing, WriteMsg::BackupUnusable { file })),
         },
+        Operation::CreateShareFolder { share, path, .. } => {
+            match folder_state(shares, &server, share, path)
+                .map_err(|e| catalog.file_error(&e, &server))?
+            {
+                None => Some((
+                    ProblemKind::Missing,
+                    WriteMsg::FolderShareMissing {
+                        unc: crate::changes::unc(&server, share, ""),
+                    },
+                )),
+                Some(Ok(Found::Absent)) => None,
+                Some(Ok(Found::Exists)) => {
+                    Some((ProblemKind::Exists, WriteMsg::SysvolExists { path: unc }))
+                }
+                Some(Err(refusal)) => Some(folder_refusal(&server, share, path, &refusal)),
+            }
+        }
+        Operation::DeleteShareFolder { share, path, .. } => {
+            let session = shares
+                .files(&server, share)
+                .map_err(|e| catalog.file_error(&e, &server))?;
+            match session
+                .nature(path)
+                .map_err(|e| catalog.file_error(&e, &server))?
+            {
+                None => Some((
+                    ProblemKind::Missing,
+                    WriteMsg::SysvolNoLongerExists { path: unc },
+                )),
+                Some(false) => Some((
+                    ProblemKind::Target,
+                    WriteMsg::SysvolNotA {
+                        path: unc,
+                        folder: true,
+                    },
+                )),
+                Some(true) => {
+                    let full = !session
+                        .list(path)
+                        .map_err(|e| catalog.file_error(&e, &server))?
+                        .is_empty();
+                    full.then_some((ProblemKind::NotLeaf, WriteMsg::SysvolNotEmpty { path: unc }))
+                }
+            }
+        }
         _ => None,
     })
+}
+
+// --- Folders created on a share (ADR 0027) -------------------------------------------------
+
+/// The state of the folder `path` to create on `\\server\share`; `None` when the share does
+/// not exist.
+fn folder_state(
+    shares: &mut Shares,
+    server: &str,
+    share: &str,
+    path: &str,
+) -> sysvol::Result<Option<Result<Found, Refusal>>> {
+    let session = match shares.files(server, share) {
+        Ok(session) => session,
+        Err(e) if e.ntstatus() == Some(home_folder::BAD_NETWORK_NAME) => return Ok(None),
+        Err(e) => return Err(e),
+    };
+    home_folder::inspect(session, path).map(Some)
+}
+
+/// A folder that cannot be created, said as the prior verification says it.
+fn folder_refusal(
+    server: &str,
+    share: &str,
+    path: &str,
+    refusal: &Refusal,
+) -> (ProblemKind, WriteMsg) {
+    let unc = |p: &str| crate::changes::unc(server, share, p);
+    match refusal {
+        Refusal::ShareMissing => (
+            ProblemKind::Missing,
+            WriteMsg::FolderShareMissing { unc: unc("") },
+        ),
+        Refusal::ParentMissing { parent } => (
+            ProblemKind::Missing,
+            WriteMsg::FolderParentMissing { path: unc(parent) },
+        ),
+        Refusal::NotAFolder => (
+            ProblemKind::Exists,
+            WriteMsg::SysvolNotA {
+                path: unc(path),
+                folder: true,
+            },
+        ),
+    }
 }
 
 /// The backup `id` of a propagation on `\\server\share`, opened: its elements, read as they
@@ -1155,6 +1246,113 @@ pub(crate) fn apply(
                 }
             })
         }
+        Operation::CreateShareFolder {
+            share,
+            path,
+            descriptor,
+            ..
+        } => {
+            match folder_state(shares, &server, share, path).map_err(file_error)? {
+                Some(Ok(Found::Absent)) => {}
+                Some(Ok(Found::Exists)) => {
+                    return Err(conflict(
+                        WriteMsg::SysvolExists { path: unc },
+                        catalog,
+                        "existe",
+                    ));
+                }
+                Some(Err(refusal)) => {
+                    let (_, msg) = folder_refusal(&server, share, path, &refusal);
+                    return Err(conflict(msg, catalog, "parent"));
+                }
+                None => {
+                    let (_, msg) = folder_refusal(&server, share, path, &Refusal::ShareMissing);
+                    return Err(conflict(msg, catalog, "partage"));
+                }
+            }
+            // Created without a descriptor: the server gives it the entries inherited from its
+            // parent, as to a folder made by ADUC; the explicit ACEs are written before them.
+            let session = shares.files(&server, share).map_err(file_error)?;
+            let (created, _) = session
+                .create(path, true, &[], None, &[])
+                .map_err(file_error)?;
+            let written = created
+                .descriptor
+                .as_deref()
+                .and_then(|c| home_folder::composed(c, descriptor));
+            let result = match written {
+                None => Err(not_seen(
+                    WriteMsg::FileNotInState { path: unc.clone() },
+                    catalog,
+                    "descripteur",
+                )),
+                Some(written) => session
+                    .set_descriptor(path, &written, crate::sysvol::INFO_DACL)
+                    .map_err(file_error)
+                    .and_then(|()| {
+                        let again =
+                            file_descriptor(shares, &server, share, path).map_err(file_error)?;
+                        if same_file_descriptor(again.as_deref(), Some(&written)) {
+                            Ok(())
+                        } else {
+                            Err(not_seen(
+                                WriteMsg::FileNotInState { path: unc.clone() },
+                                catalog,
+                                "relu",
+                            ))
+                        }
+                    }),
+            };
+            // A folder whose permissions could not be written is not left behind (it is
+            // empty: nobody had access to it yet but the administrators).
+            if result.is_err()
+                && let Ok(session) = shares.files(&server, share)
+            {
+                let _ = session.erase(path, true, &[]);
+            }
+            result
+        }
+        Operation::DeleteShareFolder { share, path, .. } => {
+            let session = shares.files(&server, share).map_err(file_error)?;
+            match session.nature(path).map_err(file_error)? {
+                None => {
+                    return Err(conflict(
+                        WriteMsg::SysvolNoLongerExists { path: unc },
+                        catalog,
+                        "absent",
+                    ));
+                }
+                Some(false) => {
+                    return Err(conflict(
+                        WriteMsg::SysvolNotA {
+                            path: unc,
+                            folder: true,
+                        },
+                        catalog,
+                        "fichier",
+                    ));
+                }
+                Some(true) => {}
+            }
+            // The server refuses a folder that is not empty (`STATUS_DIRECTORY_NOT_EMPTY`):
+            // what the account has put in it since is never deleted.
+            match session.erase(path, true, &[]) {
+                Ok((state, _)) if state.nature.is_none() => Ok(()),
+                Ok(_) => Err(not_seen(
+                    WriteMsg::SysvolNotInState { path: unc },
+                    catalog,
+                    "relu",
+                )),
+                Err(e) if e.ntstatus() == Some(crate::smb::msg::status::DIRECTORY_NOT_EMPTY) => {
+                    Err(conflict(
+                        WriteMsg::SysvolNotEmpty { path: unc },
+                        catalog,
+                        "non vide",
+                    ))
+                }
+                Err(e) => Err(file_error(e)),
+            }
+        }
         _ => Err(StepError::Other(record(
             "ErreurAnnuaire",
             "opération sans partage".into(),
@@ -1234,6 +1432,40 @@ pub fn ascertain(shares: &mut Shares, op: &Operation) -> Option<bool> {
             let (elements, _) = backup_of(&server, share, backup).ok()?;
             let session = shares.files(&server, share).ok()?;
             propagation::rewritten(session, elements, parts, *direction).ok()?
+        }
+        // A folder created is there with its explicit ACEs; a folder deleted is gone.
+        Operation::CreateShareFolder {
+            share,
+            path,
+            descriptor,
+            ..
+        } => {
+            let nature = shares.files(&server, share).ok()?.nature(path).ok()?;
+            if nature != Some(true) {
+                return Some(false);
+            }
+            // ACEs made at the write (an account created by the same changeset): the folder
+            // tells enough.
+            if descriptor.is_empty() {
+                return Some(true);
+            }
+            let present = file_descriptor(shares, &server, share, path).ok()??;
+            let wanted = SecurityDescriptor::decode(descriptor).ok()?;
+            let explicit = SecurityDescriptor::decode(&present)
+                .map(|d| crate::ntfs::explicit_aces(&d))
+                .ok()?;
+            let given = crate::ntfs::explicit_aces(&wanted);
+            let written = explicit.len() == given.len()
+                && explicit
+                    .iter()
+                    .zip(&given)
+                    .all(|(a, b)| crate::ntfs::same_ace(a, b));
+            // Created but without its ACEs: the server does not tell what happened.
+            written.then_some(true)
+        }
+        Operation::DeleteShareFolder { share, path, .. } => {
+            let nature = shares.files(&server, share).ok()?.nature(path).ok()?;
+            Some(nature.is_none())
         }
         _ => None,
     }

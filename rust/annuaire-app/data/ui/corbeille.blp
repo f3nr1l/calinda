@@ -1,0 +1,206 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Fenêtre « Objets supprimés » (J9.1, ADR 0024) : ce que la forêt fait d'une suppression
+// (bandeau), le filtre (texte, genre, période), la liste de CN=Deleted Objects des plus
+// récents aux plus anciens, ce que l'objet choisi a gardé ; « Restaurer… » (Ctrl+R) ouvre le
+// dialogue de restauration. Lignes construites par deleted.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireCorbeille: Adw.Window {
+  title: _("Deleted Objects");
+  default-width: 980;
+  default-height: 720;
+  width-request: 360;
+  height-request: 294;
+
+  content: Adw.ToastOverlay toasts {
+    child: Adw.ToolbarView {
+      [top]
+      Adw.HeaderBar {
+        title-widget: Adw.WindowTitle title {
+          title: _("Deleted Objects");
+        };
+
+        [start]
+        Button restore_button {
+          label: _("Restore…");
+          tooltip-text: _("Restore the selected objects (Enter)");
+          action-name: "corbeille.restaurer";
+
+          styles [
+            "suggested-action",
+          ]
+        }
+
+        [end]
+        Button {
+          icon-name: "view-refresh-symbolic";
+          tooltip-text: _("Refresh (F5)");
+          action-name: "corbeille.actualiser";
+
+          accessibility {
+            label: _("Refresh");
+          }
+        }
+      }
+
+      [top]
+      Adw.Banner state_banner {
+        revealed: false;
+      }
+
+      content: Stack state {
+        transition-type: crossfade;
+
+        StackPage {
+          name: "chargement";
+
+          child: Spinner {
+            spinning: true;
+            halign: center;
+            valign: center;
+            width-request: 32;
+            height-request: 32;
+          };
+        }
+
+        StackPage {
+          name: "erreur";
+
+          child: Adw.StatusPage error {
+            icon-name: "dialog-warning-symbolic";
+
+            child: Button {
+              label: _("Read Again");
+              halign: center;
+              action-name: "corbeille.actualiser";
+
+              styles [
+                "pill",
+              ]
+            };
+          };
+        }
+
+        StackPage {
+          name: "contenu";
+
+          child: Box {
+            orientation: vertical;
+            spacing: 12;
+            margin-top: 12;
+            margin-bottom: 12;
+            margin-start: 12;
+            margin-end: 12;
+
+            Box {
+              spacing: 8;
+
+              SearchEntry search_entry {
+                hexpand: true;
+                placeholder-text: _("Name, class, last parent, attribute kept…");
+                search-changed => $filter_changed();
+
+                accessibility {
+                  label: _("Filter the deleted objects");
+                }
+              }
+
+              DropDown kind_dropdown {
+                notify::selected => $filter_changed();
+
+                factory: BuilderListItemFactory {
+                  template ListItem {
+                    accessible-label: bind template.item as <StringObject>.string;
+
+                    child: Label {
+                      xalign: 0;
+                      label: bind template.item as <StringObject>.string;
+                    };
+                  }
+                };
+
+                accessibility {
+                  label: _("Kind of object");
+                }
+              }
+
+              DropDown period_dropdown {
+                notify::selected => $filter_changed();
+
+                factory: BuilderListItemFactory {
+                  template ListItem {
+                    accessible-label: bind template.item as <StringObject>.string;
+
+                    child: Label {
+                      xalign: 0;
+                      label: bind template.item as <StringObject>.string;
+                    };
+                  }
+                };
+
+                accessibility {
+                  label: _("Deleted since");
+                }
+              }
+            }
+
+            ScrolledWindow {
+              vexpand: true;
+              hscrollbar-policy: never;
+
+              child: ListBox list {
+                selection-mode: multiple;
+                valign: start;
+                selected-rows-changed => $selection_changed();
+
+                accessibility {
+                  label: _("Deleted objects");
+                }
+
+                styles [
+                  "boxed-list",
+                ]
+              };
+            }
+
+            Label count_label {
+              xalign: 0;
+              wrap: true;
+
+              styles [
+                "dim-label",
+              ]
+            }
+
+            Label {
+              label: _("Attributes kept");
+              xalign: 0;
+
+              styles [
+                "heading",
+              ]
+            }
+
+            ScrolledWindow {
+              min-content-height: 120;
+              max-content-height: 200;
+              propagate-natural-height: true;
+
+              child: Label detail_label {
+                xalign: 0;
+                yalign: 0;
+                wrap: true;
+                wrap-mode: word_char;
+                selectable: true;
+                label: _("Select a deleted object to see what it kept.");
+              };
+            }
+          };
+        }
+      };
+    };
+  };
+}

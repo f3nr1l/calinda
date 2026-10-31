@@ -1,0 +1,18 @@
+# Onglets de compte (J9.3, ADR 0024), avec audit_ecrans.sh SORTIE tests/interface/essais-onglets.txt.
+# Préparation et constat par l'essai labo account_tabs_interface (ANNUAIRE_LABO_ONGLETS=preparer,
+# puis verifier et nettoyer) : OU=Essais-J93-UI,OU=Labo, j93-ui-user, j93-ui-svc et j93-ui-cible.
+# Domaine du profil : ANNUAIRE_AUDIT_DOMAINE (lab.test par défaut) ; pour WIN.TEST, remplacer
+# DC=lab,DC=test et lab.test, et ajouter la ligne RBCD en fin de fichier.
+# 1. Utilisateur : heures du lundi au vendredi, 8 h à 18 h en heure locale, deux postes, protection.
+onglets-heures|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-user,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=compte|env:ANNUAIRE_ESSAI_SAISIES=heures=1-5:8-18;;userWorkstations=J93POSTE, J93AUTRE;;protection=1|env:ANNUAIRE_ESSAI_APPLIQUER=2|dom|wait:14
+# 2. La grille relue, en heure locale (relevé AT-SPI des 168 cases).
+onglets-grille|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-user,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=compte|env:ANNUAIRE_ESSAI_SAISIES=grille=1|dom|wait:8
+# 3. Compte de service : délégation contrainte, tout protocole, vers le service de la cible ; un SPN ajouté.
+onglets-delegation|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-svc,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=delegation|env:ANNUAIRE_ESSAI_SAISIES=delegation=services-tout;;service+=cifs/j93-ui-cible.lab.test;;spn+=HTTP/j93-ui-autre.lab.test|env:ANNUAIRE_ESSAI_APPLIQUER=2|dom|wait:16
+# 4. Doublon : le SPN du compte de service saisi sur l'utilisateur, refusé avant l'aperçu (relevé).
+onglets-doublon|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-user,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=delegation|env:ANNUAIRE_ESSAI_SAISIES=spn+=HTTP/j93-ui-svc.lab.test|dom|wait:8
+# 5. Dialogue « Ajouter des services » (relevé).
+onglets-services|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-svc,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=delegation|env:ANNUAIRE_ESSAI_SAISIES=services=1|dom|wait:6
+# 6. Onglet « Délégation » relu après l'écriture (relevé) ; sur Samba, la délégation basée sur la
+# ressource y est dite réservée au système.
+onglets-relu|env:ANNUAIRE_ESSAI_FICHE=CN=j93-ui-cible,OU=Essais-J93-UI,OU=Labo,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=delegation|dom|wait:8

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calinda\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-24 15:07-0400\n"
+"POT-Creation-Date: 2026-10-30 10:37-0400\n"
 "PO-Revision-Date: 2026-10-15 20:00-0400\n"
 "Last-Translator: René Onier <f3nr1l@me.com>\n"
 "Language-Team: French\n"
@@ -100,9 +100,11 @@ msgstr "Aperçu des modifications"
 #: rust/annuaire-app/data/ui/dialogue-ace.blp
 #: rust/annuaire-app/data/ui/dialogue-attribut.blp
 #: rust/annuaire-app/data/ui/dialogue-classes.blp
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
 #: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
+#: rust/annuaire-app/data/ui/dialogue-export.blp
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-proprietaire-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
@@ -112,7 +114,10 @@ msgstr "Aperçu des modifications"
 #: rust/annuaire-app/data/ui/dialogue-gpo-restaurer.blp
 #: rust/annuaire-app/data/ui/dialogue-gpo-sauvegarde.blp
 #: rust/annuaire-app/data/ui/dialogue-groupe.blp
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
 #: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
 #: rust/annuaire-app/data/ui/dialogue-ou.blp
 #: rust/annuaire-app/data/ui/dialogue-partage-droits.blp
 #: rust/annuaire-app/data/ui/dialogue-partage.blp
@@ -125,24 +130,28 @@ msgstr "Aperçu des modifications"
 #: rust/annuaire-app/data/ui/dialogue-pso.blp
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/dialogue-renommer.blp
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 #: rust/annuaire-app/data/ui/dialogue-ticket.blp
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 #: rust/annuaire-app/data/ui/recherche.blp
 #: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_editor.rs
-#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/window.rs
-#: rust/annuaire-app/src/window/accounts.rs rust/annuaire-app/src/writes.rs
+#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/sheet/tabs.rs
+#: rust/annuaire-app/src/window.rs rust/annuaire-app/src/window/accounts.rs
+#: rust/annuaire-app/src/writes.rs
 msgid "Cancel"
 msgstr "Annuler"
 
 #: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/dialogue-strategie.blp
 msgid "Apply"
 msgstr "Appliquer"
 
 #: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
 msgid "Checking beforehand…"
 msgstr "Vérification préalable en cours…"
 
@@ -151,6 +160,7 @@ msgid "Progress of the propagation"
 msgstr "Progression de la propagation"
 
 #: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
 msgid "Stop"
 msgstr "Arrêter"
 
@@ -162,22 +172,69 @@ msgstr "Arrête la propagation après le lot en cours d'écriture ; ce qui est �
 msgid "Planned changes"
 msgstr "Modifications prévues"
 
-#: rust/annuaire-app/data/ui/apercu.blp rust/annuaire-app/src/gpo_views.rs
-#: rust/annuaire-app/src/views.rs
+#: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+#: rust/annuaire-app/src/gpo_views.rs rust/annuaire-app/src/views.rs
 msgid "Object"
 msgstr "Objet"
 
-#: rust/annuaire-app/data/ui/apercu.blp rust/annuaire-app/data/ui/attributs.blp
+#: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+#: rust/annuaire-app/data/ui/attributs.blp
 msgid "Attribute"
 msgstr "Attribut"
 
 #: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
 msgid "Before"
 msgstr "Avant"
 
 #: rust/annuaire-app/data/ui/apercu.blp
+#: rust/annuaire-app/data/ui/apercu-masse.blp
 msgid "After"
 msgstr "Après"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Changes in Bulk"
+msgstr "Modifications en masse"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
+#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/sante-dns.blp
+#: rust/annuaire-app/src/attributes.rs rust/annuaire-app/src/gpo.rs
+#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/window/domain.rs rust/annuaire-app/src/writes.rs
+msgid "Close"
+msgstr "Fermer"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Progress of the batches"
+msgstr "Avancement des lots"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Stops after the batch being written; what is written stays written, and can be resumed or undone"
+msgstr "Arrête après le lot en cours d'écriture ; ce qui est écrit le reste, et peut être repris ou annulé"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp rust/annuaire-app/src/bulk.rs
+#: rust/annuaire-app/src/writes.rs
+msgid "Resume"
+msgstr "Reprendre"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Write over Their Changes"
+msgstr "Écrire par-dessus leurs modifications"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Reads again the objects changed since they were read, and writes the batch over these changes"
+msgstr "Relit les objets modifiés depuis leur lecture, et écrit le lot par-dessus ces modifications"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Undo What Is Written"
+msgstr "Annuler ce qui est écrit"
+
+#: rust/annuaire-app/data/ui/apercu-masse.blp
+msgid "Objects of the change"
+msgstr "Objets de la modification"
 
 #: rust/annuaire-app/data/ui/attributs.blp
 msgid "Search for an attribute"
@@ -239,7 +296,7 @@ msgstr "Valeur"
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 #: rust/annuaire-app/data/ui/dialogue-registre-brut.blp
 #: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/fenetre.blp
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk.rs
 msgid "Type"
 msgstr "Type"
 
@@ -249,6 +306,69 @@ msgstr "Type"
 #: rust/annuaire-app/data/ui/gpo.blp rust/annuaire-app/src/gpo_views.rs
 msgid "Status"
 msgstr "État"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+#: rust/annuaire-app/data/ui/fenetre.blp
+#: rust/annuaire-app/data/ui/shortcuts-dialog.blp
+msgid "Deleted Objects"
+msgstr "Objets supprimés"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Restore…"
+msgstr "Restaurer…"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Restore the selected objects (Enter)"
+msgstr "Restaurer les objets choisis (Entrée)"
+
+#: rust/annuaire-app/data/ui/corbeille.blp rust/annuaire-app/data/ui/dns.blp
+#: rust/annuaire-app/data/ui/gpo.blp rust/annuaire-app/data/ui/partages.blp
+#: rust/annuaire-app/data/ui/pso.blp
+msgid "Refresh (F5)"
+msgstr "Actualiser (F5)"
+
+#: rust/annuaire-app/data/ui/corbeille.blp rust/annuaire-app/data/ui/dns.blp
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/gpo.blp
+#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
+#: rust/annuaire-app/data/ui/shortcuts-dialog.blp
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+#: rust/annuaire-app/data/ui/dossiers.blp
+#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
+#: rust/annuaire-app/data/ui/securite.blp
+#: rust/annuaire-app/data/ui/strategie.blp rust/annuaire-app/src/gpo_editor.rs
+msgid "Read Again"
+msgstr "Relire"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Name, class, last parent, attribute kept…"
+msgstr "Nom, classe, dernier parent, attribut gardé…"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Filter the deleted objects"
+msgstr "Filtrer les objets supprimés"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Kind of object"
+msgstr "Genre d'objet"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Deleted since"
+msgstr "Supprimé depuis"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Deleted objects"
+msgstr "Objets supprimés"
+
+#: rust/annuaire-app/data/ui/corbeille.blp
+msgid "Attributes kept"
+msgstr "Attributs gardés"
+
+#: rust/annuaire-app/data/ui/corbeille.blp rust/annuaire-app/src/deleted.rs
+msgid "Select a deleted object to see what it kept."
+msgstr "Choisissez un objet supprimé pour voir ce qu'il a gardé."
 
 #. Effective access to the root of the share (J8.5), read-only profile included.
 #: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
@@ -288,14 +408,6 @@ msgstr "Droits du compte"
 #: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
 msgid "Identities taken into account"
 msgstr "Identités prises en compte"
-
-#: rust/annuaire-app/data/ui/dialogue-acces-effectif.blp
-#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/sante-dns.blp
-#: rust/annuaire-app/src/attributes.rs rust/annuaire-app/src/gpo.rs
-#: rust/annuaire-app/src/history.rs rust/annuaire-app/src/sheet.rs
-#: rust/annuaire-app/src/window/domain.rs rust/annuaire-app/src/writes.rs
-msgid "Close"
-msgstr "Fermer"
 
 #: rust/annuaire-app/data/ui/dialogue-ace.blp
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
@@ -382,6 +494,127 @@ msgstr "Classes auxiliaires"
 msgid "Offered by the schema for the class of the object and its parents (auxiliaryClass, systemAuxiliaryClass). The attributes of an added class are then filled in the editor, before applying."
 msgstr "Proposées par le schéma pour la classe de l'objet et ses parents (auxiliaryClass, systemAuxiliaryClass). Les attributs d'une classe ajoutée se renseignent ensuite dans l'éditeur, avant d'appliquer."
 
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+msgid "New Contact"
+msgstr "Nouveau contact"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-deplacer.blp
+#: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
+#: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
+#: rust/annuaire-app/data/ui/dialogue-gpo-lier.blp
+#: rust/annuaire-app/data/ui/dialogue-gpo-nom.blp
+#: rust/annuaire-app/data/ui/dialogue-gpo-restaurer.blp
+#: rust/annuaire-app/data/ui/dialogue-groupe.blp
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+#: rust/annuaire-app/data/ui/dialogue-ou.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-registre.blp
+#: rust/annuaire-app/data/ui/dialogue-renommer.blp
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/src/gpo_editor.rs
+msgid "Continue"
+msgstr "Continuer"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "First name"
+msgstr "Prénom"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Initials"
+msgstr "Initiales"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-groupe.blp
+#: rust/annuaire-app/data/ui/dialogue-ou.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
+#: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/recherche.blp
+msgid "Name"
+msgstr "Nom"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+msgid "Full name (CN)"
+msgstr "Nom complet (CN)"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-renommer.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Display name"
+msgstr "Nom affiché"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-groupe.blp
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+#: rust/annuaire-app/data/ui/dialogue-ou.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Location"
+msgstr "Emplacement"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+#: rust/annuaire-app/src/deleted_views.rs
+#: rust/annuaire-app/src/security_views.rs rust/annuaire-app/src/views.rs
+msgid "Contact"
+msgstr "Contact"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Email"
+msgstr "Courriel"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Telephone"
+msgstr "Téléphone"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Address"
+msgstr "Adresse"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "ZIP/Postal code"
+msgstr "Code postal"
+
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "City"
+msgstr "Ville"
+
+#. / Attributes of the sheet and their labels there (`fiche.blp`): the import recognises a
+#. / column by these, in English or translated.
+#: rust/annuaire-app/data/ui/dialogue-contact.blp
+#: rust/annuaire-app/data/ui/dialogue-groupe.blp
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+#: rust/annuaire-app/data/ui/dialogue-ou.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-registre.blp
+#: rust/annuaire-app/data/ui/dialogue-pso.blp
+#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Description"
+msgstr "Description"
+
 #: rust/annuaire-app/data/ui/dialogue-delegation.blp
 msgid "Delegation of Control"
 msgstr "Délégation de contrôle"
@@ -439,35 +672,17 @@ msgid "Entries added, in SDDL"
 msgstr "Entrées ajoutées, en SDDL"
 
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
-#: rust/annuaire-app/src/preview_views.rs
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs rust/annuaire-app/src/preview_views.rs
 msgid "Move"
 msgstr "Déplacer"
-
-#: rust/annuaire-app/data/ui/dialogue-deplacer.blp
-#: rust/annuaire-app/data/ui/dialogue-enregistrement-dns.blp
-#: rust/annuaire-app/data/ui/dialogue-gpo-filtrage.blp
-#: rust/annuaire-app/data/ui/dialogue-gpo-lier.blp
-#: rust/annuaire-app/data/ui/dialogue-gpo-nom.blp
-#: rust/annuaire-app/data/ui/dialogue-gpo-restaurer.blp
-#: rust/annuaire-app/data/ui/dialogue-groupe.blp
-#: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
-#: rust/annuaire-app/data/ui/dialogue-ou.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-registre.blp
-#: rust/annuaire-app/data/ui/dialogue-renommer.blp
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/src/gpo_editor.rs
-msgid "Continue"
-msgstr "Continuer"
 
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
 msgid "Choose the destination organizational unit or container; search by name."
 msgstr "Choisissez l'unité d'organisation ou le conteneur de destination ; cherchez par son nom."
 
 #: rust/annuaire-app/data/ui/dialogue-deplacer.blp
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
 msgid "Search for a destination"
 msgstr "Rechercher une destination"
 
@@ -525,6 +740,81 @@ msgstr "Durée de vie (TTL, en secondes)"
 msgid "Also create the reverse pointer (PTR)"
 msgstr "Créer aussi le pointeur inverse (PTR)"
 
+#: rust/annuaire-app/data/ui/dialogue-export.blp rust/annuaire-app/src/bulk.rs
+msgid "Export to CSV"
+msgstr "Exporter en CSV"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Export…"
+msgstr "Exporter…"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Objects"
+msgstr "Objets"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Only the selected objects"
+msgstr "Seulement les objets sélectionnés"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Columns"
+msgstr "Colonnes"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "LDAP names of the attributes, separated by commas; “dn” is the distinguished name. The header of the file repeats them, so that the import reads it back."
+msgstr "Noms LDAP des attributs, séparés par des virgules ; « dn » est le nom distingué. L'en-tête du fichier les reprend, pour que l'import le relise."
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Attributes"
+msgstr "Attributs"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Format"
+msgstr "Format"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Field separator"
+msgstr "Séparateur des champs"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Semicolon"
+msgstr "Point-virgule"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Comma"
+msgstr "Virgule"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Tab"
+msgstr "Tabulation"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Separator of the values of a multivalued attribute"
+msgstr "Séparateur des valeurs d'un attribut multivalué"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Readable values"
+msgstr "Valeurs lisibles"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Dates in local time, SID and GUID as text, security descriptors in SDDL. Unchecked: the values as stored."
+msgstr "Dates en heure locale, SID et GUID en texte, descripteurs de sécurité en SDDL. Décoché : les valeurs telles qu'elles sont stockées."
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "UTF-8 with byte order mark"
+msgstr "UTF-8 avec marque d'ordre des octets (BOM)"
+
+#: rust/annuaire-app/data/ui/dialogue-export.blp
+msgid "Excel needs it to read the accents."
+msgstr "Excel en a besoin pour lire les accents."
+
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
 msgid "Permission Entry"
 msgstr "Entrée d'autorisation"
@@ -565,6 +855,7 @@ msgid "Checking or unchecking a right sets the permissions to the level it match
 msgstr "Cocher ou décocher un droit ramène les autorisations au niveau qui lui correspond, ou à « Autorisations spéciales »."
 
 #: rust/annuaire-app/data/ui/dialogue-entree-ntfs.blp
+#: rust/annuaire-app/src/sheet/tabs.rs
 msgid "OK"
 msgstr "Valider"
 
@@ -739,6 +1030,7 @@ msgid "Backup contents"
 msgstr "Contenu de la sauvegarde"
 
 #: rust/annuaire-app/data/ui/dialogue-gpo-restaurer.blp
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
 msgid "Restore"
 msgstr "Restaurer"
 
@@ -826,39 +1118,10 @@ msgid "New Group"
 msgstr "Nouveau groupe"
 
 #: rust/annuaire-app/data/ui/dialogue-groupe.blp
-#: rust/annuaire-app/data/ui/dialogue-ou.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
-#: rust/annuaire-app/data/ui/dialogue-pso.blp
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
-#: rust/annuaire-app/data/ui/recherche.blp
-msgid "Name"
-msgstr "Nom"
-
-#: rust/annuaire-app/data/ui/dialogue-groupe.blp
 #: rust/annuaire-app/data/ui/dialogue-renommer.blp
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 msgid "Account name (sAMAccountName)"
 msgstr "Identifiant (sAMAccountName)"
-
-#: rust/annuaire-app/data/ui/dialogue-groupe.blp
-#: rust/annuaire-app/data/ui/dialogue-ou.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-raccourci.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-registre.blp
-#: rust/annuaire-app/data/ui/dialogue-pso.blp
-#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
-msgid "Description"
-msgstr "Description"
-
-#: rust/annuaire-app/data/ui/dialogue-groupe.blp
-#: rust/annuaire-app/data/ui/dialogue-ou.blp
-#: rust/annuaire-app/data/ui/dialogue-pref-imprimante.blp
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/fenetre.blp
-msgid "Location"
-msgstr "Emplacement"
 
 #: rust/annuaire-app/data/ui/dialogue-groupe.blp
 #: rust/annuaire-app/data/ui/fiche.blp
@@ -888,6 +1151,182 @@ msgstr "Groupe de sécurité"
 #: rust/annuaire-app/data/ui/dialogue-groupe.blp
 msgid "Otherwise a distribution group (mailing lists)"
 msgstr "Sinon groupe de distribution (listes de diffusion)"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp rust/annuaire-app/src/bulk.rs
+msgid "Import from CSV"
+msgstr "Importer depuis un CSV"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Check"
+msgstr "Vérifier"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Each line creates a user, a group, a contact or a computer. The columns are read by their LDAP name, by the label of the sheet, or by the names of New-ADUser (Name, Path, AccountPassword, Enabled, ChangePasswordAtLogon, GroupScope, GroupCategory), plus type and memberOf. Every line is checked before anything is written."
+msgstr "Chaque ligne crée un utilisateur, un groupe, un contact ou un ordinateur. Les colonnes sont reconnues par leur nom LDAP, par le libellé de la fiche, ou par les noms de New-ADUser (Name, Path, AccountPassword, Enabled, ChangePasswordAtLogon, GroupScope, GroupCategory), plus type et memberOf. Chaque ligne est vérifiée avant toute écriture."
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "File"
+msgstr "Fichier"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "None chosen"
+msgstr "Aucun choisi"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/dialogue-profil.blp
+msgid "Choose…"
+msgstr "Choisir…"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Lines without a “type” column"
+msgstr "Lignes sans colonne « type »"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/search.rs
+#: rust/annuaire-app/src/security_views.rs
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/gpo-securite-groupes.blp
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/search.rs
+msgid "Groups"
+msgstr "Groupes"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/search.rs
+msgid "Contacts"
+msgstr "Contacts"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/search.rs
+msgid "Computers"
+msgstr "Ordinateurs"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Container of the lines without a “path” column"
+msgstr "Conteneur des lignes sans colonne « path »"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Found from the first line"
+msgstr "Déduit de la première ligne"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Accounts"
+msgstr "Comptes"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Generate every password"
+msgstr "Générer tous les mots de passe"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "Otherwise read in the file; generated for an enabled account without one. The generated passwords go to a file you choose before the import."
+msgstr "Sinon lus dans le fichier ; générés pour un compte actif qui n'en a pas. Les mots de passe générés vont dans un fichier choisi avant l'import."
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Enable the accounts"
+msgstr "Activer les comptes"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "For the lines without an “enabled” column."
+msgstr "Pour les lignes sans colonne « enabled »."
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "User must change password at next logon"
+msgstr "L'utilisateur doit changer le mot de passe à la prochaine connexion"
+
+#: rust/annuaire-app/data/ui/dialogue-import.blp
+msgid "For the lines without a “changePasswordAtLogon” column."
+msgstr "Pour les lignes sans colonne « changePasswordAtLogon »."
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Change in Bulk"
+msgstr "Modification en masse"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "The members of the selected group"
+msgstr "Les membres du groupe sélectionné"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Instead of the group itself."
+msgstr "Au lieu du groupe lui-même."
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/share_views.rs
+msgid "Change"
+msgstr "Modifier"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Set an attribute"
+msgstr "Poser un attribut"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Add values to an attribute"
+msgstr "Ajouter des valeurs à un attribut"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Remove values from an attribute"
+msgstr "Retirer des valeurs d'un attribut"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Clear an attribute"
+msgstr "Vider un attribut"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Add to a group"
+msgstr "Ajouter à un groupe"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Remove from a group"
+msgstr "Retirer d'un groupe"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Disable the accounts"
+msgstr "Désactiver les comptes"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Account expiration"
+msgstr "Expiration du compte"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Password change not required at next logon"
+msgstr "Changement du mot de passe non exigé à la prochaine ouverture"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Attribute (LDAP name)"
+msgstr "Attribut (nom LDAP)"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Values, separated by |"
+msgstr "Valeurs, séparées par |"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Group (distinguished name or logon name)"
+msgstr "Groupe (nom distingué ou nom d'ouverture de session)"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Destination container (distinguished name)"
+msgstr "Conteneur de destination (nom distingué)"
+
+#: rust/annuaire-app/data/ui/dialogue-masse.blp
+msgid "Expires at the end of (DD/MM/YYYY, empty: never)"
+msgstr "Expire à la fin du (JJ/MM/AAAA, vide : jamais)"
 
 #: rust/annuaire-app/data/ui/dialogue-membres.blp
 #: rust/annuaire-app/data/ui/fiche.blp
@@ -933,11 +1372,44 @@ msgstr "Nouveau mot de passe"
 msgid "Confirm password"
 msgstr "Confirmation"
 
-#: rust/annuaire-app/data/ui/dialogue-mot-de-passe.blp
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "User must change password at next logon"
-msgstr "L'utilisateur doit changer le mot de passe à la prochaine connexion"
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "New Computer"
+msgstr "Nouvel ordinateur"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
+#: rust/annuaire-app/src/preferences.rs
+msgid "Computer name"
+msgstr "Nom de l'ordinateur"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "Computer name (pre-Windows 2000)"
+msgstr "Nom de l'ordinateur (pré-Windows 2000)"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "Joining the domain"
+msgstr "Jonction au domaine"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "User or group allowed to join this computer"
+msgstr "Utilisateur ou groupe autorisé à joindre cet ordinateur"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "Domain Admins (default)"
+msgstr "Admins du domaine (par défaut)"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
+msgid "Change…"
+msgstr "Modifier…"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "Assign this computer account as a pre-Windows 2000 computer"
+msgstr "Attribuer ce compte d'ordinateur en tant qu'ordinateur antérieur à Windows 2000"
+
+#: rust/annuaire-app/data/ui/dialogue-ordinateur.blp
+msgid "The initial password is then the name in lower case (14 characters at most), if the password policy of the domain accepts it. Unchecked, it is random and nobody knows it."
+msgstr "Le mot de passe initial est alors le nom en minuscules (14 caractères au plus), si la stratégie de mot de passe du domaine l'accepte. Case décochée, il est aléatoire et personne ne le connaît."
 
 #: rust/annuaire-app/data/ui/dialogue-ou.blp
 msgid "New Organizational Unit"
@@ -976,7 +1448,7 @@ msgstr "Personne : le partage refuse tout accès."
 #: rust/annuaire-app/data/ui/dialogue-profil.blp
 #: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/file_security.rs
 #: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/pso.rs
-#: rust/annuaire-app/src/shares.rs
+#: rust/annuaire-app/src/shares.rs rust/annuaire-app/src/sheet/tabs.rs
 msgid "Add"
 msgstr "Ajouter"
 
@@ -1084,11 +1556,6 @@ msgstr "Chercher dans l'annuaire"
 #: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
 msgid "Search results"
 msgstr "Résultats de la recherche"
-
-#: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
-#: rust/annuaire-app/src/preferences.rs
-msgid "Computer name"
-msgstr "Nom de l'ordinateur"
 
 #: rust/annuaire-app/data/ui/dialogue-pref-cible.blp
 msgid "Fully qualified DNS name (otherwise NetBIOS name)"
@@ -1345,10 +1812,12 @@ msgid "This drive"
 msgstr "Ce lecteur"
 
 #: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
+#: rust/annuaire-app/src/sheet/secrets.rs
 msgid "Show"
 msgstr "Afficher"
 
 #: rust/annuaire-app/data/ui/dialogue-pref-lecteur.blp
+#: rust/annuaire-app/src/sheet/secrets.rs
 msgid "Hide"
 msgstr "Masquer"
 
@@ -1527,10 +1996,6 @@ msgstr "Certificat de la CA du domaine"
 #: rust/annuaire-app/data/ui/dialogue-profil.blp
 msgid "Required for LDAPS and StartTLS; compare its fingerprint with the DC's."
 msgstr "Exigé en LDAPS et StartTLS ; comparez son empreinte avec celle du DC."
-
-#: rust/annuaire-app/data/ui/dialogue-profil.blp
-msgid "Choose…"
-msgstr "Choisir…"
 
 #: rust/annuaire-app/data/ui/dialogue-profil.blp
 msgid "No change can be sent to the directory."
@@ -1727,18 +2192,37 @@ msgid "Display name (displayName)"
 msgstr "Nom affiché (displayName)"
 
 #: rust/annuaire-app/data/ui/dialogue-renommer.blp
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Display name"
-msgstr "Nom affiché"
-
-#: rust/annuaire-app/data/ui/dialogue-renommer.blp
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Logon name"
 msgstr "Identifiant"
 
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-msgid "Change…"
-msgstr "Modifier…"
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "Where"
+msgstr "Où"
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "In another container"
+msgstr "Dans un autre conteneur"
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "Otherwise under its last known parent, restored first if it was deleted too."
+msgstr "Sinon sous son dernier parent connu, restauré d'abord s'il a été supprimé lui aussi."
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "Destinations"
+msgstr "Destinations"
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "Name of the restored object"
+msgstr "Nom de l'objet restauré"
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "Also restore the objects that were under it"
+msgstr "Restaurer aussi les objets qui étaient dessous"
+
+#: rust/annuaire-app/data/ui/dialogue-restaurer.blp
+msgid "The deleted objects whose last known parent is a restored object."
+msgstr "Les objets supprimés dont le dernier parent connu est un objet restauré."
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Change the owner"
@@ -1788,11 +2272,6 @@ msgstr "Type d'entrée"
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "Permission"
 msgstr "Autorisation"
-
-#: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
-#: rust/annuaire-app/src/search.rs rust/annuaire-app/src/security_views.rs
-msgid "Users"
-msgstr "Utilisateurs"
 
 #: rust/annuaire-app/data/ui/dialogue-securite-ntfs.blp
 msgid "CREATOR OWNER"
@@ -1877,6 +2356,7 @@ msgstr "Compte"
 
 #: rust/annuaire-app/data/ui/dialogue-ticket.blp
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/src/sheet/secrets.rs
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -1885,18 +2365,34 @@ msgid "New User"
 msgstr "Nouvel utilisateur"
 
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "First name"
-msgstr "Prénom"
-
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-msgid "Full name (CN)"
-msgstr "Nom complet (CN)"
-
-#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "User logon name (UPN)"
 msgstr "Nom d'ouverture de session (UPN)"
+
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Profile"
+msgstr "Profil"
+
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#, c-format
+msgid "%username% is replaced by the account name. A home folder on a share is created if it does not exist, with full control for the account and the administrators."
+msgstr "%username% indique le nom du compte, remplacé à l'enregistrement. Un dossier personnel sur un partage est créé s'il n'existe pas, avec le contrôle total pour le compte et les administrateurs."
+
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Profile path"
+msgstr "Chemin du profil"
+
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Home folder drive"
+msgstr "Lecteur du dossier personnel"
+
+#: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+msgid "Home folder"
+msgstr "Dossier personnel"
 
 #: rust/annuaire-app/data/ui/dialogue-utilisateur.blp
 msgid "Initial password"
@@ -1951,18 +2447,6 @@ msgstr "Nouvel enregistrement (Ctrl+N)"
 msgid "New record"
 msgstr "Nouvel enregistrement"
 
-#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/gpo.blp
-#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
-msgid "Refresh (F5)"
-msgstr "Actualiser (F5)"
-
-#: rust/annuaire-app/data/ui/dns.blp rust/annuaire-app/data/ui/fenetre.blp
-#: rust/annuaire-app/data/ui/gpo.blp rust/annuaire-app/data/ui/partages.blp
-#: rust/annuaire-app/data/ui/pso.blp
-#: rust/annuaire-app/data/ui/shortcuts-dialog.blp
-msgid "Refresh"
-msgstr "Actualiser"
-
 #: rust/annuaire-app/data/ui/dns.blp
 msgid "Delete the record (Delete)"
 msgstr "Supprimer l'enregistrement (Suppr)"
@@ -2016,13 +2500,6 @@ msgstr "Dossiers et droits NTFS"
 #: rust/annuaire-app/data/ui/dossiers.blp
 msgid "Read Again (F5)"
 msgstr "Relire (F5)"
-
-#: rust/annuaire-app/data/ui/dossiers.blp
-#: rust/annuaire-app/data/ui/partages.blp rust/annuaire-app/data/ui/pso.blp
-#: rust/annuaire-app/data/ui/securite.blp
-#: rust/annuaire-app/data/ui/strategie.blp rust/annuaire-app/src/gpo_editor.rs
-msgid "Read Again"
-msgstr "Relire"
 
 #: rust/annuaire-app/data/ui/dossiers.blp
 msgid "Folders of the share"
@@ -2214,6 +2691,14 @@ msgid "Ctrl+M"
 msgstr "Ctrl+M"
 
 #: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Deleted Objects (Shift+Ctrl+Delete)"
+msgstr "Objets supprimés (Maj+Ctrl+Suppr)"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Shift+Ctrl+Delete"
+msgstr "Maj+Ctrl+Suppr"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Shares (Ctrl+P)"
 msgstr "Partages (Ctrl+P)"
 
@@ -2260,10 +2745,6 @@ msgstr "Filtrer ce conteneur"
 msgid "Objects in the container"
 msgstr "Objets du conteneur"
 
-#: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
-msgid "Email"
-msgstr "Courriel"
-
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Last logon"
 msgstr "Dernière connexion"
@@ -2277,6 +2758,7 @@ msgid "Modified"
 msgstr "Modifié le"
 
 #: rust/annuaire-app/data/ui/fenetre.blp rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/src/bulk.rs
 msgid "Distinguished name"
 msgstr "Nom distingué"
 
@@ -2289,8 +2771,8 @@ msgid "Advanced Features"
 msgstr "Fonctionnalités avancées"
 
 #: rust/annuaire-app/data/ui/fenetre.blp
-msgid "Columns"
-msgstr "Colonnes"
+msgid "Find BitLocker Recovery Password…"
+msgstr "Rechercher un mot de passe de récupération BitLocker…"
 
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Undo the Last Change…"
@@ -2304,6 +2786,26 @@ msgstr "Raccourcis clavier"
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Group…"
 msgstr "Groupe…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Computer…"
+msgstr "Ordinateur…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Contact…"
+msgstr "Contact…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Import from CSV…"
+msgstr "Importer depuis un CSV…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Change in Bulk…"
+msgstr "Modifier en masse…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Export the List to CSV…"
+msgstr "Exporter la liste en CSV…"
 
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Enable"
@@ -2320,6 +2822,10 @@ msgstr "Déverrouiller"
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Reset Password…"
 msgstr "Réinitialiser le mot de passe…"
+
+#: rust/annuaire-app/data/ui/fenetre.blp
+msgid "Reset Account…"
+msgstr "Réinitialiser le compte…"
 
 #: rust/annuaire-app/data/ui/fenetre.blp
 msgid "Move…"
@@ -2354,44 +2860,19 @@ msgstr "Général"
 msgid "Identity"
 msgstr "Identité"
 
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Initials"
-msgstr "Initiales"
-
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Office"
 msgstr "Bureau"
 
-#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/security_views.rs
-#: rust/annuaire-app/src/views.rs
-msgid "Contact"
-msgstr "Contact"
-
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Telephone"
-msgstr "Téléphone"
-
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Mobile"
 msgstr "Mobile"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Web page"
 msgstr "Page web"
 
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Address"
-msgstr "Adresse"
-
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "ZIP/Postal code"
-msgstr "Code postal"
-
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "City"
-msgstr "Ville"
-
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "State/province"
 msgstr "Région"
 
@@ -2403,15 +2884,15 @@ msgstr "Pays"
 msgid "Organization"
 msgstr "Organisation"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Job title"
 msgstr "Fonction"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Department"
 msgstr "Service"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Company"
 msgstr "Société"
 
@@ -2419,8 +2900,9 @@ msgstr "Société"
 msgid "Manager"
 msgstr "Responsable"
 
-#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/security_views.rs
-#: rust/annuaire-app/src/views.rs
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+#: rust/annuaire-app/src/deleted_views.rs
+#: rust/annuaire-app/src/security_views.rs rust/annuaire-app/src/views.rs
 msgid "Group"
 msgstr "Groupe"
 
@@ -2428,16 +2910,18 @@ msgstr "Groupe"
 msgid "Name (pre-Windows 2000)"
 msgstr "Nom (pré-Windows 2000)"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Notes"
 msgstr "Notes"
 
-#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/security_views.rs
-#: rust/annuaire-app/src/views.rs
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
+#: rust/annuaire-app/src/deleted_views.rs
+#: rust/annuaire-app/src/security_views.rs
+#: rust/annuaire-app/src/sheet/secrets.rs rust/annuaire-app/src/views.rs
 msgid "Computer"
 msgstr "Ordinateur"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "DNS name"
 msgstr "Nom DNS"
 
@@ -2453,7 +2937,7 @@ msgstr "Version"
 msgid "Service pack"
 msgstr "Service Pack"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Physical location"
 msgstr "Emplacement physique"
 
@@ -2471,16 +2955,38 @@ msgid "Created"
 msgstr "Créé le"
 
 #: rust/annuaire-app/data/ui/fiche.blp
+msgid "Protect object from accidental deletion"
+msgstr "Protéger l'objet des suppressions accidentelles"
+
+#: rust/annuaire-app/data/ui/fiche.blp
 msgid "Logon"
 msgstr "Ouverture de session"
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Logon name (pre-Windows 2000)"
 msgstr "Identifiant (pré-Windows 2000)"
 
 #: rust/annuaire-app/data/ui/fiche.blp
 msgid "SID"
 msgstr "SID"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Logon restrictions"
+msgstr "Restrictions de connexion"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Logon hours"
+msgstr "Horaires d'accès"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/ligne-profil.blp
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Edit…"
+msgstr "Modifier…"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Log on to (computer names separated by commas, empty: all)"
+msgstr "Se connecter à (noms d'ordinateurs séparés par des virgules, vide : tous)"
 
 #: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/data/ui/recherche.blp
 msgid "Account status"
@@ -2522,11 +3028,7 @@ msgstr "Compte sensible, ne peut pas être délégué"
 msgid "Do not require Kerberos preauthentication"
 msgstr "Pas de pré-authentification Kerberos"
 
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Account expiration"
-msgstr "Expiration du compte"
-
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Account expires"
 msgstr "Le compte expire"
 
@@ -2534,25 +3036,77 @@ msgstr "Le compte expire"
 msgid "Last valid day (DD/MM/YYYY)"
 msgstr "Dernier jour de validité (JJ/MM/AAAA)"
 
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Profile"
-msgstr "Profil"
-
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Profile path"
-msgstr "Chemin du profil"
-
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Logon script"
 msgstr "Script d'ouverture de session"
 
 #: rust/annuaire-app/data/ui/fiche.blp
-msgid "Home folder drive"
-msgstr "Lecteur du dossier personnel"
+msgid "The home folder does not exist on the server"
+msgstr "Le dossier personnel n'existe pas sur le serveur"
 
 #: rust/annuaire-app/data/ui/fiche.blp
-msgid "Home folder"
-msgstr "Dossier personnel"
+msgid "Create Home Folder"
+msgstr "Créer le dossier personnel"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Delegation"
+msgstr "Délégation"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Kerberos delegation"
+msgstr "Délégation Kerberos"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Delegation lets this service act on behalf of the users who connect to it."
+msgstr "La délégation permet à ce service d'agir au nom des utilisateurs qui s'y connectent."
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Do not trust this account for delegation"
+msgstr "Ne pas approuver ce compte pour la délégation"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Trust this account for delegation to any service (Kerberos only)"
+msgstr "Approuver ce compte pour la délégation de tous les services (Kerberos uniquement)"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Trust this account for delegation to specified services only"
+msgstr "Approuver ce compte pour la délégation aux services spécifiés uniquement"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Use Kerberos only"
+msgstr "Utiliser Kerberos uniquement"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Use any authentication protocol"
+msgstr "Utiliser tout protocole d'authentification"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Services this account can delegate to"
+msgstr "Services vers lesquels ce compte peut déléguer"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Add Services…"
+msgstr "Ajouter des services…"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Accounts allowed to delegate to this account"
+msgstr "Comptes autorisés à déléguer vers ce compte"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Add Accounts…"
+msgstr "Ajouter des comptes…"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Service principal names"
+msgstr "Noms de principal du service"
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Each name is checked against the whole forest (global catalog) before it is added."
+msgstr "Chaque nom est cherché dans toute la forêt (catalogue global) avant d'être ajouté."
+
+#: rust/annuaire-app/data/ui/fiche.blp
+msgid "Add a service principal name (service/host)"
+msgstr "Ajouter un nom de principal du service (service/hôte)"
 
 #: rust/annuaire-app/data/ui/fiche.blp
 msgid "Members"
@@ -2574,7 +3128,7 @@ msgstr "Membres directs"
 msgid "Accounts for which this group is the primary group are not listed (primaryGroupID)."
 msgstr "Les comptes dont ce groupe est le groupe principal n'y figurent pas (primaryGroupID)."
 
-#: rust/annuaire-app/data/ui/fiche.blp
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/bulk_views.rs
 msgid "Member Of"
 msgstr "Membre de"
 
@@ -2594,9 +3148,13 @@ msgstr "Tous les groupes"
 msgid "Through nesting, primary group included."
 msgstr "Par imbrication, groupe principal compris."
 
-#: rust/annuaire-app/data/ui/fiche.blp
-msgid "Attributes"
-msgstr "Attributs"
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/sheet/secrets.rs
+msgid "LAPS"
+msgstr "LAPS"
+
+#: rust/annuaire-app/data/ui/fiche.blp rust/annuaire-app/src/sheet/secrets.rs
+msgid "BitLocker"
+msgstr "BitLocker"
 
 #: rust/annuaire-app/data/ui/fiche.blp
 msgid "Apply…"
@@ -2635,11 +3193,6 @@ msgstr "Filtrer les droits par leur nom"
 #: rust/annuaire-app/data/ui/gpo-securite-droits.blp
 msgid "User rights"
 msgstr "Droits utilisateur"
-
-#: rust/annuaire-app/data/ui/gpo-securite-groupes.blp
-#: rust/annuaire-app/src/search.rs
-msgid "Groups"
-msgstr "Groupes"
 
 #: rust/annuaire-app/data/ui/gpo-securite-groupes.blp
 msgid "Add Group…"
@@ -2782,7 +3335,7 @@ msgstr "Supprimer le dossier orphelin…"
 msgid "Compare the DCs' SYSVOL"
 msgstr "Comparer les SYSVOL des DC"
 
-#: rust/annuaire-app/data/ui/historique.blp
+#: rust/annuaire-app/data/ui/historique.blp rust/annuaire-app/src/history.rs
 msgid "Undo this change"
 msgstr "Annuler cette modification"
 
@@ -2809,10 +3362,6 @@ msgstr "Modifications du journal"
 #: rust/annuaire-app/data/ui/ligne-profil.blp
 msgid "Actions on this profile"
 msgstr "Actions sur ce profil"
-
-#: rust/annuaire-app/data/ui/ligne-profil.blp
-msgid "Edit…"
-msgstr "Modifier…"
 
 #: rust/annuaire-app/data/ui/ligne-profil.blp
 msgid "Erase the Local Copy"
@@ -3323,6 +3872,7 @@ msgstr "Droits illisibles"
 #: rust/annuaire-app/src/file_security.rs rust/annuaire-app/src/gpo_dialogs.rs
 #: rust/annuaire-app/src/gpo_security.rs rust/annuaire-app/src/preferences.rs
 #: rust/annuaire-app/src/pso.rs rust/annuaire-app/src/shares.rs
+#: rust/annuaire-app/src/sheet/tabs.rs
 msgid "Searching…"
 msgstr "Recherche…"
 
@@ -3335,7 +3885,8 @@ msgstr "Choisir"
 msgid "Reading the groups and the permissions…"
 msgstr "Lecture des groupes et des droits…"
 
-#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/dns_record.rs
+#: rust/annuaire-app/src/access.rs rust/annuaire-app/src/bulk.rs
+#: rust/annuaire-app/src/deleted.rs rust/annuaire-app/src/dns_record.rs
 #: rust/annuaire-app/src/gpo.rs rust/annuaire-app/src/gpo_editor.rs
 #: rust/annuaire-app/src/pso.rs rust/annuaire-app/src/shares.rs
 #: rust/annuaire-app/src/writes.rs
@@ -3465,6 +4016,15 @@ msgid "The two passwords differ."
 msgstr "Les deux mots de passe diffèrent."
 
 #: rust/annuaire-app/src/account_views.rs
+msgid "The pre-Windows 2000 name is required."
+msgstr "Le nom pré-Windows 2000 est obligatoire."
+
+#: rust/annuaire-app/src/account_views.rs
+#, rust-format
+msgid "The pre-Windows 2000 name has more than {n} characters, or a space, a dot or a forbidden character (\" / \\ [ ] : ; | = , + * ? < > @)."
+msgstr "Le nom pré-Windows 2000 a plus de {n} caractères, ou une espace, un point ou un caractère interdit (\" / \\ [ ] : ; | = , + * ? < > @)."
+
+#: rust/annuaire-app/src/account_views.rs
 msgid "The name is required."
 msgstr "Le nom est obligatoire."
 
@@ -3490,13 +4050,14 @@ msgid "Type the number of objects ({n}) to confirm."
 msgstr "Saisissez le nombre d'objets ({n}) pour confirmer."
 
 #: rust/annuaire-app/src/account_views.rs
+#: rust/annuaire-app/src/deleted_views.rs
 #, rust-format
 msgid " and {k} more"
 msgstr " et {k} autre(s)"
 
 #: rust/annuaire-app/src/account_views.rs
-msgid "A deletion cannot be undone exactly: undoing recreates new objects (new SIDs and GUIDs; passwords and permissions lost)."
-msgstr "Une suppression est irréversible à l'identique : l'annulation recrée des objets neufs (nouveaux SID et GUID ; mots de passe et droits perdus)."
+msgid "Undoing restores the objects from the deleted objects while they are there (same SIDs and GUIDs); without the Recycle Bin, passwords and the attributes a deletion does not keep are lost."
+msgstr "L'annulation restaure les objets depuis les objets supprimés tant qu'ils y sont (mêmes SID et GUID) ; sans corbeille, les mots de passe et les attributs qu'une suppression ne garde pas sont perdus."
 
 #: rust/annuaire-app/src/account_views.rs
 msgid "empty password"
@@ -3506,7 +4067,7 @@ msgstr "mot de passe vide"
 msgid "empty name"
 msgstr "nom vide"
 
-#: rust/annuaire-app/src/account_views.rs
+#: rust/annuaire-app/src/account_views.rs rust/annuaire-app/src/bulk_views.rs
 msgid "an enabled account requires an initial password"
 msgstr "un compte actif exige un mot de passe initial"
 
@@ -3537,6 +4098,21 @@ msgstr "aucun modèle de délégation choisi"
 #: rust/annuaire-app/src/account_views.rs
 msgid "An inherited permission is removed on the object it is inherited from."
 msgstr "Une autorisation héritée se retire sur l'objet qui la transmet."
+
+#: rust/annuaire-app/src/account_views.rs
+#, rust-format
+msgid "The domain controller would refuse the default password of “{nom}” (the name in lower case): its password policy applies to computer accounts. Leave “pre-Windows 2000 computer” unchecked."
+msgstr "Le contrôleur de domaine refuserait le mot de passe par défaut de « {nom} » (le nom en minuscules) : sa stratégie de mot de passe s'applique aux comptes d'ordinateur. Laissez « ordinateur antérieur à Windows 2000 » décoché."
+
+#: rust/annuaire-app/src/accounts.rs
+#, rust-format
+msgid "“{nom}” has no security identifier: it cannot be allowed to join."
+msgstr "« {nom} » n'a pas d'identificateur de sécurité : il ne peut pas être autorisé à joindre."
+
+#: rust/annuaire-app/src/accounts.rs
+#, rust-format
+msgid "“{nom}” will be allowed to join this computer to the domain: its permissions are proposed once the account is created."
+msgstr "« {nom} » sera autorisé à joindre cet ordinateur au domaine : ses autorisations sont proposées une fois le compte créé."
 
 #: rust/annuaire-app/src/accounts.rs
 #, rust-format
@@ -3663,8 +4239,8 @@ msgstr "{n} min"
 msgid "now"
 msgstr "maintenant"
 
-#: rust/annuaire-app/src/attribute_views.rs rust/annuaire-app/src/catalog.rs
-#: rust/annuaire-app/src/pso_views.rs
+#: rust/annuaire-app/src/attribute_views.rs rust/annuaire-app/src/bulk_views.rs
+#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/pso_views.rs
 msgid "never"
 msgstr "jamais"
 
@@ -3928,6 +4504,453 @@ msgstr "À retirer : {liste}"
 msgid "; "
 msgstr " ; "
 
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/writes.rs
+msgid "Read-only profile: no write possible. Edit the profile to write."
+msgstr "Profil en lecture seule : aucune écriture possible. Modifiez le profil pour écrire."
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "Check not possible: {message}"
+msgstr "Vérification impossible : {message}"
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/writes.rs
+#, rust-format
+msgid "Check passed. Writing on {dc}."
+msgstr "Vérification préalable réussie. Écriture sur {dc}."
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "The check on {dc} refused {n} object: it is left aside."
+msgid_plural "The check on {dc} refused {n} objects: they are left aside."
+msgstr[0] "La vérification sur {dc} a refusé {n} objet : il est laissé de côté."
+msgstr[1] "La vérification sur {dc} a refusé {n} objets : ils sont laissés de côté."
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/writes.rs
+msgid "Stopping after the batch being written…"
+msgstr "Arrêt après le lot en cours d'écriture…"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{lots} batch applied ({n} objects); {reste} objects left."
+msgid_plural "{lots} batches applied ({n} objects); {reste} objects left."
+msgstr[0] "{lots} lot appliqué ({n} objets) ; {reste} objets restent."
+msgstr[1] "{lots} lots appliqués ({n} objets) ; {reste} objets restent."
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} object written in {lots} batch."
+msgid_plural "{n} objects written in {lots} batches."
+msgstr[0] "{n} objet écrit en {lots} lot."
+msgstr[1] "{n} objets écrits en {lots} lots."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Stopped between two batches."
+msgstr "Arrêté entre deux lots."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "What is written stays written: resume the series, or undo what it wrote."
+msgstr "Ce qui est écrit le reste : reprendre la série, ou annuler ce qu'elle a écrit."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "A batch was refused by its check: nothing of it is written."
+msgstr "Un lot a été refusé par sa vérification : rien n'en est écrit."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "A batch failed and was rolled back entirely."
+msgstr "Un lot a échoué et a été entièrement défait."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "A batch was left incomplete: see the history before going on."
+msgstr "Un lot est resté incomplet : voir l'historique avant de poursuivre."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Resume without the Refused"
+msgstr "Reprendre sans les refusés"
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/gpo.rs
+#: rust/annuaire-app/src/gpo_editor.rs rust/annuaire-app/src/writes.rs
+msgid "Cannot write"
+msgstr "Écriture impossible"
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/catalog.rs
+#: rust/annuaire-app/src/writes.rs
+msgid "No change."
+msgstr "Aucune modification."
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/history.rs
+#, rust-format
+msgid "Undo of “{titre}”"
+msgstr "Annulation de « {titre} »"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} batch of “{titre}” to undo, the last first."
+msgid_plural "{n} batches of “{titre}” to undo, the last first."
+msgstr[0] "{n} lot de « {titre} » à annuler, le dernier d'abord."
+msgstr[1] "{n} lots de « {titre} » à annuler, le dernier d'abord."
+
+#: rust/annuaire-app/src/bulk.rs rust/annuaire-app/src/history.rs
+msgid "No change to undo."
+msgstr "Aucune modification à annuler."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Undo not possible"
+msgstr "Annulation impossible"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} object in the list"
+msgid_plural "{n} objects in the list"
+msgstr[0] "{n} objet dans la liste"
+msgstr[1] "{n} objets dans la liste"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} selected"
+msgid_plural "{n} selected"
+msgstr[0] "{n} sélectionné"
+msgstr[1] "{n} sélectionnés"
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Name at least one attribute."
+msgstr "Nommer au moins un attribut."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Export not possible"
+msgstr "Export impossible"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} object exported to {fichier}."
+msgid_plural "{n} objects exported to {fichier}."
+msgstr[0] "{n} objet exporté dans {fichier}."
+msgstr[1] "{n} objets exportés dans {fichier}."
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} attributes returned by ranges: the file has their first 1,500 values."
+msgstr "{n} attributs rendus par plages : le fichier n'a que leurs 1 500 premières valeurs."
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "CSV files"
+msgstr "Fichiers CSV"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "Cannot read the file: {message}"
+msgstr "Lecture du fichier impossible : {message}"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "Import of {fichier}"
+msgstr "Import de {fichier}"
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "Detail"
+msgstr "Détail"
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "File of the generated passwords"
+msgstr "Fichier des mots de passe générés"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "Cannot write the file of the passwords: {message}"
+msgstr "Écriture du fichier des mots de passe impossible : {message}"
+
+#: rust/annuaire-app/src/bulk.rs
+#, rust-format
+msgid "{n} object selected"
+msgid_plural "{n} objects selected"
+msgstr[0] "{n} objet sélectionné"
+msgstr[1] "{n} objets sélectionnés"
+
+#: rust/annuaire-app/src/bulk.rs
+msgid "The group is not found, or the name gives several."
+msgstr "Le groupe est introuvable, ou le nom en désigne plusieurs."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Last name"
+msgstr "Nom"
+
+#: rust/annuaire-app/src/bulk_views.rs rust/annuaire-app/src/deleted_views.rs
+#: rust/annuaire-app/src/preferences.rs rust/annuaire-app/src/security_views.rs
+#: rust/annuaire-app/src/views.rs
+msgid "User"
+msgstr "Utilisateur"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "the distinguished name"
+msgstr "le nom distingué"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "the logon name (sAMAccountName)"
+msgstr "le nom d'ouverture de session (sAMAccountName)"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "the user logon name (UPN)"
+msgstr "le nom d'ouverture de session de l'utilisateur (UPN)"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "the share does not exist"
+msgstr "le partage n'existe pas"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the folder “{dossier}” does not exist"
+msgstr "le dossier « {dossier} » n'existe pas"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "a file has the name of the folder"
+msgstr "un fichier porte le nom du dossier"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "unknown type “{type}”: user, group, contact or computer"
+msgstr "type « {type} » inconnu : utilisateur, groupe, contact ou ordinateur"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "no name"
+msgstr "pas de nom"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "no logon name (sAMAccountName)"
+msgstr "pas de nom d'ouverture de session (sAMAccountName)"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "invalid container “{dn}”"
+msgstr "conteneur « {dn} » invalide"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the container “{dn}” does not exist"
+msgstr "le conteneur « {dn} » n'existe pas"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "column “{colonne}”: unknown to the import and to the schema"
+msgstr "colonne « {colonne} » : inconnue de l'import et du schéma"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{attribut} is written by the domain controller, not by an import"
+msgstr "{attribut} est écrit par le contrôleur de domaine, pas par un import"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the class {classe} does not allow {attribut}"
+msgstr "la classe {classe} n'admet pas {attribut}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{attribut}: {message}"
+msgstr "{attribut} : {message}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{attribut} takes a single value"
+msgstr "{attribut} ne prend qu'une valeur"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the column {colonne} is for groups only"
+msgstr "la colonne {colonne} ne vaut que pour les groupes"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "“{valeur}” is not a value of {colonne}"
+msgstr "« {valeur} » n'est pas une valeur de {colonne}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{quoi} “{valeur}” is already on line {ligne}"
+msgstr "{quoi} « {valeur} » figure déjà ligne {ligne}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{quoi} “{valeur}” is already used by {dn}"
+msgstr "{quoi} « {valeur} » est déjà pris par {dn}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the group “{groupe}” does not exist"
+msgstr "le groupe « {groupe} » n'existe pas"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the password is shorter than the {n} characters of the domain policy"
+msgstr "le mot de passe est plus court que les {n} caractères de la stratégie du domaine"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "the password does not meet the complexity of the domain (three kinds of characters, not the logon name)"
+msgstr "le mot de passe ne respecte pas la complexité du domaine (trois sortes de caractères, sans le nom d'ouverture de session)"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "home folder {chemin}: {raison}"
+msgstr "dossier personnel {chemin} : {raison}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "the file server {serveur} cannot be read: {message}"
+msgstr "le serveur de fichiers {serveur} ne peut être lu : {message}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "password generated"
+msgstr "mot de passe généré"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "home folder {chemin} already there, left as it is"
+msgstr "dossier personnel {chemin} déjà présent, laissé tel quel"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "home folder {chemin} created"
+msgstr "dossier personnel {chemin} créé"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "Line {n}: {nom}"
+msgstr "Ligne {n} : {nom}"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "refused"
+msgstr "refusée"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "to create"
+msgstr "à créer"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{n} line read: {ok} to import, {refus} refused."
+msgid_plural "{n} lines read: {ok} to import, {refus} refused."
+msgstr[0] "{n} ligne lue : {ok} à importer, {refus} refusée."
+msgstr[1] "{n} lignes lues : {ok} à importer, {refus} refusées."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{n} password generated: the file of the passwords is written before the import."
+msgid_plural "{n} passwords generated: the file of the passwords is written before the import."
+msgstr[0] "{n} mot de passe généré : le fichier des mots de passe est écrit avant l'import."
+msgstr[1] "{n} mots de passe générés : le fichier des mots de passe est écrit avant l'import."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "The file is not in UTF-8 (byte {n}). Save it as “CSV UTF-8” from the spreadsheet."
+msgstr "Le fichier n'est pas en UTF-8 (octet {n}). L'enregistrer en « CSV UTF-8 » depuis le tableur."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "A quote opened on line {n} is never closed."
+msgstr "Un guillemet ouvert ligne {n} n'est jamais fermé."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "Text after a closing quote on line {n}."
+msgstr "Texte après un guillemet fermant ligne {n}."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "The file has no line after its header."
+msgstr "Le fichier n'a aucune ligne après son en-tête."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "%d/%m/%Y %H:%M:%S"
+msgstr "%d/%m/%Y %H:%M:%S"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "Written in {lots} batch of {taille} objects at most ({n} objects); each batch is applied all or nothing, and the series can be stopped between two batches."
+msgid_plural "Written in {lots} batches of {taille} objects at most ({n} objects); each batch is applied all or nothing, and the series can be stopped between two batches."
+msgstr[0] "Écrit en {lots} lot de {taille} objets au plus ({n} objets) ; chaque lot s'applique en tout ou rien, et la série peut être arrêtée entre deux lots."
+msgstr[1] "Écrit en {lots} lots de {taille} objets au plus ({n} objets) ; chaque lot s'applique en tout ou rien, et la série peut être arrêtée entre deux lots."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "Batch {lot} of {total}, {n} objects written"
+msgstr "Lot {lot} sur {total}, {n} objets écrits"
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "Refused: {liste}"
+msgid_plural "Refused ({n}): {liste}"
+msgstr[0] "Refusé : {liste}"
+msgstr[1] "Refusés ({n}) : {liste}"
+
+#: rust/annuaire-app/src/bulk_views.rs rust/annuaire-app/src/dns_views.rs
+#: rust/annuaire-app/src/preview_views.rs
+msgid "disabled"
+msgstr "désactivé"
+
+#: rust/annuaire-app/src/bulk_views.rs rust/annuaire-app/src/dns_views.rs
+#: rust/annuaire-app/src/preview_views.rs
+msgid "enabled"
+msgstr "activé"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "change required at the next logon"
+msgstr "changement exigé à la prochaine ouverture"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "not required"
+msgstr "non exigé"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "State"
+msgstr "État"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Password change"
+msgstr "Changement du mot de passe"
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Date expected: DD/MM/YYYY, or empty for never."
+msgstr "Date attendue : JJ/MM/AAAA, ou vide pour jamais."
+
+#: rust/annuaire-app/src/bulk_views.rs rust/annuaire-app/src/inputs.rs
+msgid "Impossible date."
+msgstr "Date impossible."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{n} object will be changed."
+msgid_plural "{n} objects will be changed."
+msgstr[0] "{n} objet sera modifié."
+msgstr[1] "{n} objets seront modifiés."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{n} object is already as asked: left aside."
+msgid_plural "{n} objects are already as asked: left aside."
+msgstr[0] "{n} objet est déjà dans l'état demandé : laissé de côté."
+msgstr[1] "{n} objets sont déjà dans l'état demandé : laissés de côté."
+
+#: rust/annuaire-app/src/bulk_views.rs
+#, rust-format
+msgid "{n} object is not an account: left aside."
+msgid_plural "{n} objects are not accounts: left aside."
+msgstr[0] "{n} objet n'est pas un compte : laissé de côté."
+msgstr[1] "{n} objets ne sont pas des comptes : laissés de côté."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Name the attribute."
+msgstr "Nommer l'attribut."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Give at least one value."
+msgstr "Donner au moins une valeur."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Choose the group."
+msgstr "Choisir le groupe."
+
+#: rust/annuaire-app/src/bulk_views.rs
+msgid "Give the destination container."
+msgstr "Donner le conteneur de destination."
+
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
 msgid "“{texte}” ({date})"
@@ -3942,6 +4965,11 @@ msgstr "« {texte} »"
 #, rust-format
 msgid "0x{octets}{suite} ({n} bytes)"
 msgstr "0x{octets}{suite} ({n} octets)"
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "logon allowed {n} h of 168 per week"
+msgstr "connexion permise {n} h sur 168 par semaine"
 
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
@@ -4030,6 +5058,19 @@ msgstr "Supprimer le partage {partage}"
 #: rust/annuaire-app/src/catalog.rs
 msgid "The folder and its content stay on the server."
 msgstr "Le dossier et son contenu restent sur le serveur."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "full control for {compte} and the administrators: this folder, subfolders and files"
+msgstr "contrôle total pour {compte} et les administrateurs : ce dossier, les sous-dossiers et les fichiers"
+
+#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/preview_views.rs
+msgid "entries inherited from the parent folder kept"
+msgstr "entrées héritées du dossier parent conservées"
+
+#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/preview_views.rs
+msgid "deleted only if it is empty"
+msgstr "supprimé seulement s'il est vide"
 
 #: rust/annuaire-app/src/catalog.rs
 #, rust-format
@@ -4132,12 +5173,70 @@ msgid "Delete {dn}"
 msgstr "Supprimer {dn}"
 
 #: rust/annuaire-app/src/catalog.rs
-msgid "Cannot be undone exactly: undoing recreates a new object (new objectGUID and objectSid, password and permissions not restored)."
-msgstr "Irréversible à l'identique : l'annulation recrée un objet neuf (nouveaux objectGUID et objectSid, mot de passe et droits non restaurés)."
+msgid "Undoing restores the object from the deleted objects while it is there (same objectGUID and objectSid); otherwise it recreates a new object (new objectGUID and objectSid, password and permissions not restored)."
+msgstr "L'annulation restaure l'objet depuis les objets supprimés tant qu'il y est (mêmes objectGUID et objectSid) ; sinon elle recrée un objet neuf (nouveaux objectGUID et objectSid, mot de passe et droits non restaurés)."
 
-#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/writes.rs
-msgid "No change."
-msgstr "Aucune modification."
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Restore {dn}"
+msgstr "Restaurer {dn}"
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "from {supprime} (objectGUID {guid})"
+msgstr "depuis {supprime} (objectGUID {guid})"
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "With the Recycle Bin, {dn} comes back as it was deleted: its attributes, and its links to the objects that exist (members, group memberships)."
+msgstr "Avec la corbeille, {dn} revient tel qu'il a été supprimé : ses attributs, et ses liens vers les objets qui existent (membres, appartenances aux groupes)."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{dn} keeps its password."
+msgstr "{dn} garde son mot de passe."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Without the Recycle Bin, {dn} comes back with only what the deletion kept: {gardes}. Its other attributes are lost."
+msgstr "Sans corbeille, {dn} revient avec ce que la suppression a gardé, seulement : {gardes}. Ses autres attributs sont perdus."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Without the Recycle Bin, {dn} comes back with its name only: everything else is lost."
+msgstr "Sans corbeille, {dn} revient avec son nom seul : tout le reste est perdu."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{dn}: its password and its group memberships are lost; give it a new password and its groups back before using it."
+msgstr "{dn} : son mot de passe et ses appartenances aux groupes sont perdus ; donnez-lui un nouveau mot de passe et rendez-lui ses groupes avant de l'utiliser."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{dn} was deleted too: it is restored first."
+msgstr "{dn} a été supprimé lui aussi : il est restauré d'abord."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{n} deleted object that was under {dn} stays deleted."
+msgid_plural "{n} deleted objects that were under {dn} stay deleted."
+msgstr[0] "{n} objet supprimé qui était sous {dn} reste supprimé."
+msgstr[1] "{n} objets supprimés qui étaient sous {dn} restent supprimés."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{dn} is still among the deleted objects: it is restored (same objectGUID and objectSid), not recreated."
+msgstr "{dn} est encore parmi les objets supprimés : il est restauré (mêmes objectGUID et objectSid), non recréé."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "Without the Recycle Bin, what the deletion of {dn} lost is written back from the change log: its attributes, and its memberships of the groups that still exist."
+msgstr "Sans corbeille, ce que la suppression de {dn} a perdu est réécrit depuis le journal des modifications : ses attributs, et ses appartenances aux groupes qui existent encore."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "{dn}: its password is lost; give it a new one before using it."
+msgstr "{dn} : son mot de passe est perdu ; donnez-lui-en un nouveau avant de l'utiliser."
 
 #: rust/annuaire-app/src/catalog.rs
 msgid "Notes:"
@@ -4305,8 +5404,8 @@ msgstr "Samba n'applique pas lui-même la stratégie de comptes d'une GPO : l'ob
 msgid "Also defined by a higher-precedence GPO linked to the domain ({noms}), these settings stay as the domain object has them: {reglages}."
 msgstr "Définis aussi par une GPO plus prioritaire liée au domaine ({noms}), ces réglages restent ceux de l'objet domaine : {reglages}."
 
-#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/gpo.rs
-#: rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/catalog.rs rust/annuaire-app/src/errors.rs
+#: rust/annuaire-app/src/gpo.rs
 #, rust-format
 msgid "“{dn}” does not exist."
 msgstr "« {dn} » n'existe pas."
@@ -4529,6 +5628,16 @@ msgstr "Le serveur a accepté la modification, mais « {c} », relu, n'a pas les
 #, rust-format
 msgid "The backup of the propagation “{f}” cannot be written or read."
 msgstr "La sauvegarde de la propagation « {f} » ne peut être ni écrite ni lue."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The share “{p}” does not exist: Calinda does not create shares."
+msgstr "Le partage « {p} » n'existe pas : Calinda ne crée pas de partage."
+
+#: rust/annuaire-app/src/catalog.rs
+#, rust-format
+msgid "The folder “{c}” does not exist."
+msgstr "Le dossier « {c} » n'existe pas."
 
 #: rust/annuaire-app/src/codec_texts.rs
 #, rust-format
@@ -6597,6 +7706,137 @@ msgstr "Cette entrée est déjà présente."
 msgid "Entry added on {dn}: {texte}"
 msgstr "Entrée ajoutée sur {dn} : {texte}"
 
+#: rust/annuaire-app/src/deleted.rs
+msgid "Deleted objects cannot be read"
+msgstr "Les objets supprimés sont illisibles"
+
+#: rust/annuaire-app/src/deleted.rs
+#, rust-format
+msgid "{n} objects selected."
+msgstr "{n} objets choisis."
+
+#: rust/annuaire-app/src/deleted.rs
+#, rust-format
+msgid "Restore “{nom}”"
+msgstr "Restaurer « {nom} »"
+
+#: rust/annuaire-app/src/deleted.rs
+#, rust-format
+msgid "Restore {n} objects"
+msgstr "Restaurer {n} objets"
+
+#: rust/annuaire-app/src/deleted.rs
+msgid "Choose a destination."
+msgstr "Choisissez une destination."
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "All kinds"
+msgstr "Tous les genres"
+
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/search.rs
+msgid "Organizational units"
+msgstr "Unités d'organisation"
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "Other objects"
+msgstr "Autres objets"
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "Any date"
+msgstr "Toute date"
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "Last 24 hours"
+msgstr "Dernières 24 heures"
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "Last {n} days"
+msgstr "{n} derniers jours"
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "The Recycle Bin is enabled, but Samba cannot restore an object deleted since then: its reanimation is refused by the domain controller."
+msgstr "La corbeille est activée, mais Samba ne sait pas restaurer un objet supprimé depuis : le contrôleur de domaine refuse sa réanimation."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "The Recycle Bin is enabled: a deleted object keeps its attributes, its links and its password for {jours} days, then it is recycled and can no longer be restored."
+msgstr "La corbeille est activée : un objet supprimé garde ses attributs, ses liens et son mot de passe pendant {jours} jours, puis il est recyclé et ne peut plus être restauré."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "The Recycle Bin is not enabled: a deleted object keeps only a few attributes (its account name and its SID, among others) for {jours} days. Restored, an account comes back without its password, its groups and its other attributes."
+msgstr "La corbeille n'est pas activée : un objet supprimé ne garde que quelques attributs (son nom de compte et son SID, entre autres) pendant {jours} jours. Restauré, un compte revient sans son mot de passe, ses groupes ni ses autres attributs."
+
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/preferences.rs
+#: rust/annuaire-app/src/security_views.rs rust/annuaire-app/src/views.rs
+msgid "Organizational unit"
+msgstr "Unité d'organisation"
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "{nom} (deleted)"
+msgstr "{nom} (supprimé)"
+
+#: rust/annuaire-app/src/deleted_views.rs rust/annuaire-app/src/gpo_views.rs
+msgid "unknown"
+msgstr "inconnue"
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "{classe} · deleted {date} · from {parent}"
+msgstr "{classe} · supprimé le {date} · depuis {parent}"
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "Recycled: it can no longer be restored."
+msgstr "Recyclé : il ne peut plus être restauré."
+
+#: rust/annuaire-app/src/deleted_views.rs
+msgid "Samba cannot restore it while the Recycle Bin is enabled."
+msgstr "Samba ne sait pas le restaurer tant que la corbeille est activée."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "{montres} shown of {n} matching ({total} deleted objects): refine the filter."
+msgstr "{montres} montrés sur {n} retenus ({total} objets supprimés) : précisez le filtre."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "{n} object of {total}"
+msgid_plural "{n} objects of {total}"
+msgstr[0] "{n} objet sur {total}"
+msgstr[1] "{n} objets sur {total}"
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "“{nom}”: {raison}"
+msgstr "« {nom} » : {raison}"
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "“{nom}”: its last parent, “{parent}”, is deleted and can no longer be restored; choose another container."
+msgstr "« {nom} » : son dernier parent, « {parent} », est supprimé et ne peut plus être restauré ; choisissez un autre conteneur."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "“{nom}”: no last known parent; choose a container."
+msgstr "« {nom} » : aucun dernier parent connu ; choisissez un conteneur."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "“{nom}”: the container {parent} does not exist."
+msgstr "« {nom} » : le conteneur {parent} n'existe pas."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "{dn} exists already. Free name: {libre}."
+msgstr "{dn} existe déjà. Nom libre : {libre}."
+
+#: rust/annuaire-app/src/deleted_views.rs
+#, rust-format
+msgid "“{nom}”: the account name {compte} is used by {titulaire}; rename or delete that account first."
+msgstr "« {nom} » : le nom de compte {compte} est pris par {titulaire} ; renommez ou supprimez d'abord ce compte."
+
 #: rust/annuaire-app/src/dialogs.rs rust/annuaire-app/src/errors.rs
 #, rust-format
 msgid "No domain controller found for “{domaine}”."
@@ -7024,14 +8264,6 @@ msgstr "Mise à jour dynamique"
 #: rust/annuaire-app/src/dns_views.rs
 msgid "Aging"
 msgstr "Vieillissement"
-
-#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/preview_views.rs
-msgid "enabled"
-msgstr "activé"
-
-#: rust/annuaire-app/src/dns_views.rs rust/annuaire-app/src/preview_views.rs
-msgid "disabled"
-msgstr "désactivé"
 
 #: rust/annuaire-app/src/dns_views.rs
 #, rust-format
@@ -7572,6 +8804,26 @@ msgstr "Impossible de lire les partages de {serveur}."
 msgid "{serveur} does not answer as a file server (share service)."
 msgstr "{serveur} ne répond pas comme un serveur de fichiers (service des partages)."
 
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The share of the home folder “{p}” does not exist. Calinda does not create shares: create it on the server, or correct the path."
+msgstr "Le partage du dossier personnel « {p} » n'existe pas. Calinda ne crée pas de partage : créez-le sur le serveur, ou corrigez le chemin."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The folder that is to contain the home folder “{p}” does not exist on its share."
+msgstr "Le dossier qui doit contenir le dossier personnel « {p} » n'existe pas sur son partage."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "“{p}” is a file on the server, not a folder: the home folder cannot be created."
+msgstr "« {p} » est un fichier sur le serveur, pas un dossier : le dossier personnel ne peut pas être créé."
+
+#: rust/annuaire-app/src/errors.rs
+#, rust-format
+msgid "The service principal name “{spn}” is already used in the forest by {comptes}: two accounts with the same name break Kerberos for this service."
+msgstr "Le nom de principal du service « {spn} » est déjà porté dans la forêt par {comptes} : deux comptes du même nom empêchent Kerberos de fonctionner pour ce service."
+
 #: rust/annuaire-app/src/file_security.rs
 msgid "The auditing entries cannot be read: the account does not hold the “Manage auditing and security log” privilege (SeSecurityPrivilege) on the server. The permissions and the owner can still be changed."
 msgstr "Les entrées d'audit ne peuvent pas être lues : le compte n'a pas le privilège « Gérer le journal d'audit et de sécurité » (SeSecurityPrivilege) sur le serveur. Les autorisations et le propriétaire restent modifiables."
@@ -7746,6 +8998,7 @@ msgid "Root of the share"
 msgstr "Racine du partage"
 
 #: rust/annuaire-app/src/folders.rs rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/sheet/secrets.rs rust/annuaire-app/src/sheet/tabs.rs
 msgid "Reading…"
 msgstr "Lecture…"
 
@@ -7926,11 +9179,6 @@ msgstr "Lien non retiré"
 #: rust/annuaire-app/src/gpo.rs
 msgid "Link not moved"
 msgstr "Lien non déplacé"
-
-#: rust/annuaire-app/src/gpo.rs rust/annuaire-app/src/gpo_editor.rs
-#: rust/annuaire-app/src/writes.rs
-msgid "Cannot write"
-msgstr "Écriture impossible"
 
 #: rust/annuaire-app/src/gpo.rs
 msgid "Inheritance not changed"
@@ -9006,10 +10254,6 @@ msgid "%d/%m/%Y %H:%M"
 msgstr "%d/%m/%Y %H:%M"
 
 #: rust/annuaire-app/src/gpo_views.rs
-msgid "unknown"
-msgstr "inconnue"
-
-#: rust/annuaire-app/src/gpo_views.rs
 msgid "Unique ID"
 msgstr "ID unique"
 
@@ -9713,13 +10957,8 @@ msgid "Fix the {n} Issues…"
 msgstr "Corriger les {n} anomalies…"
 
 #: rust/annuaire-app/src/history.rs
-msgid "No change to undo."
-msgstr "Aucune modification à annuler."
-
-#: rust/annuaire-app/src/history.rs
-#, rust-format
-msgid "Undo of “{titre}”"
-msgstr "Annulation de « {titre} »"
+msgid "Restore from Deleted Objects"
+msgstr "Restaurer depuis les objets supprimés"
 
 #: rust/annuaire-app/src/history.rs
 msgid "Cannot read the backups"
@@ -9835,10 +11074,6 @@ msgstr "Au moins {n} (rangeLower)."
 #, rust-format
 msgid "At most {n} (rangeUpper)."
 msgstr "Au plus {n} (rangeUpper)."
-
-#: rust/annuaire-app/src/inputs.rs
-msgid "Impossible date."
-msgstr "Date impossible."
 
 #. / `_octets`: hexadecimal, separators and `0x` allowed.
 #: rust/annuaire-app/src/inputs.rs
@@ -10400,16 +11635,6 @@ msgstr "Aucun filtre"
 msgid "Item rejected"
 msgstr "Élément refusé"
 
-#: rust/annuaire-app/src/preferences.rs rust/annuaire-app/src/security_views.rs
-#: rust/annuaire-app/src/views.rs
-msgid "Organizational unit"
-msgstr "Unité d'organisation"
-
-#: rust/annuaire-app/src/preferences.rs rust/annuaire-app/src/security_views.rs
-#: rust/annuaire-app/src/views.rs
-msgid "User"
-msgstr "Utilisateur"
-
 #: rust/annuaire-app/src/preferences.rs
 msgid "Too many results: refine the search."
 msgstr "Trop de résultats : précisez la recherche."
@@ -10454,6 +11679,10 @@ msgstr "Modification"
 #: rust/annuaire-app/src/preview_views.rs
 msgid "Deletion"
 msgstr "Suppression"
+
+#: rust/annuaire-app/src/preview_views.rs
+msgid "Restoration"
+msgstr "Restauration"
 
 #: rust/annuaire-app/src/preview_views.rs
 msgid "Rename and move"
@@ -10577,6 +11806,10 @@ msgid "backup"
 msgstr "sauvegarde"
 
 #: rust/annuaire-app/src/preview_views.rs
+msgid "(created)"
+msgstr "(créé)"
+
+#: rust/annuaire-app/src/preview_views.rs
 msgid "registry"
 msgstr "registre"
 
@@ -10604,8 +11837,8 @@ msgstr[0] "{n} opération sur {objets} objet(s)."
 msgstr[1] "{n} opérations sur {objets} objet(s)."
 
 #: rust/annuaire-app/src/preview_views.rs
-msgid "A deletion cannot be undone exactly: undoing recreates a new object (new objectGUID and objectSid, password and permissions not restored)."
-msgstr "Une suppression est irréversible à l'identique : l'annulation recrée un objet neuf (nouveaux objectGUID et objectSid, mot de passe et droits non restaurés)."
+msgid "Undoing a deletion restores the object from the deleted objects while it is there (same objectGUID and objectSid); otherwise it recreates a new object (new objectGUID and objectSid, password and permissions not restored)."
+msgstr "Annuler une suppression restaure l'objet depuis les objets supprimés tant qu'il y est (mêmes objectGUID et objectSid) ; sinon l'annulation recrée un objet neuf (nouveaux objectGUID et objectSid, mot de passe et droits non restaurés)."
 
 #: rust/annuaire-app/src/preview_views.rs
 msgid "Some operations have no version check (object created in the meantime?)."
@@ -10685,6 +11918,11 @@ msgstr "renommage de {dn} en {nouveau}"
 #, rust-format
 msgid "deletion of {dn}"
 msgstr "suppression de {dn}"
+
+#: rust/annuaire-app/src/preview_views.rs
+#, rust-format
+msgid "restoration of {dn}"
+msgstr "restauration de {dn}"
 
 #: rust/annuaire-app/src/preview_views.rs
 #, rust-format
@@ -10965,21 +12203,36 @@ msgstr "Le nom de la stratégie est vide."
 msgid "The policy name is longer than 64 characters."
 msgstr "Le nom de la stratégie dépasse 64 caractères."
 
+#: rust/annuaire-app/src/recovery.rs
+msgid "Find BitLocker Recovery Password"
+msgstr "Rechercher un mot de passe de récupération BitLocker"
+
+#: rust/annuaire-app/src/recovery.rs
+msgid "Type the first eight characters of the password ID shown by the BitLocker recovery screen of the computer."
+msgstr "Saisissez les huit premiers caractères de l'identifiant du mot de passe que montre l'écran de récupération BitLocker de l'ordinateur."
+
+#: rust/annuaire-app/src/recovery.rs
+msgid "Password ID (first eight characters)"
+msgstr "Identifiant du mot de passe (huit premiers caractères)"
+
+#: rust/annuaire-app/src/recovery.rs
+msgid "The password ID begins with eight hexadecimal characters (0 to 9, A to F)."
+msgstr "L'identifiant du mot de passe commence par huit caractères hexadécimaux (0 à 9, A à F)."
+
+#: rust/annuaire-app/src/recovery.rs
+msgid "No recovery password of the domain has this ID, or your account cannot see it."
+msgstr "Aucun mot de passe de récupération du domaine n'a cet identifiant, ou votre compte ne peut pas le voir."
+
+#: rust/annuaire-app/src/recovery.rs
+#, rust-format
+msgid "{n} recovery password found"
+msgid_plural "{n} recovery passwords found"
+msgstr[0] "{n} mot de passe de récupération trouvé"
+msgstr[1] "{n} mots de passe de récupération trouvés"
+
 #: rust/annuaire-app/src/search.rs
 msgid "All types"
 msgstr "Tous les types"
-
-#: rust/annuaire-app/src/search.rs
-msgid "Computers"
-msgstr "Ordinateurs"
-
-#: rust/annuaire-app/src/search.rs
-msgid "Contacts"
-msgstr "Contacts"
-
-#: rust/annuaire-app/src/search.rs
-msgid "Organizational units"
-msgstr "Unités d'organisation"
 
 #: rust/annuaire-app/src/search.rs
 msgid "All states"
@@ -11987,10 +13240,6 @@ msgstr "{codes} : écrit en SID complet ({sid}-…), la forme que Windows écrit
 msgid "Conditional entry: the domain controller evaluates it on each access (Windows Server 2012 and later, Samba 4.20 and later); an older controller ignores it."
 msgstr "Entrée conditionnelle : le contrôleur l'évalue à chaque accès (Windows Server 2012 et plus, Samba 4.20 et plus) ; un contrôleur plus ancien l'ignore."
 
-#: rust/annuaire-app/src/share_views.rs
-msgid "Change"
-msgstr "Modifier"
-
 #. « Lire » in the « Share » tab of Windows, « Lecture » in the « Security » tab.
 #: rust/annuaire-app/src/share_views.rs
 msgctxt "share permission"
@@ -12331,6 +13580,7 @@ msgstr "Le dossier {chemin} doit exister sur {serveur} : Calinda ne le crée pas
 #. / The choices of « Allowed » and « Denied »: none, then the three levels, then « Special
 #. / permissions » when the mask read is none of them (kept as is).
 #: rust/annuaire-app/src/shares.rs rust/annuaire-app/src/sheet.rs
+#: rust/annuaire-app/src/sheet/tabs.rs
 msgid "None"
 msgstr "Aucun"
 
@@ -12368,10 +13618,14 @@ msgstr "Dernier jour de validité"
 msgid "Change required at next logon"
 msgstr "Changement exigé à la prochaine connexion"
 
-#: rust/annuaire-app/src/sheet.rs rust/annuaire-app/src/writes.rs
+#: rust/annuaire-app/src/sheet.rs
 #, rust-format
-msgid "Check not possible: {message}"
-msgstr "Vérification impossible : {message}"
+msgid "The home folder “{p}” already exists."
+msgstr "Le dossier personnel « {p} » existe déjà."
+
+#: rust/annuaire-app/src/sheet.rs
+msgid "Cannot prepare"
+msgstr "Préparation impossible"
 
 #: rust/annuaire-app/src/sheet.rs
 #, rust-format
@@ -12413,16 +13667,232 @@ msgid "Keep Editing"
 msgstr "Continuer la saisie"
 
 #: rust/annuaire-app/src/sheet.rs
-msgid "Cannot prepare"
-msgstr "Préparation impossible"
-
-#: rust/annuaire-app/src/sheet.rs
 msgid "The directory already has these values."
 msgstr "L'annuaire a déjà ces valeurs."
 
 #: rust/annuaire-app/src/sheet.rs
 msgid "to remove"
 msgstr "à retirer"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Copy"
+msgstr "Copier"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+#, rust-format
+msgid "Copied. The clipboard is emptied in {n} seconds."
+msgstr "Copié. Le presse-papiers est vidé dans {n} secondes."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Windows LAPS"
+msgstr "Windows LAPS"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Microsoft LAPS (legacy)"
+msgstr "LAPS de Microsoft (historique)"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "The password is kept encrypted (msLAPS-EncryptedPassword) and could not be read: your account may not be allowed to decrypt it, or the domain does not serve the key distribution service."
+msgstr "Le mot de passe est conservé chiffré (msLAPS-EncryptedPassword) et n'a pas pu être lu : votre compte n'est peut-être pas autorisé à le déchiffrer, ou le domaine ne fournit pas le service de distribution de clés."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+#, rust-format
+msgid "Your account is not allowed to read this password: {attribut} is a confidential attribute, read only with the “All extended rights” (control access) permission on it."
+msgstr "Votre compte n'a pas le droit de lire ce mot de passe : {attribut} est un attribut confidentiel, lisible seulement avec l'autorisation « Tous les droits étendus » (contrôle d'accès) sur lui."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "The value of msLAPS-Password cannot be read."
+msgstr "La valeur de msLAPS-Password est illisible."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "No BitLocker recovery password of this computer is in the directory, or your account cannot see them."
+msgstr "Aucun mot de passe de récupération BitLocker de cet ordinateur n'est dans l'annuaire, ou votre compte ne peut pas les voir."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "No local administrator password of this computer is kept in the directory by LAPS, or its expiration date cannot be read with your account."
+msgstr "LAPS ne garde dans l'annuaire aucun mot de passe d'administrateur local de cet ordinateur, ou sa date d'expiration n'est pas lisible avec votre compte."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Managed account"
+msgstr "Compte géré"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Updated"
+msgstr "Mis à jour"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Expires"
+msgstr "Expire"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Expire Now…"
+msgstr "Expirer maintenant…"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "The computer changes its password at its next policy processing"
+msgstr "L'ordinateur change son mot de passe à son prochain traitement de la stratégie"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "An encrypted history or directory services restore mode password is kept too: readable in a later version."
+msgstr "Un historique chiffré ou un mot de passe du mode de restauration des services d'annuaire est aussi gardé : lisible dans une version suivante."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "The computer changes its password at its next processing of the LAPS policy (every hour, or Invoke-LapsPolicyProcessing). The password is not written by Calinda."
+msgstr "L'ordinateur change son mot de passe à son prochain traitement de la stratégie LAPS (toutes les heures, ou Invoke-LapsPolicyProcessing). Calinda n'écrit pas le mot de passe."
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+#, rust-format
+msgid "Password ID {id}"
+msgstr "Identifiant du mot de passe {id}"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Backed up"
+msgstr "Sauvegardé"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Volume"
+msgstr "Volume"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Recovery password"
+msgstr "Mot de passe de récupération"
+
+#: rust/annuaire-app/src/sheet/secrets.rs
+msgid "Your account is not allowed to read this recovery password: msFVE-RecoveryPassword is a confidential attribute."
+msgstr "Votre compte n'a pas le droit de lire ce mot de passe de récupération : msFVE-RecoveryPassword est un attribut confidentiel."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Sunday"
+msgstr "dimanche"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Monday"
+msgstr "lundi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Tuesday"
+msgstr "mardi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Wednesday"
+msgstr "mercredi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Thursday"
+msgstr "jeudi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Friday"
+msgstr "vendredi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Saturday"
+msgstr "samedi"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Unreadable value"
+msgstr "Valeur illisible"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Logon allowed at all hours"
+msgstr "Connexion permise à toute heure"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Logon never allowed"
+msgstr "Connexion jamais permise"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "Logon allowed {n} hour a week (local time, {offset})"
+msgid_plural "Logon allowed {n} hours a week (local time, {offset})"
+msgstr[0] "Connexion permise {n} heure par semaine (heure locale, {offset})"
+msgstr[1] "Connexion permise {n} heures par semaine (heure locale, {offset})"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Show…"
+msgstr "Afficher…"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "The permissions of the object cannot be read."
+msgstr "Les autorisations de l'objet sont illisibles."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "The domain controller declares this attribute system-only (Samba): it cannot be written over LDAP. On a Samba DC, use “samba-tool delegation add-principal”."
+msgstr "Le contrôleur de domaine déclare cet attribut réservé au système (Samba) : il ne s'écrit pas par LDAP. Sur un DC Samba, passer par « samba-tool delegation add-principal »."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "“{nom}” has no security identifier: it cannot be allowed to delegate."
+msgstr "« {nom} » n'a pas d'identificateur de sécurité : il ne peut pas être autorisé à déléguer."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "A service principal name has the form service/host, or service/host:port."
+msgstr "Un nom de principal du service a la forme service/hôte, ou service/hôte:port."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "“{spn}” is already used by {comptes}: two accounts with the same name break Kerberos for this service."
+msgstr "« {spn} » est déjà porté par {comptes} : deux comptes du même nom empêchent Kerberos de fonctionner pour ce service."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "The global catalog could not be reached: the name is added without checking the forest."
+msgstr "Le catalogue global est injoignable : le nom est ajouté sans vérification dans la forêt."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "Remove “{nom}”"
+msgstr "Retirer « {nom} »"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Logon Hours"
+msgstr "Horaires d'accès"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "Hours in the local time of this computer ({offset}). The directory keeps them in UTC: seen from another time zone, the same restriction is shown shifted."
+msgstr "Heures en heure locale de cet ordinateur ({offset}). L'annuaire les garde en UTC : vue d'un autre fuseau horaire, la même restriction apparaît décalée."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "{jour}, {de}:00 to {a}:00"
+msgstr "{jour}, de {de} h à {a} h"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+#, rust-format
+msgid "All of {jour}"
+msgstr "Tout le {jour}"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Allow All"
+msgstr "Tout permettre"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Deny All"
+msgstr "Tout refuser"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Add Services"
+msgstr "Ajouter des services"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Name of a user or computer"
+msgstr "Nom d'un utilisateur ou d'un ordinateur"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Type the beginning of the name of the account that offers the service."
+msgstr "Saisir le début du nom du compte qui offre le service."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Services found"
+msgstr "Services trouvés"
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "No account with services matches."
+msgstr "Aucun compte doté de services ne correspond."
+
+#: rust/annuaire-app/src/sheet/tabs.rs
+msgid "Tick the services, then Add."
+msgstr "Cocher les services, puis Ajouter."
 
 #: rust/annuaire-app/src/sheet_views.rs rust/annuaire-app/src/views.rs
 msgctxt "state"
@@ -12457,6 +13927,14 @@ msgstr "L'identifiant (pré-Windows 2000) fait au plus 20 caractères."
 #: rust/annuaire-app/src/sheet_views.rs
 msgid "Forbidden characters in the logon name: \" / \\ [ ] : ; | = , + * ? < > @"
 msgstr "Caractères interdits dans l'identifiant : \" / \\ [ ] : ; | = , + * ? < > @"
+
+#: rust/annuaire-app/src/sheet_views.rs
+msgid "A computer name is missing between two commas."
+msgstr "Il manque un nom d'ordinateur entre deux virgules."
+
+#: rust/annuaire-app/src/sheet_views.rs
+msgid "Computer names (NetBIOS) are at most 15 characters long, without spaces nor \\ / : * ? \" < > |"
+msgstr "Les noms d'ordinateurs (NetBIOS) ont au plus 15 caractères, sans espace ni \\ / : * ? \" < > |"
 
 #: rust/annuaire-app/src/sheet_views.rs
 msgid "The user logon name has the form name@domain."
@@ -12516,6 +13994,16 @@ msgstr "{attribut} ne se modifie pas depuis la fiche"
 #, rust-format
 msgid "“{attribut}” is already modified in another tab: apply or discard that change first."
 msgstr "« {attribut} » est déjà modifié dans un autre onglet : appliquez ou abandonnez d'abord cette modification."
+
+#: rust/annuaire-app/src/sheet_views.rs
+#, rust-format
+msgid "The global catalog could not be reached: the uniqueness of “{spn}” in the forest was not checked."
+msgstr "Le catalogue global est injoignable : l'unicité de « {spn} » dans la forêt n'a pas été vérifiée."
+
+#: rust/annuaire-app/src/sheet_views.rs
+#, rust-format
+msgid "The home folder “{p}” already exists: it is not created and its permissions are not changed. Make sure the account has the access it needs."
+msgstr "Le dossier personnel « {p} » existe déjà : il n'est pas créé et ses autorisations ne sont pas modifiées. Vérifiez que le compte y a l'accès dont il a besoin."
 
 #: rust/annuaire-app/src/template_views.rs
 msgid "Configured (unrecognized values)"
@@ -12967,6 +14455,18 @@ msgid "Nothing to do"
 msgstr "Rien à faire"
 
 #: rust/annuaire-app/src/window/accounts.rs
+msgid "The list is empty."
+msgstr "La liste est vide."
+
+#: rust/annuaire-app/src/window/accounts.rs
+msgid "Each computer loses its secure channel with the domain until it is joined again."
+msgstr "Chaque ordinateur perd son canal sécurisé avec le domaine jusqu'à ce qu'il soit joint de nouveau."
+
+#: rust/annuaire-app/src/window/accounts.rs
+msgid "The domain controller would refuse the default password (the name in lower case): its password policy applies to computer accounts. A random password is set instead; the computer must be joined again with an account allowed to join it."
+msgstr "Le contrôleur de domaine refuserait le mot de passe par défaut (le nom en minuscules) : sa stratégie de mot de passe s'applique aux comptes d'ordinateur. Un mot de passe aléatoire est posé à la place ; l'ordinateur doit être joint de nouveau par un compte autorisé à le joindre."
+
+#: rust/annuaire-app/src/window/accounts.rs
 msgid "The selected accounts are already enabled."
 msgstr "Les comptes choisis sont déjà actifs."
 
@@ -13031,18 +14531,9 @@ msgid "Interrupted change"
 msgstr "Modification interrompue"
 
 #: rust/annuaire-app/src/writes.rs
-msgid "Read-only profile: no write possible. Edit the profile to write."
-msgstr "Profil en lecture seule : aucune écriture possible. Modifiez le profil pour écrire."
-
-#: rust/annuaire-app/src/writes.rs
 #, rust-format
 msgid "The check on {dc} found problems: nothing will be written."
 msgstr "La vérification sur {dc} a trouvé des problèmes : rien ne sera écrit."
-
-#: rust/annuaire-app/src/writes.rs
-#, rust-format
-msgid "Check passed. Writing on {dc}."
-msgstr "Vérification préalable réussie. Écriture sur {dc}."
 
 #: rust/annuaire-app/src/writes.rs
 msgid "Change not applied"
@@ -13056,10 +14547,6 @@ msgstr "Propagation sur le point de commencer…"
 #, rust-format
 msgid "{examines} of {total} elements examined, {ecrits} written"
 msgstr "{examines} éléments examinés sur {total}, {ecrits} écrits"
-
-#: rust/annuaire-app/src/writes.rs
-msgid "Stopping after the batch being written…"
-msgstr "Arrêt après le lot en cours d'écriture…"
 
 #: rust/annuaire-app/src/writes.rs
 #, rust-format
@@ -13091,10 +14578,6 @@ msgstr "{n} éléments ont été laissés tels quels."
 #: rust/annuaire-app/src/writes.rs
 msgid "Elements left as they were"
 msgstr "Éléments laissés tels quels"
-
-#: rust/annuaire-app/src/writes.rs
-msgid "Resume"
-msgstr "Reprendre"
 
 #: rust/annuaire-app/src/writes.rs
 msgid "Resumption of a propagation stopped: what is already as it must be is not written again."
@@ -13142,3 +14625,6 @@ msgstr "ses autorisations n'ont pas pu être lues avant que son propriétaire so
 #: rust/annuaire-app/src/writes.rs
 msgid "Change not proposed"
 msgstr "Modification non proposée"
+
+#~ msgid "A deletion cannot be undone exactly: undoing recreates new objects (new SIDs and GUIDs; passwords and permissions lost)."
+#~ msgstr "Une suppression est irréversible à l'identique : l'annulation recrée des objets neufs (nouveaux SID et GUID ; mots de passe et droits perdus)."

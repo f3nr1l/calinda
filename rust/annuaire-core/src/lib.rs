@@ -10,21 +10,27 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(test, allow(clippy::indexing_slicing))]
 
+pub mod account_tabs;
 pub mod actions;
 #[cfg(feature = "gpo-content")]
 pub mod admx;
 #[cfg(feature = "gpo-content")]
 pub mod admx_store;
+pub mod bitlocker;
+pub mod bulk;
 #[cfg(feature = "local-copy")]
 pub mod cache;
 pub mod changes;
+pub mod computers;
 pub mod connection;
 pub mod dn;
 pub mod dns;
 pub mod dns_health;
 pub mod dns_write;
+pub mod dpapi;
 pub mod effective_access;
 pub mod error;
+pub mod export;
 pub mod file_servers;
 pub mod gpo;
 #[cfg(feature = "gpo-backup")]
@@ -36,10 +42,14 @@ pub mod gpo_preferences;
 pub mod gpo_write;
 #[cfg(feature = "gpo-content")]
 pub mod gpp;
+pub mod home_folder;
+pub mod import;
 pub mod journal;
 pub mod kerberos;
+pub mod laps;
 pub mod ldap3_session;
 pub mod lsarpc;
+pub mod mass;
 pub mod membership;
 pub mod messages;
 pub mod model;
@@ -50,6 +60,7 @@ pub mod profile;
 pub mod propagation;
 pub mod pso;
 pub mod queries;
+pub mod recycle;
 pub mod reread;
 pub mod rootdse;
 pub mod rpc;

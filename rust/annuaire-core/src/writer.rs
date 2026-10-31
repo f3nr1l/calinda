@@ -34,7 +34,7 @@ use serde_json::{Map, Value, json};
 
 use crate::changes::{
     self, Applied, AttributeMap, Change, ChangeError, Changeset, ErrorRecord, Issue, Operation,
-    Read, Report, Values, dn_key, is_sensitive, parent_dn, text_value,
+    Read, Report, Series, Values, dn_key, is_sensitive, parent_dn, text_value,
 };
 use crate::connection::{Connection, Failure, Link};
 use crate::dn::{self, Component};
@@ -54,7 +54,13 @@ pub const ATTEMPTS: usize = 3;
 
 /// Transformed by the DC (inheritance in a descriptor, `pwdLastSet = -1` become a date):
 /// not checked, written by « replace ».
-const UNCHECKABLE: [&str; 2] = ["ntsecuritydescriptor", "pwdlastset"];
+const UNCHECKABLE: [&str; 3] = [
+    "ntsecuritydescriptor",
+    "pwdlastset",
+    // A descriptor (syntax String(NT-Sec-Desc)): written by « replace », never compared in a
+    // filter (J9.3).
+    "msds-allowedtoactonbehalfofotheridentity",
+];
 
 const OBJECT_ATTRIBUTES: [&str; 4] = [
     "uSNChanged",
@@ -240,6 +246,14 @@ pub enum WriteMsg {
         path: String,
         status: u32,
     },
+    /// The share where a folder is to be created does not exist (ADR 0027): no share is made.
+    FolderShareMissing {
+        unc: String,
+    },
+    /// The parent of a folder to create does not exist, or is not a folder (ADR 0027).
+    FolderParentMissing {
+        path: String,
+    },
 }
 
 /// The catalogue of the interface, for the messages of the writer and of the inverse.
@@ -330,12 +344,38 @@ impl Burst {
         limit: i32,
         sd_flags: Option<i64>,
     ) -> Result<usize, LdapError> {
+        let controls = sd_flags.map(search::sd_flags_control).into_iter().collect();
+        self.send(link, base, scope, filter, attributes, limit, controls)
+    }
+
+    /// A deleted object, read with « show deleted » and « show recycled » (ADR 0024).
+    fn read_deleted(
+        &mut self,
+        link: &mut Link,
+        dn_text: &str,
+        attributes: &[&str],
+    ) -> Result<usize, LdapError> {
+        let controls = crate::recycle::deleted_controls();
+        self.send(link, dn_text, Scope::Base, ALL, attributes, 0, controls)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn send(
+        &mut self,
+        link: &mut Link,
+        base: &str,
+        scope: Scope,
+        filter: &str,
+        attributes: &[&str],
+        limit: i32,
+        controls: Vec<crate::session::Control>,
+    ) -> Result<usize, LdapError> {
         let id = link.session.search(SearchRequest {
             base: base.to_owned(),
             scope,
             filter: filter.to_owned(),
             attributes: attributes.iter().map(|&a| a.to_owned()).collect(),
-            controls: sd_flags.map(search::sd_flags_control).into_iter().collect(),
+            controls,
             size_limit: limit,
         })?;
         self.ids.push(id);
@@ -508,6 +548,25 @@ fn modification_states(changes: &[Change]) -> (AttributeMap, AttributeMap) {
     (added, removed)
 }
 
+/// The filter of the state before a modification: the values to remove present, those to add
+/// absent; a value that names an object created earlier in the changeset is not tested
+/// (ADR 0026): it cannot be there, and Windows Server 2025 takes `(!(member=<DN that does not
+/// exist>))` for undefined, so false, where Samba 4.22 takes it for true.
+fn before_filter(changes: &[Change], created: &HashSet<String>) -> String {
+    let (added, removed) = modification_states(changes);
+    let added: AttributeMap = added
+        .into_iter()
+        .map(|(a, values)| {
+            let kept = values
+                .into_iter()
+                .filter(|v| text_value(v).is_none_or(|t| !created.contains(&key(t))))
+                .collect();
+            (a, kept)
+        })
+        .collect();
+    state_filter(&removed, &added)
+}
+
 /// The directory as it will be after the operations of the changeset already checked
 /// (`_Vue`).
 #[derive(Default)]
@@ -544,6 +603,7 @@ impl View {
             children: Vec::new(),
         };
         let mut touched: Vec<String> = Vec::new();
+        let mut created: HashSet<String> = HashSet::new();
         let free = |dn_text: &str, touched: &[String]| {
             let k = key(dn_text);
             !touched
@@ -575,8 +635,7 @@ impl View {
                         read(link, &mut preload, burst, &parent, &touched)?;
                     }
                     Operation::Modify { changes, .. } => {
-                        let (added, removed) = modification_states(changes);
-                        let filter = state_filter(&removed, &added);
+                        let filter = before_filter(changes, &created);
                         if filter != ALL {
                             let rank = burst.read(link, dn_text, &["1.1"], &filter, None)?;
                             preload.filters.push((index, rank));
@@ -588,6 +647,10 @@ impl View {
                         if let Some(parent) = parent {
                             read(link, &mut preload, burst, parent, &touched)?;
                         }
+                    }
+                    Operation::Restore { .. } => {
+                        let parent = parent_dn(dn_text).unwrap_or_default();
+                        read(link, &mut preload, burst, &parent, &touched)?;
                     }
                     _ => {
                         if !preload.children.iter().any(|(k, _)| *k == key(dn_text)) {
@@ -615,6 +678,9 @@ impl View {
                 }
             }
             touched.push(key(dn_text));
+            if let Operation::Add { .. } = op {
+                created.insert(key(dn_text));
+            }
             if let Operation::Rename { .. } = op {
                 touched.push(key(&op.dn_after().unwrap_or_default()));
             }
@@ -784,6 +850,10 @@ fn read_guard(
             };
             Ok(Some(GuardReads { entry, guards }))
         }
+        Operation::Restore { deleted, .. } => Ok(Some(GuardReads {
+            entry: burst.read_deleted(link, deleted, &["uSNChanged", "isDeleted"])?,
+            guards: None,
+        })),
         _ => Ok(None),
     }
 }
@@ -832,7 +902,9 @@ fn preverify(
     let preload = view.preload(link, &changeset.operations, &mut burst)?;
     let first_op = changeset.operations.first();
     let guard_reads = match first_op {
-        Some(op @ Operation::Delete { .. }) => read_guard(op, link, &mut burst)?,
+        Some(op @ (Operation::Delete { .. } | Operation::Restore { .. })) => {
+            read_guard(op, link, &mut burst)?
+        }
         _ => None,
     };
     let dc = link.state.dc.clone();
@@ -930,8 +1002,7 @@ fn preverify(
                     });
                 }
                 if untouched && entry.is_some() {
-                    let (added, removed) = modification_states(changes);
-                    let filter = state_filter(&removed, &added);
+                    let filter = before_filter(changes, &view.created);
                     let as_expected = match view.filters.get(&index) {
                         Some(found) => *found,
                         None if filter == ALL => true,
@@ -1015,6 +1086,76 @@ fn preverify(
                 view.arrived.insert(key(&new_dn));
                 view.removed.remove(&key(&new_dn));
                 view.touched.insert(key(&new_dn));
+            }
+            Operation::Restore {
+                dn, deleted, read, ..
+            } => {
+                let entry = match (index, &guard) {
+                    (0, Some(g)) => g.entry.clone(),
+                    _ => {
+                        let mut burst = Burst::new();
+                        let rank =
+                            burst.read_deleted(link, deleted, &["uSNChanged", "isDeleted"])?;
+                        first(burst.receive(link)?.get(rank))
+                    }
+                };
+                match (&entry, read) {
+                    (None, _) => signal(
+                        index,
+                        dn,
+                        ProblemKind::Missing,
+                        WriteMsg::Missing {
+                            dn: deleted.clone(),
+                        },
+                    ),
+                    (Some(e), Some(read)) => {
+                        let usn = usn_of(e, catalog)?;
+                        if read.dc != dc {
+                            signal(
+                                index,
+                                dn,
+                                ProblemKind::Version,
+                                WriteMsg::ReadOnDc {
+                                    dn: deleted.clone(),
+                                    read: read.dc.clone(),
+                                    dc: dc.clone(),
+                                },
+                            );
+                        } else if usn != read.usn {
+                            signal(
+                                index,
+                                dn,
+                                ProblemKind::Version,
+                                WriteMsg::ChangedSincePreview {
+                                    dn: deleted.clone(),
+                                    read: read.usn,
+                                    usn,
+                                },
+                            );
+                        }
+                    }
+                    (Some(_), None) => {}
+                }
+                if view.exists(link, dn)? {
+                    signal(
+                        index,
+                        dn,
+                        ProblemKind::Exists,
+                        WriteMsg::NameTaken { dn: dn.clone() },
+                    );
+                }
+                let parent = parent_dn(dn).unwrap_or_default();
+                if !view.exists(link, &parent)? {
+                    signal(
+                        index,
+                        dn,
+                        ProblemKind::Target,
+                        WriteMsg::ContainerMissing { parent },
+                    );
+                }
+                view.arrived.insert(key(dn));
+                view.removed.remove(&key(dn));
+                view.touched.insert(key(dn));
             }
             Operation::Delete { dn, read, .. } => {
                 version(
@@ -1347,6 +1488,7 @@ fn class_name(op: &Operation) -> &'static str {
         Operation::Add { .. } => "Ajouter",
         Operation::Modify { .. } => "Modifier",
         Operation::Rename { .. } => "Renommer",
+        Operation::Restore { .. } => "Restaurer",
         _ => "Supprimer",
     }
 }
@@ -1541,8 +1683,34 @@ fn apply_one(
                     "",
                 )));
             };
+            // The home folder of an account created by this changeset (ADR 0027): its ACEs
+            // name the SID the DC has just given it.
+            let resolved = match op {
+                Operation::CreateShareFolder {
+                    account_dn: Some(dn),
+                    ..
+                } => {
+                    let sid = read_entry(link, dn, &["objectSid"], ALL)?
+                        .and_then(|e| e.values("objectSid").first().cloned())
+                        .and_then(|v| annuaire_codecs::sid::Sid::decode(&v).ok())
+                        .ok_or_else(|| {
+                            OpError::Record(record(
+                                "ErreurConflit",
+                                catalog.write_text(&WriteMsg::NoLongerExists { dn: dn.clone() }),
+                                "objectSid",
+                            ))
+                        })?;
+                    Some(crate::home_folder::for_sid(op, &sid))
+                }
+                _ => None,
+            };
             suite.send(link)?;
-            crate::share_write::apply(&mut session.shares, op, catalog).map_err(|e| match e {
+            crate::share_write::apply(
+                &mut session.shares,
+                resolved.as_ref().unwrap_or(op),
+                catalog,
+            )
+            .map_err(|e| match e {
                 StepError::Verification(r) => OpError::Verification(r),
                 StepError::Conflict(r) | StepError::Other(r) => OpError::Record(r),
             })?;
@@ -1635,6 +1803,38 @@ fn apply_one(
                     suite.read_back(link, session.as_deref_mut(), &new_dn, &["uSNChanged"], ALL)?;
                 let after = read_back(&dc, &new_dn, back.as_ref(), ALL, op, catalog)?;
                 follow(followed, dn, &new_dn, read.as_ref(), &after);
+                Ok(Applied {
+                    operation: op.clone(),
+                    after: Some(after),
+                    before: None,
+                })
+            }
+            Operation::Restore {
+                dn, deleted, read, ..
+            } => {
+                let entry = guard.and_then(|g| g.entry);
+                check_version(
+                    &dc,
+                    deleted,
+                    read.as_ref(),
+                    followed,
+                    entry.as_ref(),
+                    catalog,
+                )?;
+                // One modification of the deleted object, by its DN under Deleted Objects:
+                // Samba refuses `<GUID=…>` here (`tombstone_reanimate`).
+                let mods = vec![
+                    Modification::Delete("isDeleted".into(), Vec::new()),
+                    Modification::Replace("distinguishedName".into(), vec![dn.as_bytes().to_vec()]),
+                ];
+                let id = link
+                    .session
+                    .modify(deleted, mods, crate::recycle::deleted_controls())?;
+                link.session.result(id, timeout)?;
+                let back =
+                    suite.read_back(link, session.as_deref_mut(), dn, &["uSNChanged"], ALL)?;
+                let after = read_back(&dc, dn, back.as_ref(), ALL, op, catalog)?;
+                followed.insert(key(dn), (after.usn, after.usn));
                 Ok(Applied {
                     operation: op.clone(),
                     after: Some(after),
@@ -1947,12 +2147,16 @@ fn attempt(
     catalog: &dyn WriteCatalog,
     session: &mut SysvolSession,
     imposed: bool,
+    series: Option<&Series>,
 ) -> Result<Result<Outcome, ErrorRecord>, LdapError> {
-    // Operations on shares are written on their file server, not on the DC.
+    // Operations on shares are written on their file server, not on the DC; a changeset that
+    // also writes the directory (a home folder with its attributes, ADR 0027) names the DC.
+    let on_servers = changeset.operations.iter().all(Operation::is_file_share);
     let target = changeset
         .operations
         .iter()
         .find_map(Operation::server)
+        .filter(|_| on_servers)
         .map_or_else(|| link.state.dc.clone(), str::to_owned);
     let mut report = Report {
         id: new_id(),
@@ -1972,6 +2176,7 @@ fn attempt(
         doubtful_rollback: None,
         resumes: resumes.map(str::to_owned),
         resumed_by: None,
+        series: series.cloned(),
     };
     let (problems, guard) = match preverify(link, changeset, catalog, Some(session), imposed) {
         Ok(found) => found,
@@ -2001,17 +2206,18 @@ fn attempt(
         Ok(v) => v,
         Err(e) => return Ok(Err(record("ErreurAnnuaire", e.to_string(), ""))),
     };
-    if let Err(detail) = context.note(
-        "intention",
-        vec![
-            ("horodatage", json!(report.timestamp)),
-            ("domaine", json!(report.domain)),
-            ("dc", json!(report.dc)),
-            ("utilisateur", json!(report.user)),
-            ("reprend", json!(resumes)),
-            ("changeset", changeset_json),
-        ],
-    ) {
+    let mut intention = vec![
+        ("horodatage", json!(report.timestamp)),
+        ("domaine", json!(report.domain)),
+        ("dc", json!(report.dc)),
+        ("utilisateur", json!(report.user)),
+        ("reprend", json!(resumes)),
+        ("changeset", changeset_json),
+    ];
+    if let Some(series) = series {
+        intention.push(("serie", changes::series_to_json(series)));
+    }
+    if let Err(detail) = context.note("intention", intention) {
         return Ok(Err(record(
             "ErreurJournal",
             catalog.write_text(&WriteMsg::JournalNothingModified),
@@ -2100,7 +2306,24 @@ pub fn apply(
     journal: Arc<Journal>,
     catalog: Arc<dyn WriteCatalog>,
     resumes: Option<String>,
+    retry: Option<Retry>,
+) -> Result<Outcome, ApplyError> {
+    apply_in_series(
+        connection, profile, changeset, journal, catalog, resumes, retry, None,
+    )
+}
+
+/// As `apply`, for one batch of a series (ADR 0026): the report carries `series`.
+#[allow(clippy::too_many_arguments)]
+pub fn apply_in_series(
+    connection: &Connection,
+    profile: &Profile,
+    changeset: &Changeset,
+    journal: Arc<Journal>,
+    catalog: Arc<dyn WriteCatalog>,
+    resumes: Option<String>,
     mut retry: Option<Retry>,
+    series: Option<Series>,
 ) -> Result<Outcome, ApplyError> {
     if profile.read_only {
         return Err(ApplyError::Record(record(
@@ -2137,6 +2360,7 @@ pub fn apply(
                 retry.as_mut(),
                 &mut session,
                 imposed,
+                series.as_ref(),
             );
             session.close();
             result
@@ -2157,13 +2381,14 @@ fn attempts(
     mut retry: Option<&mut Retry>,
     session: &mut SysvolSession,
     imposed: bool,
+    series: Option<&Series>,
 ) -> Result<Result<Outcome, ErrorRecord>, LdapError> {
     let user = identity(link);
     let mut tried = changeset.clone();
     let mut attempt_number = 1;
     loop {
         let outcome = match attempt(
-            link, &tried, &user, domain, resumes, journal, catalog, session, imposed,
+            link, &tried, &user, domain, resumes, journal, catalog, session, imposed, series,
         )? {
             Ok(outcome) => outcome,
             Err(error) => return Ok(Err(error)),
@@ -2212,6 +2437,17 @@ pub enum PrepareError {
     Missing(String),
     /// A secret, or an attribute returned by ranges: an explicit `Change` is needed.
     Unsupported(String),
+    /// The home folder of the account cannot be created (ADR 0027): share or parent missing,
+    /// file server unreachable.
+    HomeFolder(crate::home_folder::PlanError),
+    /// A service principal name added is already carried by other objects of the forest
+    /// (global catalog, J9.3).
+    DuplicateSpn {
+        spn: String,
+        owners: Vec<String>,
+    },
+    /// The protection against deletion cannot be built (descriptor unreadable, J9.3).
+    Protection(crate::actions::ActionError),
 }
 
 /// Reads the object and builds the `Modify` that gives each attribute the values wanted; an
@@ -2426,6 +2662,7 @@ fn reconstitute(records: &[&Map<String, Value>]) -> Result<Report, ChangeError> 
             .and_then(Value::as_str)
             .map(str::to_owned),
         resumed_by: None,
+        series: changes::series_from_json(intention.get("serie")),
     })
 }
 
@@ -2498,6 +2735,7 @@ pub fn ignore(journal: &Journal, report: &Report) -> std::io::Result<Report> {
         doubtful_rollback: None,
         resumes: Some(report.id.clone()),
         resumed_by: None,
+        series: None,
     };
     match changes::report_to_json(&ignored) {
         Ok(Value::Object(map)) => journal.write(&map)?,
@@ -2562,6 +2800,10 @@ fn ascertain_one(
                 (None, Some(_)) => Ok((Some(false), None)),
                 _ => Ok((None, None)),
             }
+        }
+        Operation::Restore { dn, .. } => {
+            let after = version(link, dn, ALL)?;
+            Ok((Some(after.is_some()), after))
         }
         _ => Ok((Some(version(link, op.dn(), ALL)?.is_none()), None)),
     }
@@ -2763,6 +3005,7 @@ mod tests {
             doubtful_rollback: None,
             resumes: None,
             resumed_by: None,
+            series: None,
         }
     }
 

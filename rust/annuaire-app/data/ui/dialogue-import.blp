@@ -1,0 +1,112 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueImport: Adw.Dialog {
+  title: _("Import from CSV");
+  content-width: 600;
+  default-widget: check_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button check_button {
+        label: _("Check");
+        sensitive: false;
+        clicked => $check();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        description: _("Each line creates a user, a group, a contact or a computer. The columns are read by their LDAP name, by the label of the sheet, or by the names of New-ADUser (Name, Path, AccountPassword, Enabled, ChangePasswordAtLogon, GroupScope, GroupCategory), plus type and memberOf. Every line is checked before anything is written.");
+
+        Adw.ActionRow file_row {
+          title: _("File");
+          subtitle: _("None chosen");
+          subtitle-selectable: true;
+
+          [suffix]
+          Button {
+            label: _("Choose…");
+            valign: center;
+            clicked => $choose_file();
+          }
+        }
+
+        Adw.ComboRow kind_combo {
+          use-subtitle: true;
+          title: _("Lines without a “type” column");
+
+          model: StringList {
+            strings [
+              _("Users"),
+              _("Groups"),
+              _("Contacts"),
+              _("Computers"),
+            ]
+          };
+        }
+
+        Adw.EntryRow parent_entry {
+          title: _("Container of the lines without a “path” column");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.ComboRow separator_combo {
+          use-subtitle: true;
+          title: _("Field separator");
+
+          model: StringList {
+            strings [
+              _("Found from the first line"),
+              _("Semicolon"),
+              _("Comma"),
+              _("Tab"),
+            ]
+          };
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Accounts");
+
+        Adw.SwitchRow generate_switch {
+          title: _("Generate every password");
+          subtitle: _("Otherwise read in the file; generated for an enabled account without one. The generated passwords go to a file you choose before the import.");
+        }
+
+        Adw.SwitchRow enable_switch {
+          title: _("Enable the accounts");
+          subtitle: _("For the lines without an “enabled” column.");
+          active: true;
+        }
+
+        Adw.SwitchRow change_switch {
+          title: _("User must change password at next logon");
+          subtitle: _("For the lines without a “changePasswordAtLogon” column.");
+          active: true;
+        }
+      }
+    };
+  };
+}

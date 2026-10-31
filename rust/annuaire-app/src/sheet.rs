@@ -14,6 +14,11 @@
 //! (`attributes`), « Security » (`security`) and « Policy » (`policy`) read when they are
 //! shown.
 
+mod secrets;
+mod tabs;
+
+pub use secrets::recovery_group;
+
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -25,7 +30,6 @@ use annuaire_core::changes::Report;
 use annuaire_core::model::Object;
 use annuaire_core::source::{Item, Record, name_from_dn};
 use annuaire_core::store::now;
-use annuaire_core::writer::PrepareError;
 use gtk::{gio, glib};
 
 use crate::countries::{self, Country};
@@ -39,7 +43,7 @@ use crate::views;
 use crate::writes::{self, Options};
 
 /// Read for the sheet besides the attributes of the model (`ATTRIBUTS_DETAIL`).
-pub const DETAIL_ATTRIBUTES: [&str; 25] = [
+pub const DETAIL_ATTRIBUTES: [&str; 30] = [
     // identity and contact (user)
     "initials",
     "physicalDeliveryOfficeName",
@@ -69,6 +73,12 @@ pub const DETAIL_ATTRIBUTES: [&str; 25] = [
     "operatingSystemServicePack",
     // user: effective password policy (constructed attribute, ADR 0014 § 6)
     "msDS-ResultantPSO",
+    // account tabs (J9.3)
+    "logonHours",
+    "userWorkstations",
+    "servicePrincipalName",
+    "msDS-AllowedToDelegateTo",
+    "msDS-AllowedToActOnBehalfOfOtherIdentity",
 ];
 
 /// `widget` and every widget under it (trials).
@@ -225,6 +235,14 @@ mod imp {
         #[template_child]
         pub policy_page: TemplateChild<adw::ViewStackPage>,
         #[template_child]
+        pub laps_page: TemplateChild<adw::ViewStackPage>,
+        #[template_child]
+        pub laps_content: TemplateChild<adw::PreferencesPage>,
+        #[template_child]
+        pub bitlocker_page: TemplateChild<adw::ViewStackPage>,
+        #[template_child]
+        pub bitlocker_content: TemplateChild<adw::PreferencesPage>,
+        #[template_child]
         pub attribute_editor: TemplateChild<crate::attributes::AttributesPage>,
         #[template_child]
         pub security_page: TemplateChild<crate::security::SecurityPage>,
@@ -236,6 +254,46 @@ mod imp {
         pub changes_summary: TemplateChild<gtk::Label>,
         #[template_child]
         pub apply_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub protection_switch: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub restrictions_group: TemplateChild<adw::PreferencesGroup>,
+        #[template_child]
+        pub logon_hours_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub logon_hours_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub delegation_page: TemplateChild<adw::ViewStackPage>,
+        #[template_child]
+        pub delegation_none: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub delegation_any: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub delegation_services: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub protocol_kerberos: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub protocol_any: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub add_services_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub services_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub rbcd_group: TemplateChild<adw::PreferencesGroup>,
+        #[template_child]
+        pub add_rbcd_button: TemplateChild<gtk::Button>,
+        #[template_child]
+        pub rbcd_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub spn_list: TemplateChild<gtk::ListBox>,
+        #[template_child]
+        pub spn_add_group: TemplateChild<adw::PreferencesGroup>,
+        #[template_child]
+        pub spn_entry: TemplateChild<adw::EntryRow>,
+        #[template_child]
+        pub home_folder_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub home_folder_button: TemplateChild<gtk::Button>,
         pub source: OnceCell<Arc<dyn Source>>,
         pub dn: OnceCell<String>,
         pub record: RefCell<Option<Record>>,
@@ -264,6 +322,10 @@ mod imp {
         pub refocus: Cell<bool>,
         /// Preview of the last « Apply » (trials).
         pub preview: glib::WeakRef<crate::writes::PreviewDialog>,
+        /// What the account tabs read (J9.3).
+        pub tabs: RefCell<super::tabs::Tabs>,
+        /// The secrets of a computer (J9.4): read on demand, kept while the sheet is open.
+        pub secrets: RefCell<super::secrets::Secrets>,
     }
 
     impl std::fmt::Debug for Sheet {
@@ -334,6 +396,34 @@ mod imp {
                     s.apply();
                     None
                 }),
+                ("create_home_folder", |s, _| {
+                    s.create_home_folder();
+                    None
+                }),
+                ("protection_changed", |s, _| {
+                    s.protection_changed();
+                    None
+                }),
+                ("edit_logon_hours", |s, _| {
+                    let _ = s.edit_logon_hours();
+                    None
+                }),
+                ("delegation_changed", |s, _| {
+                    s.delegation_changed();
+                    None
+                }),
+                ("add_services", |s, _| {
+                    let _ = s.add_services();
+                    None
+                }),
+                ("add_rbcd", |s, _| {
+                    let _ = s.add_rbcd();
+                    None
+                }),
+                ("add_spn", |s, _| {
+                    s.add_spn();
+                    None
+                }),
             ]));
         }
 
@@ -352,6 +442,8 @@ mod imp {
 
         fn closed(&self) {
             self.obj().stop();
+            // The secrets read leave memory with the sheet (J9.4).
+            self.obj().secrets_forget();
             self.parent_closed();
         }
     }
@@ -582,10 +674,13 @@ impl Sheet {
         let user = matches!(object, Object::User { .. });
         let account = object.account().is_some();
         let group = matches!(object, Object::Group { .. });
-        let groups: [(&adw::PreferencesGroup, bool); 10] = [
-            (&imp.identity_group, user),
-            (&imp.contact_group, user),
-            (&imp.organization_group, user),
+        // A contact (J9.2) has the identity, the address and the organization of a user.
+        let person = user || matches!(object, Object::Contact { .. });
+        let groups: [(&adw::PreferencesGroup, bool); 11] = [
+            (&imp.restrictions_group, user),
+            (&imp.identity_group, person),
+            (&imp.contact_group, person),
+            (&imp.organization_group, person),
             (&imp.group_group, group),
             (
                 &imp.computer_group,
@@ -605,6 +700,9 @@ impl Sheet {
         imp.members_page.set_visible(group);
         imp.groups_page.set_visible(account || group);
         imp.policy_page.set_visible(account);
+        let computer = matches!(object, Object::Computer { .. });
+        imp.laps_page.set_visible(computer);
+        imp.bitlocker_page.set_visible(computer);
         imp.principal_group.set_visible(account);
         let mut visible: Vec<gtk::Widget> = vec![
             imp.header.clone().upcast(),
@@ -715,7 +813,8 @@ impl Sheet {
                 .set_subtitle(&sv::scope_label(group_type.as_ref()));
         }
         let user = matches!(object, Object::User { .. });
-        if user && !imp.read_only.get() {
+        let person = user || matches!(object, Object::Contact { .. });
+        if person && !imp.read_only.get() {
             for attribute in countries::ATTRIBUTES {
                 origin.push((attribute.to_owned(), record.text(attribute)));
             }
@@ -737,11 +836,12 @@ impl Sheet {
             origin.push(("accountExpires".to_owned(), record.text("accountExpires")));
             origin.push(("pwdLastSet".to_owned(), record.text("pwdLastSet")));
         }
-        *imp.record.borrow_mut() = Some(record);
         if object.account().is_some() {
             self.show_account(&object);
         }
         *imp.draft.borrow_mut() = Draft::new(origin);
+        self.tabs_show(&record, &object);
+        *imp.record.borrow_mut() = Some(record);
         imp.invalid.borrow_mut().clear();
         imp.filling.set(false);
         self.update_bar();
@@ -759,6 +859,13 @@ impl Sheet {
         imp.policy_view.invalidate();
         if imp.pages.visible_child_name().as_deref() == Some("strategie") {
             imp.policy_view.load(&dn);
+        }
+        // Read again: the secrets read before are forgotten (J9.4).
+        self.secrets_forget();
+        match imp.pages.visible_child_name().as_deref() {
+            Some("laps") => self.laps_load(false),
+            Some("bitlocker") => self.bitlocker_load(),
+            _ => {}
         }
     }
 
@@ -845,6 +952,102 @@ impl Sheet {
         if group {
             self.read_members(&dn);
         }
+        if object.account().is_some() {
+            self.check_home_folder(generation);
+        }
+        self.tabs_read(generation, object);
+    }
+
+    /// The home folder written in the sheet is looked for on its share; « Create Home Folder »
+    /// is offered only when it is missing (ADR 0027).
+    fn check_home_folder(&self, generation: u64) {
+        let imp = self.imp();
+        imp.home_folder_row.set_visible(false);
+        let directory = imp.draft.borrow().value("homeDirectory");
+        if imp.read_only.get() || annuaire_core::home_folder::Unc::parse(&directory).is_none() {
+            return;
+        }
+        let Some(context) = writes::context(self) else {
+            return;
+        };
+        let (connection, dn, weak) = (context.connection.clone(), self.dn(), self.downgrade());
+        glib::spawn_future_local(async move {
+            let planned =
+                gio::spawn_blocking(move || sv::plan_home_folder(&connection, &dn, &directory))
+                    .await;
+            let Some(sheet) = weak.upgrade() else { return };
+            let imp = sheet.imp();
+            if imp.generation.get() != generation {
+                return;
+            }
+            if let Ok(Ok(Some((unc, annuaire_core::home_folder::Plan::Create(_))))) = planned {
+                imp.home_folder_row.set_subtitle(&unc);
+                imp.home_folder_row.set_visible(true);
+                imp.home_folder_button.set_sensitive(true);
+            }
+        });
+    }
+
+    /// « Create Home Folder »: the folder planned again, then proposed alone, with the
+    /// permissions of ADUC.
+    fn create_home_folder(&self) {
+        let imp = self.imp();
+        let Some(context) = writes::context(self) else {
+            return;
+        };
+        imp.home_folder_button.set_sensitive(false);
+        let directory = imp.draft.borrow().value("homeDirectory");
+        let (connection, dn, weak) = (context.connection.clone(), self.dn(), self.downgrade());
+        let domain = context.profile.domain.clone();
+        glib::spawn_future_local(async move {
+            let planned =
+                gio::spawn_blocking(move || sv::plan_home_folder(&connection, &dn, &directory))
+                    .await;
+            let Some(sheet) = weak.upgrade() else { return };
+            let Ok(planned) = planned else { return };
+            let imp = sheet.imp();
+            match planned {
+                Ok(Some((_, annuaire_core::home_folder::Plan::Create(op)))) => {
+                    let weak = sheet.downgrade();
+                    let preview = writes::propose(
+                        &sheet,
+                        annuaire_core::changes::Changeset {
+                            operations: vec![*op],
+                            remarks: Vec::new(),
+                        },
+                        Options {
+                            finished: Some(Box::new(move |report: Option<&Report>| {
+                                if let Some(sheet) = weak.upgrade() {
+                                    let generation = sheet.imp().generation.get();
+                                    if report.is_some() {
+                                        sheet.check_home_folder(generation);
+                                    } else {
+                                        sheet.imp().home_folder_button.set_sensitive(true);
+                                    }
+                                }
+                            })),
+                            ..Options::default()
+                        },
+                    );
+                    imp.preview.set(preview.as_ref());
+                }
+                Ok(Some((unc, annuaire_core::home_folder::Plan::Exists { .. }))) => {
+                    imp.home_folder_row.set_visible(false);
+                    imp.toasts.add_toast(adw::Toast::new(&fill(
+                        &tr("The home folder “{p}” already exists."),
+                        &[("p", &unc)],
+                    )));
+                }
+                Ok(None) => imp.home_folder_row.set_visible(false),
+                Err(error) => {
+                    imp.home_folder_button.set_sensitive(true);
+                    let message = errors::prepare_message(&error, &domain);
+                    let alert = adw::AlertDialog::new(Some(&tr("Cannot prepare")), Some(&message));
+                    alert.add_response("fermer", &tr("Close"));
+                    alert.present(Some(&sheet));
+                }
+            }
+        });
     }
 
     fn activity_read(
@@ -1295,13 +1498,7 @@ impl Sheet {
             };
             match prepared {
                 Err(error) => {
-                    let message = match &error {
-                        PrepareError::Failure(f) => errors::failure_problem(f, &domain).message,
-                        PrepareError::Missing(dn) => {
-                            fill(&tr("“{dn}” does not exist."), &[("dn", dn)])
-                        }
-                        PrepareError::Unsupported(text) => crate::codec_texts::codec_message(text),
-                    };
+                    let message = errors::prepare_message(&error, &domain);
                     let alert = adw::AlertDialog::new(Some(&tr("Cannot prepare")), Some(&message));
                     alert.add_response("fermer", &tr("Close"));
                     alert.present(Some(&sheet));
@@ -1428,7 +1625,10 @@ impl Sheet {
 
     /// Inputs of a trial, separated by `;;`: `attribute=text`, `uac:FLAG=0|1`, `changer=0|1`,
     /// `pays=CODE` (empty: none), `expiration=DD/MM/YYYY` (empty: never), `+DN` (member to
-    /// add), `-DN` (member to remove) (trials).
+    /// add), `-DN` (member to remove); account tabs (J9.3): `heures=DAYS:HOURS` (local
+    /// time, `1-5:8-18`), `delegation=aucune|toute|services|services-tout`, `service+=SPN`,
+    /// `service-=SPN`, `spn+=SPN`, `spn-=SPN`, `rbcd+=DN`, `rbcd-=SID`, `protection=0|1`,
+    /// `grille=1` (grid of the hours), `services=1` (« Add Services ») (trials).
     pub fn trial_input(&self, spec: &str) {
         let imp = self.imp();
         for piece in spec.split(";;").filter(|p| !p.is_empty()) {
@@ -1450,6 +1650,9 @@ impl Sheet {
                 imp.attribute_editor.trial_edit(attribute, value);
                 continue;
             }
+            if self.tabs_trial(name, value) {
+                continue;
+            }
             match name {
                 "deleguer" => imp.security_page.trial(Some(value), None, None),
                 // `§` stands for `;` (the inputs are separated by `;;`).
@@ -1462,6 +1665,8 @@ impl Sheet {
                     dialog.trial_search(value);
                 }
                 "changer" => imp.change_password_switch.set_active(value == "1"),
+                // « Create Home Folder » (ADR 0027).
+                "dossier-personnel" => self.create_home_folder(),
                 "pays" => {
                     let position = imp.countries.borrow().iter().position(|c| match c {
                         None => value.is_empty(),
@@ -1539,6 +1744,8 @@ impl Sheet {
             Some("attributs") => imp.attribute_editor.show_tab(),
             Some("securite") => imp.security_page.load(),
             Some("strategie") => imp.policy_view.load(&self.dn()),
+            Some("laps") => self.laps_load(false),
+            Some("bitlocker") => self.bitlocker_load(),
             _ => {}
         }
     }

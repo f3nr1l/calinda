@@ -73,6 +73,26 @@ template $AnnuaireDialogueUtilisateur: Adw.Dialog {
       }
 
       Adw.PreferencesGroup {
+        title: _("Profile");
+        description: _("%username% is replaced by the account name. A home folder on a share is created if it does not exist, with full control for the account and the administrators.");
+
+        Adw.EntryRow profile_entry {
+          title: _("Profile path");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow drive_entry {
+          title: _("Home folder drive");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow home_entry {
+          title: _("Home folder");
+          input-hints: no_spellcheck;
+        }
+      }
+
+      Adw.PreferencesGroup {
         title: _("Initial password");
         description: _("Sent to the domain controller over the encrypted connection, then forgotten: it is neither stored nor logged, and the preview hides it.");
 

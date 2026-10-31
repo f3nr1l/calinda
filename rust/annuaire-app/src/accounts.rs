@@ -22,12 +22,14 @@ use annuaire_codecs::uac::Scope as GroupScope;
 use annuaire_core::actions::{self, ActionError, NewUser, ReadObject};
 use annuaire_core::cache::Source;
 use annuaire_core::changes::{Changeset, Issue, Report};
+use annuaire_core::home_folder;
 use annuaire_core::source::Item;
 use gtk::{gio, glib};
 
 use crate::account_views as av;
 use crate::feed::Feed;
 use crate::i18n::{fill, tr};
+use crate::sheet_views as sv;
 use crate::writes::{self, Options};
 
 /// What follows a complete report (the protection of a new OU).
@@ -139,6 +141,8 @@ macro_rules! dialog_type {
     };
 }
 
+pub(crate) use dialog_type;
+
 // --- New user ----------------------------------------------------------------------------------
 
 dialog_type!(
@@ -156,6 +160,9 @@ dialog_type!(
         confirmation_entry: adw::PasswordEntryRow,
         change_switch: adw::SwitchRow,
         enable_switch: adw::SwitchRow,
+        profile_entry: adw::EntryRow,
+        drive_entry: adw::EntryRow,
+        home_entry: adw::EntryRow,
     },
     {
         parent: RefCell<String>,
@@ -234,9 +241,74 @@ impl UserDialog {
             password: (!password.is_empty()).then_some(password),
             change_at_next_logon: imp.change_switch.is_active(),
             enable,
+            profile_path: imp.profile_entry.text().to_string(),
+            home_drive: imp.drive_entry.text().trim().to_owned(),
+            home_directory: imp.home_entry.text().to_string(),
         };
         let built = actions::create_user(&imp.parent.borrow(), &user);
-        propose_from(self.upcast_ref(), &imp.message, built, None);
+        let directory =
+            home_folder::expand_username(user.home_directory.trim(), user.identifier.trim());
+        let (Ok(changeset), false, Some(context)) = (
+            &built,
+            user.home_drive.is_empty() || home_folder::Unc::parse(&directory).is_none(),
+            writes::context(self),
+        ) else {
+            propose_from(self.upcast_ref(), &imp.message, built, None);
+            return;
+        };
+        // A drive connected to a folder of a share (ADR 0027): the folder created with the
+        // account, in the same changeset, if it does not exist.
+        let mut changeset = changeset.clone();
+        let dn = changeset
+            .operations
+            .first()
+            .map(|o| o.dn().to_owned())
+            .unwrap_or_default();
+        let sam = user.identifier.clone();
+        let connection = context.connection.clone();
+        let domain = context.profile.domain.clone();
+        let weak = self.downgrade();
+        glib::spawn_future_local(async move {
+            let planned = gio::spawn_blocking(move || {
+                home_folder::plan_new(&connection, &dn, &sam, &directory)
+            })
+            .await;
+            let Some(dialog) = weak.upgrade() else { return };
+            let imp = dialog.imp();
+            match planned {
+                Ok(Ok(plan)) => {
+                    match plan {
+                        Some(home_folder::Plan::Create(op)) => changeset.operations.push(*op),
+                        Some(home_folder::Plan::Exists { unc }) => {
+                            changeset.remarks.push(sv::folder_exists_remark(&unc));
+                        }
+                        None => {}
+                    }
+                    propose_from(dialog.upcast_ref(), &imp.message, Ok(changeset), None);
+                }
+                Ok(Err(error)) => {
+                    show_problem(
+                        &imp.message,
+                        Some(&crate::errors::home_folder_message(&error, &domain)),
+                    );
+                }
+                Err(_) => {}
+            }
+        });
+    }
+}
+
+impl UserDialog {
+    /// Trials (ADR 0027): a disabled account named `name`, with its profile, then « Continue ».
+    pub fn trial_create(&self, name: &str, drive: &str, home: &str, profile: &str) {
+        let imp = self.imp();
+        imp.full_name_entry.set_text(name);
+        imp.identifier_entry.set_text(name);
+        imp.drive_entry.set_text(drive);
+        imp.home_entry.set_text(home);
+        imp.profile_entry.set_text(profile);
+        imp.enable_switch.set_active(false);
+        self.confirm();
     }
 }
 
@@ -308,6 +380,278 @@ impl GroupDialog {
             imp.security_switch.is_active(),
             &imp.description_entry.text(),
         );
+        propose_from(self.upcast_ref(), &imp.message, built, None);
+    }
+}
+
+// --- New computer (J9.2) ------------------------------------------------------------------------
+
+/// Called with the DN of the new computer and the SID of the joiner, once the computer exists.
+pub type AllowJoin = Rc<dyn Fn(&str, annuaire_codecs::Sid)>;
+
+dialog_type!(
+    computer_imp, ComputerDialog, "AnnuaireDialogueOrdinateur",
+    "/io/github/f3nr1l/Calinda/ui/dialogue-ordinateur.ui",
+    {
+        message: adw::Banner,
+        name_entry: adw::EntryRow,
+        identifier_entry: adw::EntryRow,
+        description_entry: adw::EntryRow,
+        location_row: adw::ActionRow,
+        joiner_row: adw::ActionRow,
+        pre_windows_switch: adw::SwitchRow,
+    },
+    {
+        parent: RefCell<String>,
+        proposed: RefCell<String>,
+        source: RefCell<Option<std::sync::Arc<dyn annuaire_core::cache::Source>>>,
+        joiner: RefCell<Option<(annuaire_codecs::Sid, String)>>,
+        allow_join: RefCell<Option<super::AllowJoin>>,
+    },
+    [
+        "name_changed" => |d, _| { d.name_changed(); None },
+        "choose_joiner" => |d, _| { d.choose_joiner(); None },
+        "confirm" => |d, _| { d.confirm(); None },
+    ]
+);
+
+impl ComputerDialog {
+    pub fn new(parent: &str, source: Arc<dyn Source>, allow_join: AllowJoin) -> Self {
+        let dialog: Self = glib::Object::new();
+        let imp = dialog.imp();
+        *imp.parent.borrow_mut() = parent.to_owned();
+        *imp.source.borrow_mut() = Some(source);
+        *imp.allow_join.borrow_mut() = Some(allow_join);
+        imp.location_row.set_subtitle(&av::parent_label(parent));
+        imp.location_row.set_tooltip_text(Some(parent));
+        dialog
+    }
+
+    fn name_changed(&self) {
+        let imp = self.imp();
+        let proposed = annuaire_core::computers::proposed_identifier(&imp.name_entry.text());
+        if imp.identifier_entry.text() == imp.proposed.borrow().as_str() {
+            imp.identifier_entry.set_text(&proposed);
+        }
+        *imp.proposed.borrow_mut() = proposed;
+    }
+
+    /// « Change… »: an account or a group chosen by the dialog of the members, its SID read.
+    fn choose_joiner(&self) {
+        let Some(source) = self.imp().source.borrow().clone() else {
+            return;
+        };
+        let weak = self.downgrade();
+        let reader = source.clone();
+        let dialog = crate::members::MembersDialog::new(
+            source,
+            Box::new(move |view| {
+                let (Some(dialog), source) = (weak.upgrade(), reader.clone()) else {
+                    return;
+                };
+                let (dn, name, weak) = (view.dn.clone(), view.title.clone(), dialog.downgrade());
+                glib::spawn_future_local(async move {
+                    let read =
+                        gio::spawn_blocking(move || source.record(&dn, &["objectSid"])).await;
+                    let Some(dialog) = weak.upgrade() else { return };
+                    let sid = match read {
+                        Ok(Ok(Some(record))) => record
+                            .entry
+                            .values("objectSid")
+                            .first()
+                            .and_then(|v| annuaire_codecs::Sid::decode(v).ok()),
+                        _ => None,
+                    };
+                    dialog.joiner_chosen(sid, &name);
+                });
+            }),
+        );
+        dialog.present(Some(self));
+    }
+
+    fn joiner_chosen(&self, sid: Option<annuaire_codecs::Sid>, name: &str) {
+        let imp = self.imp();
+        let Some(sid) = sid else {
+            show_problem(
+                &imp.message,
+                Some(&fill(
+                    &tr("“{nom}” has no security identifier: it cannot be allowed to join."),
+                    &[("nom", name)],
+                )),
+            );
+            return;
+        };
+        show_problem(&imp.message, None);
+        imp.joiner_row.set_subtitle(&glib::markup_escape_text(name));
+        *imp.joiner.borrow_mut() = Some((sid, name.to_owned()));
+    }
+
+    fn confirm(&self) {
+        let imp = self.imp();
+        let identifier = imp.identifier_entry.text().trim().to_owned();
+        let problem = av::name_problem(&imp.name_entry.text())
+            .or_else(|| av::computer_identifier_problem(&identifier));
+        if show_problem(&imp.message, problem.as_deref()) {
+            return;
+        }
+        let computer = annuaire_core::computers::NewComputer {
+            name: imp.name_entry.text().to_string(),
+            identifier,
+            description: imp.description_entry.text().to_string(),
+            pre_windows_2000: imp.pre_windows_switch.is_active(),
+            joiner: imp.joiner.borrow().as_ref().map(|(sid, _)| *sid),
+        };
+        // What the DC accepts as a default password, read first (off the interface thread).
+        let Some(context) = writes::context(self) else {
+            return;
+        };
+        let (connection, weak) = (context.connection.clone(), self.downgrade());
+        let domain = context.profile.domain.clone();
+        glib::spawn_future_local(async move {
+            let rule =
+                gio::spawn_blocking(move || annuaire_core::computers::read_rule(&connection)).await;
+            let Some(dialog) = weak.upgrade() else { return };
+            match rule {
+                Ok(Ok(rule)) => dialog.propose_computer(&computer, &rule),
+                Ok(Err(failure)) => {
+                    show_problem(
+                        &dialog.imp().message,
+                        Some(&crate::errors::failure_problem(&failure, &domain).message),
+                    );
+                }
+                Err(_) => {}
+            }
+        });
+    }
+
+    fn propose_computer(
+        &self,
+        computer: &annuaire_core::computers::NewComputer,
+        rule: &annuaire_core::computers::PasswordRule,
+    ) {
+        let imp = self.imp();
+        let joiner = imp.joiner.borrow().clone();
+        let built = annuaire_core::computers::create_computer(&imp.parent.borrow(), computer, rule);
+        // The ACEs of the joiner on the descriptor the DC gave the account (as the protection
+        // of a new OU): a second preview.
+        let after: Option<After> =
+            joiner
+                .zip(imp.allow_join.borrow().clone())
+                .map(|((sid, _), allow)| -> After {
+                    Rc::new(move |report: &Report| {
+                        if let Some(op) = report.changeset.operations.first() {
+                            allow(op.dn(), sid);
+                        }
+                    })
+                });
+        if let Ok(changeset) = &built
+            && let Some((_, name)) = &*imp.joiner.borrow()
+        {
+            let mut changeset = changeset.clone();
+            changeset.remarks.push(fill(
+                &tr("“{nom}” will be allowed to join this computer to the domain: its permissions are proposed once the account is created."),
+                &[("nom", name)],
+            ));
+            propose_from(self.upcast_ref(), &imp.message, Ok(changeset), after);
+            return;
+        }
+        propose_from(self.upcast_ref(), &imp.message, built, after);
+    }
+}
+
+impl ComputerDialog {
+    /// Trials: the computer `name`, pre-Windows 2000 or not, then « Continue ».
+    pub fn trial_create(&self, name: &str, pre_windows_2000: bool) {
+        let imp = self.imp();
+        imp.name_entry.set_text(name);
+        imp.pre_windows_switch.set_active(pre_windows_2000);
+        self.confirm();
+    }
+}
+
+// --- New contact (J9.2) -------------------------------------------------------------------------
+
+dialog_type!(
+    contact_imp, ContactDialog, "AnnuaireDialogueContact",
+    "/io/github/f3nr1l/Calinda/ui/dialogue-contact.ui",
+    {
+        message: adw::Banner,
+        given_name_entry: adw::EntryRow,
+        initials_entry: adw::EntryRow,
+        name_entry: adw::EntryRow,
+        full_name_entry: adw::EntryRow,
+        display_entry: adw::EntryRow,
+        location_row: adw::ActionRow,
+        mail_entry: adw::EntryRow,
+        telephone_entry: adw::EntryRow,
+        street_entry: adw::EntryRow,
+        postal_code_entry: adw::EntryRow,
+        city_entry: adw::EntryRow,
+        description_entry: adw::EntryRow,
+    },
+    { parent: RefCell<String>, proposed: RefCell<[String; 2]> },
+    [
+        "names_changed" => |d, _| { d.names_changed(); None },
+        "full_name_changed" => |d, _| { d.full_name_changed(); None },
+        "confirm" => |d, _| { d.confirm(); None },
+    ]
+);
+
+impl ContactDialog {
+    pub fn new(parent: &str) -> Self {
+        let dialog: Self = glib::Object::new();
+        let imp = dialog.imp();
+        *imp.parent.borrow_mut() = parent.to_owned();
+        imp.location_row.set_subtitle(&av::parent_label(parent));
+        imp.location_row.set_tooltip_text(Some(parent));
+        dialog
+    }
+
+    fn follow(&self, entry: &adw::EntryRow, rank: usize, value: String) {
+        let mut proposed = self.imp().proposed.borrow_mut();
+        if let Some(slot) = proposed.get_mut(rank) {
+            if entry.text() == slot.as_str() {
+                entry.set_text(&value);
+            }
+            *slot = value;
+        }
+    }
+
+    fn names_changed(&self) {
+        let imp = self.imp();
+        let full = av::full_name(&imp.given_name_entry.text(), &imp.name_entry.text());
+        self.follow(&imp.full_name_entry, 0, full);
+    }
+
+    fn full_name_changed(&self) {
+        let imp = self.imp();
+        let full = imp.full_name_entry.text().trim().to_owned();
+        self.follow(&imp.display_entry, 1, full);
+    }
+
+    fn confirm(&self) {
+        let imp = self.imp();
+        if show_problem(
+            &imp.message,
+            av::name_problem(&imp.full_name_entry.text()).as_deref(),
+        ) {
+            return;
+        }
+        let text = |e: &adw::EntryRow| e.text().to_string();
+        let contact = annuaire_core::computers::NewContact {
+            full_name: text(&imp.full_name_entry),
+            given_name: text(&imp.given_name_entry),
+            initials: text(&imp.initials_entry),
+            surname: text(&imp.name_entry),
+            display_name: text(&imp.display_entry),
+            mail: text(&imp.mail_entry),
+            telephone: text(&imp.telephone_entry),
+            street: text(&imp.street_entry),
+            postal_code: text(&imp.postal_code_entry),
+            city: text(&imp.city_entry),
+            description: text(&imp.description_entry),
+        };
+        let built = annuaire_core::computers::create_contact(&imp.parent.borrow(), &contact);
         propose_from(self.upcast_ref(), &imp.message, built, None);
     }
 }

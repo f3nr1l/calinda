@@ -16,13 +16,17 @@
 //! (`completion`: a propagation cut by the stop starts again, then the operations not done);
 //! each choice goes through the preview. « Ignore », when the change was finished or undone
 //! outside Calinda, settles the application in the journal only (`writer::ignore`).
+//!
+//! The undo of a deletion restores the objects still under `Deleted Objects` instead of
+//! recreating them (`recycle::undo`, ADR 0024): the button of the history then reads
+//! « Restore from Deleted Objects », once the DC said they are there.
 
 use std::sync::Arc;
 
 use adw::prelude::*;
 use adw::subclass::prelude::*;
 use annuaire_core::changes::{self, Report};
-use annuaire_core::{propagation, writer};
+use annuaire_core::{propagation, recycle, writer};
 use gtk::{gio, glib};
 
 use crate::catalog::AppCatalog;
@@ -203,45 +207,84 @@ impl HistoryDialog {
             .map(|e| e.view().clone())
     }
 
-    /// `selected`.
+    /// `selected`. A deletion whose objects are still under `Deleted Objects` is undone by
+    /// their restoration: the button says so once the DC answered.
     fn chosen(&self) {
         let imp = self.imp();
         let entry = self.entry();
         imp.detail
             .set_label(entry.as_ref().map_or("", |e| e.detail.as_str()));
+        imp.undo_change_button.set_label(&tr("Undo this change"));
         imp.undo_change_button
-            .set_sensitive(entry.is_some_and(|e| e.undoable));
+            .set_sensitive(entry.as_ref().is_some_and(|e| e.undoable));
+        let Some(entry) = entry.filter(|e| e.undoable) else {
+            return;
+        };
+        let guids = imp
+            .reports
+            .borrow()
+            .iter()
+            .find(|r| r.id == entry.id)
+            .map(recycle::deleted_guids)
+            .unwrap_or_default();
+        if guids.is_empty() {
+            return;
+        }
+        let (connection, weak) = (self.context().connection.clone(), self.downgrade());
+        glib::spawn_future_local(async move {
+            let found = gio::spawn_blocking(move || recycle::find(&connection, &guids)).await;
+            let Some(dialog) = weak.upgrade() else { return };
+            let still = dialog.entry().is_some_and(|e| e.id == entry.id);
+            let restorable = matches!(&found, Ok(Ok(bin))
+                if bin.objects.iter().any(|o| bin.unrestorable(o).is_none()));
+            if still && restorable {
+                dialog
+                    .imp()
+                    .undo_change_button
+                    .set_label(&tr("Restore from Deleted Objects"));
+            }
+        });
     }
 
     /// `undo_change`.
     fn undo(&self) {
         let Some(entry) = self.entry() else { return };
         let reports = self.imp().reports.borrow().clone();
-        let Some(report) = reports.iter().find(|r| r.id == entry.id) else {
-            return;
-        };
-        let Some(inverse) = pv::inverse(report, &reports) else {
+        let Some(report) = reports.iter().find(|r| r.id == entry.id).cloned() else {
             return;
         };
         let weak = self.downgrade();
-        writes::propose(
+        propose_inverse(
             self,
-            inverse,
-            Options {
-                resumes: Some(report.id.clone()),
-                finished: Some(Box::new(move |_| {
-                    if let Some(dialog) = weak.upgrade() {
-                        dialog.read();
-                    }
-                })),
-                ..Options::default()
-            },
+            self.context().clone(),
+            report,
+            reports,
+            Box::new(move |_| {
+                if let Some(dialog) = weak.upgrade() {
+                    dialog.read();
+                }
+            }),
         );
     }
 
     /// « Backups of propagations » (trials).
     pub fn trial_backups(&self) {
         manage_backups(self);
+    }
+
+    /// Selects the first entry (trials).
+    pub fn trial_select_first(&self) {
+        self.imp().selection.set_selected(0);
+        self.chosen();
+    }
+
+    /// The label of the button of the undo (trials).
+    pub fn trial_button(&self) -> String {
+        self.imp()
+            .undo_change_button
+            .label()
+            .map(|l| l.to_string())
+            .unwrap_or_default()
     }
 
     /// Selects the first entry and undoes it (trials).
@@ -278,17 +321,51 @@ pub fn undo_last(window: &impl IsA<gtk::Widget>) {
     );
     // The whole journal: an object already brought back by a previous Ctrl+Z is expected in
     // the version this one left (ADR 0006 § 5.1).
-    let Some(inverse) = pv::inverse(report, &reports) else {
+    let report = report.clone();
+    propose_inverse(window, context, report, reports, Box::new(|_| {}));
+}
+
+/// Proposes the inverse of `report` as the resumption of it. The objects it deleted that are
+/// still under `Deleted Objects` are restored rather than recreated (`recycle::undo`, read on
+/// the DC first); otherwise, or if the DC cannot say, the inverse of the journal.
+pub fn propose_inverse(
+    widget: &impl IsA<gtk::Widget>,
+    context: Arc<WriteContext>,
+    report: Report,
+    reports: Vec<Report>,
+    finished: writes::Finished,
+) {
+    // A batch of a change in bulk: the whole series is undone (ADR 0026).
+    if crate::bulk::undo_report(widget, &report) {
+        finished(None);
         return;
+    }
+    let options = |id: String, finished: writes::Finished| Options {
+        resumes: Some(id),
+        finished: Some(finished),
+        ..Options::default()
     };
-    writes::propose(
-        window,
-        inverse,
-        Options {
-            resumes: Some(report.id.clone()),
-            ..Options::default()
-        },
-    );
+    if recycle::deleted_guids(&report).is_empty() {
+        if let Some(inverse) = pv::inverse(&report, &reports) {
+            writes::propose(widget, inverse, options(report.id.clone(), finished));
+        }
+        return;
+    }
+    let weak = widget.as_ref().downgrade();
+    glib::spawn_future_local(async move {
+        let connection = context.connection.clone();
+        let (r, j) = (report.clone(), reports.clone());
+        let restored =
+            gio::spawn_blocking(move || recycle::undo(&connection, &r, &j, &AppCatalog)).await;
+        let Some(widget) = weak.upgrade() else { return };
+        let inverse = match restored {
+            Ok(Ok(Some(changeset))) => Some(changeset),
+            _ => pv::inverse(&report, &reports),
+        };
+        if let Some(inverse) = inverse {
+            writes::propose(&widget, inverse, options(report.id.clone(), finished));
+        }
+    });
 }
 
 // --- Backups of the propagations -----------------------------------------------------------

@@ -101,6 +101,25 @@ pub fn password_problem(password: &str, confirmation: &str, required: bool) -> O
     (password != confirmation).then(|| tr("The two passwords differ."))
 }
 
+/// The pre-Windows 2000 name of a computer (NetBIOS): 15 characters at most, no space, no dot.
+pub fn computer_identifier_problem(identifier: &str) -> Option<String> {
+    let identifier = identifier.trim().trim_end_matches('$');
+    if identifier.is_empty() {
+        return Some(tr("The pre-Windows 2000 name is required."));
+    }
+    (!annuaire_core::computers::identifier_valid(identifier)).then(|| {
+        fill(
+            &tr("The pre-Windows 2000 name has more than {n} characters, or a space, a dot or a forbidden character (\" / \\ [ ] : ; | = , + * ? < > @)."),
+            &[("n", &annuaire_core::computers::NETBIOS_LIMIT.to_string())],
+        )
+    })
+}
+
+/// Reset Account: computers only.
+pub fn computers_only(kinds: &[String]) -> bool {
+    !kinds.is_empty() && kinds.iter().all(|k| k == Kind::Computer.name())
+}
+
 pub fn name_problem(name: &str) -> Option<String> {
     name.trim().is_empty().then(|| tr("The name is required."))
 }
@@ -165,7 +184,7 @@ pub fn delete_confirmation(names: &[String]) -> (String, String, String) {
     }
     let body = [
         shown,
-        tr("A deletion cannot be undone exactly: undoing recreates new objects (new SIDs and GUIDs; passwords and permissions lost)."),
+        tr("Undoing restores the objects from the deleted objects while they are there (same SIDs and GUIDs); without the Recycle Bin, passwords and the attributes a deletion does not keep are lost."),
         instruction,
     ]
     .join("\n\n");
@@ -195,6 +214,12 @@ pub fn action_error(error: &ActionError) -> String {
         ActionError::InheritedRemoval => {
             tr("An inherited permission is removed on the object it is inherited from.")
         }
+        ActionError::DefaultPasswordRefused(identifier) => fill(
+            &tr(
+                "The domain controller would refuse the default password of “{nom}” (the name in lower case): its password policy applies to computer accounts. Leave “pre-Windows 2000 computer” unchecked.",
+            ),
+            &[("nom", identifier)],
+        ),
         ActionError::Change(text) => crate::codec_texts::codec_message(text),
     }
 }

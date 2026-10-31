@@ -135,6 +135,8 @@ mod imp {
         /// The « Group Policy » and « Password Policies » windows, one at a time each.
         pub gpo: RefCell<Option<crate::gpo::GpoWindow>>,
         pub pso: RefCell<Option<crate::pso::PsoWindow>>,
+        /// The « Deleted Objects » window (J9.1), one at a time.
+        pub deleted: RefCell<Option<crate::deleted::DeletedWindow>>,
         pub shares: RefCell<Option<crate::shares::SharesWindow>>,
         /// Keyboard focus (`_Focus`): zone (table, tree) the visible dialog was opened from,
         /// and zone of the last focus known.
@@ -282,7 +284,7 @@ impl Window {
 
     fn install_actions(&self) {
         type Handler = fn(&Window, Option<String>);
-        let actions: [(&str, bool, Handler); 17] = [
+        let actions: [(&str, bool, Handler); 19] = [
             ("rechercher", false, |w, _| w.focus_search()),
             // Menu entry « Undo the last change… » (`clavier.annuler_derniere`).
             ("annuler-derniere", false, |w, _| {
@@ -293,6 +295,14 @@ impl Window {
             }),
             ("pso", false, |w, _| {
                 w.open_pso();
+            }),
+            ("corbeille", false, |w, _| {
+                w.open_deleted();
+            }),
+            ("bitlocker", false, |w, _| {
+                if let Some(source) = w.source() {
+                    crate::recovery::dialog(source).present(Some(w));
+                }
             }),
             ("partages", false, |w, _| {
                 w.open_shares();
@@ -463,6 +473,41 @@ impl Window {
     /// The « Password Policies » window, if open (trials).
     pub fn imp_pso(&self) -> Option<crate::pso::PsoWindow> {
         self.imp().pso.borrow().clone()
+    }
+
+    /// « Deleted Objects » window of the open domain (J9.1), one at a time.
+    pub fn open_deleted(&self) -> Option<crate::deleted::DeletedWindow> {
+        let source = self.source()?;
+        let imp = self.imp();
+        let current = imp.deleted.borrow().clone();
+        let window = match current {
+            Some(w) if std::ptr::addr_eq(Arc::as_ptr(w.source()), Arc::as_ptr(&source)) => w,
+            other => {
+                if let Some(old) = other {
+                    old.close();
+                }
+                let w = crate::deleted::DeletedWindow::new(source, self);
+                let weak = self.downgrade();
+                w.connect_close_request(move |closed| {
+                    if let Some(window) = weak.upgrade() {
+                        let mut kept = window.imp().deleted.borrow_mut();
+                        if kept.as_ref() == Some(closed) {
+                            kept.take();
+                        }
+                    }
+                    glib::Propagation::Proceed
+                });
+                *imp.deleted.borrow_mut() = Some(w.clone());
+                w
+            }
+        };
+        window.present();
+        Some(window)
+    }
+
+    /// The « Deleted Objects » window, if open (trials).
+    pub fn imp_deleted(&self) -> Option<crate::deleted::DeletedWindow> {
+        self.imp().deleted.borrow().clone()
     }
 
     /// « Shares » window of the open domain (J8.2), one at a time.

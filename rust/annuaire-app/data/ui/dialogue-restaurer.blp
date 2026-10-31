@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+//
+// Dialogue « Restaurer » des objets supprimés (J9.1, ADR 0024) : sous le dernier parent connu
+// ou dans un autre conteneur (cherché par son nom), un autre nom pour un objet seul, les objets
+// supprimés qui étaient dessous ; « Continuer » vérifie sur le DC (nom pris, conteneur absent)
+// puis passe par l'aperçu commun. Construit par deleted.rs.
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueRestaurer: Adw.Dialog {
+  title: _("Restore");
+  content-width: 560;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        title: _("Where");
+
+        Adw.SwitchRow elsewhere_switch {
+          title: _("In another container");
+          subtitle: _("Otherwise under its last known parent, restored first if it was deleted too.");
+          notify::active => $elsewhere_changed();
+        }
+
+        Adw.EntryRow search_entry {
+          title: _("Search for a destination");
+          input-hints: no_spellcheck;
+          visible: false;
+          changed => $search_changed();
+        }
+      }
+
+      Adw.PreferencesGroup destinations_group {
+        visible: false;
+
+        ListBox list {
+          selection-mode: single;
+          row-selected => $selected();
+
+          accessibility {
+            label: _("Destinations");
+          }
+
+          styles [
+            "boxed-list",
+          ]
+        }
+      }
+
+      Adw.PreferencesGroup name_group {
+        title: _("Name");
+
+        Adw.EntryRow name_entry {
+          title: _("Name of the restored object");
+          input-hints: no_spellcheck;
+        }
+      }
+
+      Adw.PreferencesGroup children_group {
+        Adw.SwitchRow children_switch {
+          title: _("Also restore the objects that were under it");
+          subtitle: _("The deleted objects whose last known parent is a restored object.");
+          active: true;
+        }
+      }
+    };
+  };
+}

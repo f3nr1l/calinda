@@ -2,6 +2,101 @@
 
 Ce journal retient ce qui change pour l'utilisateur d'une version à l'autre.
 
+## 1.5.0 — 2026-10-30
+
+Lecture du mot de passe LAPS chiffré. Notes de version : [docs/notes-1.5.0.md](docs/notes-1.5.0.md).
+
+- **Lecture du mot de passe LAPS chiffré** (`msLAPS-EncryptedPassword`, J9.6 et J9.7). L'onglet
+  LAPS affiche maintenant le mot de passe chiffré comme le clair, avec les mêmes garde-fous
+  (montré sur demande, presse-papiers effacé, jamais journalisé) ; il ne reste « chiffré » que si
+  le compte n'a pas le droit de le déchiffrer. Sous le capot : transport DCE/RPC authentifié par
+  Kerberos et scellé (endpoint mapper, NDR64, mode DCE), appel `GetKey` de MS-GKDI, dérivation des
+  clés de groupe (SP800-108), déchiffrement DPAPI-NG (accord de clés DH/ECDH pour le cas courant,
+  déballage AES et AES-256-GCM). Validé contre un domaine Windows Server 2025 : le mot de passe lu
+  est celui de `Get-LapsADPassword`. Le LAPS chiffré n'est pas servi par les DC Samba du labo
+  (ticket machine refusé).
+
+## 1.4.0 — 2026-10-29
+
+Objets supprimés, ordinateurs et contacts, LAPS et BitLocker, import CSV et modifications en
+masse. Notes de version : [docs/notes-1.4.0.md](docs/notes-1.4.0.md).
+
+- « Actions › Modifier en masse… » : sur les objets choisis dans la table, ou sur les membres d'un
+  groupe, poser, compléter, retirer ou vider un attribut, ajouter à un groupe ou en retirer,
+  activer, désactiver, déplacer, fixer l'expiration du compte, exiger ou non le changement du mot
+  de passe à la prochaine ouverture. L'aperçu montre chaque objet avant et après, et les objets
+  que la vérification refuse ; l'écriture se fait par lots, qu'on peut arrêter, reprendre ou
+  annuler, et Ctrl+Z annule la modification entière
+  ([ADR 0026](docs/decisions/0026-import-export-et-modifications-en-masse.md)).
+- « Nouveau › Importer depuis un CSV… » : utilisateurs, groupes, contacts et ordinateurs depuis un
+  fichier CSV (colonnes par nom LDAP, par libellé de la fiche ou par les noms de `New-ADUser`),
+  avec les valeurs par défaut et le dossier personnel de la création unitaire. Chaque ligne est
+  vérifiée avant toute écriture et l'aperçu donne son rapport ; les mots de passe générés vont
+  dans un fichier que vous choisissez. L'import s'écrit par lots de 100, qu'on peut arrêter,
+  reprendre ou annuler ; Ctrl+Z annule l'import entier
+  ([ADR 0026](docs/decisions/0026-import-export-et-modifications-en-masse.md)).
+- « Actions › Exporter la liste en CSV… » : le contenu de la table ou la sélection, avec les
+  attributs choisis, en valeurs lisibles (dates, SID, GUID) ou brutes, lisible par Excel.
+- Sur un DC Windows, l'annulation d'une suppression réinscrit de nouveau l'objet recréé dans ses
+  groupes : la vérification préalable la refusait.
+
+- Fiche d'un ordinateur, onglet « BitLocker » : les mots de passe de récupération sauvegardés
+  dans l'annuaire (identifiant, date, volume), montrés seulement sur demande. Menu principal,
+  « Rechercher un mot de passe de récupération BitLocker… » : par les huit premiers caractères de
+  l'identifiant affiché par l'écran de récupération, dans tout le domaine
+  ([ADR 0025](docs/decisions/0025-laps-dpapi-ng-et-ms-gkdi.md)).
+- Fiche d'un ordinateur, onglet « LAPS » : le mot de passe de l'administrateur local gardé par
+  Windows LAPS ou par l'ancien LAPS de Microsoft, lu sur le contrôleur de domaine à l'ouverture de
+  l'onglet, montré seulement sur demande, copié avec effacement du presse-papiers après 30 s ;
+  jamais gardé dans la copie locale ni dans l'historique. « Expirer maintenant… » fait changer le
+  mot de passe par l'ordinateur à son prochain passage ; un mot de passe refusé à votre compte est
+  dit comme tel, un mot de passe chiffré aussi (lisible dans une version suivante)
+  ([ADR 0025](docs/decisions/0025-laps-dpapi-ng-et-ms-gkdi.md)).
+- « Nouveau › Ordinateur… » : un compte d'ordinateur comme le crée la console (nom pré-Windows 2000,
+  case « antérieur à Windows 2000 »), avec l'utilisateur ou le groupe autorisé à joindre
+  l'ordinateur au domaine ; « Réinitialiser le compte… » pour un ou plusieurs ordinateurs. Là où
+  la stratégie de mot de passe du domaine refuserait le mot de passe par défaut (Windows Server
+  2025 avec la complexité), Calinda le dit avant l'écriture et la réinitialisation pose un mot de
+  passe aléatoire ([ADR 0024](docs/decisions/0024-corbeille-ordinateurs-et-onglets-de-compte.md)).
+- « Nouveau › Contact… » : nom, adresse électronique, téléphone et adresse ; la fiche d'un contact
+  montre son identité, ses coordonnées et son organisation.
+- Fiche d'un compte : horaires d'accès (grille en heure locale, l'annuaire les garde en UTC et
+  le décalage est dit), ordinateurs auxquels l'utilisateur peut se connecter, onglet
+  « Délégation » comme la console (aucune, tous les services, services spécifiés avec Kerberos
+  seul ou tout protocole, services choisis parmi ceux de l'annuaire), comptes autorisés à
+  déléguer vers ce compte (délégation basée sur la ressource), noms de principal du service
+  vérifiés dans toute la forêt avant l'ajout. Sur un DC Samba, la délégation basée sur la
+  ressource se lit mais ne s'écrit pas : l'onglet le dit
+  ([ADR 0024](docs/decisions/0024-corbeille-ordinateurs-et-onglets-de-compte.md)).
+- « Protéger l'objet des suppressions accidentelles » pour tout objet, dans l'onglet « Général »,
+  y compris une protection posée par une autre console.
+- Fiche d'un utilisateur, onglet « Profil » : comme la console « Utilisateurs et ordinateurs
+  Active Directory », `%username%` est remplacé par le nom du compte dans le dossier personnel et
+  le chemin du profil, et quand un lecteur est connecté à un dossier `\\serveur\partage\…`, ce
+  dossier est créé s'il n'existe pas, avec le contrôle total pour le compte et les
+  administrateurs et l'héritage du dossier parent conservé. L'aperçu montre le dossier et ses
+  droits avant l'écriture ; un dossier existant n'est pas touché et l'aperçu le dit ; un partage ou
+  un dossier parent absent est refusé, aucun partage n'est créé. Ctrl+Z retire le dossier s'il
+  est resté vide ([ADR 0027](docs/decisions/0027-dossier-personnel.md)).
+- Le dialogue « Nouvel utilisateur » porte le chemin du profil, le lecteur et le dossier
+  personnel : le dossier est créé avec le compte, dans la même écriture.
+- Fiche d'un utilisateur, onglet « Compte » : quand le dossier personnel renseigné n'existe pas sur
+  le serveur, « Créer le dossier personnel » le crée avec les mêmes droits, après l'aperçu.
+- Fenêtre « Objets supprimés » (Maj+Ctrl+Suppr) : les objets de `CN=Deleted Objects` du domaine,
+  du plus récent au plus ancien, filtrés par nom, classe, dernier parent ou attribut gardé, par
+  genre et par période, avec ce que chacun a gardé. « Restaurer… » rend l'objet sous son dernier
+  parent ou dans un autre conteneur, sous son nom ou un autre, avec ses mêmes GUID et SID ; un
+  parent supprimé est restauré d'abord, une OU peut revenir avec les objets qui étaient dessous,
+  un nom déjà pris est refusé avec un nom libre proposé. L'aperçu dit avant l'écriture ce qui
+  revient : tout avec la corbeille AD, seulement ce que la suppression a gardé sans elle (un
+  compte revient alors sans mot de passe ni groupes). Avec Samba et la corbeille activée, les
+  objets sont dits non restaurables : Samba 4.22 refuse leur réanimation
+  ([ADR 0024](docs/decisions/0024-corbeille-ordinateurs-et-onglets-de-compte.md)).
+- Annuler une suppression (historique, Ctrl+Z, bouton du message) restaure l'objet depuis les
+  objets supprimés tant qu'il y est, au lieu d'en recréer un neuf ; sans corbeille, ce que la
+  suppression a fait perdre est réécrit depuis le journal, sauf le mot de passe. L'historique
+  propose alors « Restaurer depuis les objets supprimés ».
+
 ## 1.3.2 — 2026-10-24
 
 Version corrective. Notes de version : [docs/notes-1.3.2.md](docs/notes-1.3.2.md).

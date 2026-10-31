@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2026 René Onier
+
+using Gtk 4.0;
+using Adw 1;
+
+template $AnnuaireDialogueOrdinateur: Adw.Dialog {
+  title: _("New Computer");
+  content-width: 520;
+  default-widget: confirm_button;
+
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("Cancel");
+        clicked => $cancel();
+      }
+
+      [end]
+      Button confirm_button {
+        label: _("Continue");
+        clicked => $confirm();
+
+        styles [
+          "suggested-action",
+        ]
+      }
+    }
+
+    [top]
+    Adw.Banner message {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow name_entry {
+          title: _("Computer name");
+          input-hints: no_spellcheck;
+          changed => $name_changed();
+        }
+
+        Adw.EntryRow identifier_entry {
+          title: _("Computer name (pre-Windows 2000)");
+          input-hints: no_spellcheck;
+        }
+
+        Adw.EntryRow description_entry {
+          title: _("Description");
+        }
+
+        Adw.ActionRow location_row {
+          title: _("Location");
+          subtitle-selectable: true;
+        }
+      }
+
+      Adw.PreferencesGroup {
+        title: _("Joining the domain");
+
+        Adw.ActionRow joiner_row {
+          title: _("User or group allowed to join this computer");
+          subtitle: _("Domain Admins (default)");
+
+          [suffix]
+          Button joiner_button {
+            label: _("Change…");
+            valign: center;
+            clicked => $choose_joiner();
+          }
+        }
+
+        Adw.SwitchRow pre_windows_switch {
+          title: _("Assign this computer account as a pre-Windows 2000 computer");
+          subtitle: _("The initial password is then the name in lower case (14 characters at most), if the password policy of the domain accepts it. Unchecked, it is random and nobody knows it.");
+        }
+      }
+    };
+  };
+}

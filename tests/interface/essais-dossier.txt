@@ -1,0 +1,14 @@
+# Dossier personnel comme ADUC (ADR 0027), avec audit_ecrans.sh SORTIE tests/interface/essais-dossier.txt,
+# sur LAB.TEST. Préparation et constat par l'essai labo home_folder_interface
+# (ANNUAIRE_LABO_DOSSIER=preparer, puis verifier et nettoyer) : partage Home-Calinda sur fs1,
+# hf-ui-a sans dossier personnel, hf-ui-b dont le dossier est écrit mais absent.
+# 1. Fiche de hf-ui-a : lecteur et dossier saisis avec %username%, aperçu appliqué.
+dossier-saisie|env:ANNUAIRE_ESSAI_FICHE=CN=hf-ui-a,OU=Essais-Dossier-UI,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=general|env:ANNUAIRE_ESSAI_SAISIES=homeDrive=H:;;homeDirectory=\\FS1\Home-Calinda\%username%|env:ANNUAIRE_ESSAI_APPLIQUER=2|dom|wait:12
+# 2. Fiche de hf-ui-b, dossier absent : le geste est proposé (relevé AT-SPI).
+dossier-absent|env:ANNUAIRE_ESSAI_FICHE=CN=hf-ui-b,OU=Essais-Dossier-UI,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=compte|dom|wait:8
+# 2 bis. Fiche de hf-ui-b : « Créer le dossier personnel », aperçu appliqué.
+dossier-geste|env:ANNUAIRE_ESSAI_FICHE=CN=hf-ui-b,OU=Essais-Dossier-UI,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=general|env:ANNUAIRE_ESSAI_SAISIES=dossier-personnel=1|env:ANNUAIRE_ESSAI_APPLIQUER=2|dom|wait:12
+# 3. Dialogue « Nouvel utilisateur » : hf-ui-c créé avec son profil, dossier dans le même changeset.
+dossier-creation|env:ANNUAIRE_ESSAI_NOUVEL_UTILISATEUR=OU=Essais-Dossier-UI,DC=lab,DC=test§hf-ui-c§H:§\\FS1\Home-Calinda\%username%§\\FS1\Home-Calinda\Profils\%username%|dom|wait:12
+# 4. Fiche de hf-ui-b relue : le dossier existe, le geste n'est plus proposé (relevé AT-SPI).
+dossier-present|env:ANNUAIRE_ESSAI_FICHE=CN=hf-ui-b,OU=Essais-Dossier-UI,DC=lab,DC=test|env:ANNUAIRE_ESSAI_ONGLET=compte|dom|wait:8

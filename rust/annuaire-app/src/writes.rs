@@ -87,6 +87,8 @@ fn after_write(host: &gtk::Widget, report: &Report) {
         w.after_write(report);
     } else if let Some(w) = root.downcast_ref::<crate::pso::PsoWindow>() {
         w.after_write(report);
+    } else if let Some(w) = root.downcast_ref::<crate::deleted::DeletedWindow>() {
+        w.after_write(report);
     } else if let Some(w) = root.downcast_ref::<crate::shares::SharesWindow>() {
         w.after_write(report);
     } else if let Some(w) = root.downcast_ref::<crate::folders::FoldersWindow>() {
@@ -141,6 +143,8 @@ pub fn announce(parent: &impl IsA<gtk::Widget>, text: &str, undo: Option<Box<dyn
         w.add_toast(toast);
     } else if let Some(w) = root.downcast_ref::<crate::pso::PsoWindow>() {
         w.add_toast(toast);
+    } else if let Some(w) = root.downcast_ref::<crate::deleted::DeletedWindow>() {
+        w.add_toast(toast);
     } else if let Some(w) = root.downcast_ref::<crate::shares::SharesWindow>() {
         w.add_toast(toast);
     } else if let Some(w) = root.downcast_ref::<crate::folders::FoldersWindow>() {
@@ -155,6 +159,30 @@ pub fn announce(parent: &impl IsA<gtk::Widget>, text: &str, undo: Option<Box<dyn
 pub fn signal_report(parent: &gtk::Widget, outcome: &Outcome) {
     let report = &outcome.report;
     if report.issue == Issue::Applied {
+        // A deletion: its objects restored rather than recreated, once the DC is read.
+        if !annuaire_core::recycle::deleted_guids(report).is_empty() {
+            let (weak, report) = (parent.downgrade(), report.clone());
+            announce(
+                parent,
+                &fill(
+                    &tr("Change applied ({n} operation(s))."),
+                    &[("n", &report.changeset.operations.len().to_string())],
+                ),
+                Some(Box::new(move || {
+                    let Some(parent) = weak.upgrade() else { return };
+                    if let Some(context) = context(&parent) {
+                        crate::history::propose_inverse(
+                            &parent,
+                            context,
+                            report.clone(),
+                            Vec::new(),
+                            Box::new(|_| {}),
+                        );
+                    }
+                })),
+            );
+            return;
+        }
         let inverse = pv::inverse(report, &[]);
         let (weak, id) = (parent.downgrade(), report.id.clone());
         announce(
@@ -243,7 +271,7 @@ glib::wrapper! {
 }
 
 impl Line {
-    fn new(view: PreviewLine) -> Self {
+    pub fn new(view: PreviewLine) -> Self {
         let line: Self = glib::Object::new();
         let _ = line.imp().view.set(view);
         line
@@ -447,11 +475,14 @@ impl PreviewDialog {
             changeset.clone(),
         );
         let domain = context.profile.domain.clone();
-        // A changeset on shares is written on its file server, not on the DC (ADR 0023).
+        // A changeset on shares is written on its file server, not on the DC (ADR 0023); one
+        // that also writes the directory (a home folder, ADR 0027) names the DC, as its report.
+        let on_servers = changeset.operations.iter().all(Operation::is_file_share);
         let server = changeset
             .operations
             .iter()
-            .find_map(|o| o.server().map(str::to_owned));
+            .find_map(|o| o.server().map(str::to_owned))
+            .filter(|_| on_servers);
         glib::spawn_future_local(async move {
             let checking = connection.clone();
             let read = gio::spawn_blocking(move || {

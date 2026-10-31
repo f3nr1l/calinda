@@ -221,6 +221,30 @@ template $AnnuaireFenetre: Adw.ApplicationWindow {
                 }
 
                 ListBoxRow {
+                  action-name: "win.corbeille";
+                  tooltip-text: _("Deleted Objects (Shift+Ctrl+Delete)");
+
+                  accessibility {
+                    label: _("Deleted Objects");
+                    description: _("Shift+Ctrl+Delete");
+                  }
+
+                  child: Box {
+                    spacing: 8;
+
+                    Image {
+                      icon-name: "user-trash-symbolic";
+                    }
+
+                    Label {
+                      xalign: 0;
+                      ellipsize: end;
+                      label: _("Deleted Objects");
+                    }
+                  };
+                }
+
+                ListBoxRow {
                   action-name: "win.partages";
                   tooltip-text: _("Shares (Ctrl+P)");
 
@@ -731,6 +755,17 @@ menu main_menu {
       action: "win.partages";
       accel: "<Control>p";
     }
+
+    item {
+      label: _("Deleted Objects");
+      action: "win.corbeille";
+      accel: "<Shift><Control>Delete";
+    }
+
+    item {
+      label: _("Find BitLocker Recovery Password…");
+      action: "win.bitlocker";
+    }
   }
 
   section {
@@ -776,10 +811,39 @@ menu new_menu {
       label: _("Organizational Unit…");
       action: "win.nouvelle-ou";
     }
+
+    item {
+      label: _("Computer…");
+      action: "win.nouvel-ordinateur";
+    }
+
+    item {
+      label: _("Contact…");
+      action: "win.nouveau-contact";
+    }
+  }
+
+  section {
+    item {
+      label: _("Import from CSV…");
+      action: "win.importer";
+    }
   }
 }
 
 menu actions_menu {
+  section {
+    item {
+      label: _("Change in Bulk…");
+      action: "win.modifier-en-masse";
+    }
+
+    item {
+      label: _("Export the List to CSV…");
+      action: "win.exporter";
+    }
+  }
+
   section {
     item {
       label: _("Enable");
@@ -799,6 +863,11 @@ menu actions_menu {
     item {
       label: _("Reset Password…");
       action: "win.mot-de-passe";
+    }
+
+    item {
+      label: _("Reset Account…");
+      action: "win.reinitialiser-compte";
     }
   }
 
